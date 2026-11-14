@@ -41,7 +41,7 @@ header{
   display:flex; flex-wrap:wrap; gap:8px 16px; align-items:center;
 }
 h1{font-size:18px; margin:0; font-weight:700; letter-spacing:.2px}
-.tools{display:flex; gap:8px; align-items:center; flex:1; min-width:240px; justify-content:flex-end}
+.tools{display:flex; flex-wrap:wrap; gap:8px; align-items:center; flex:1; min-width:240px; justify-content:flex-end}
 .search{position:relative; flex:1; max-width:340px}
 .search input{
   width:100%; padding:8px 12px; font:inherit; color:var(--text);
@@ -65,6 +65,35 @@ h1{font-size:18px; margin:0; font-weight:700; letter-spacing:.2px}
   background:var(--surface); border:1px solid var(--line); border-radius:8px;
 }
 .zoom button:hover{border-color:var(--axis)}
+
+/* ---------- Modo de búsqueda y personajes buscados ---------- */
+.mode{display:flex; border:1px solid var(--line); border-radius:8px; overflow:hidden; background:var(--surface)}
+.mode button{
+  height:34px; padding:0 10px; font:inherit; font-size:13px; white-space:nowrap; cursor:pointer;
+  color:var(--muted); background:none; border:0;
+}
+.mode button + button{border-left:1px solid var(--line)}
+.mode button:hover{color:var(--text)}
+.mode button[aria-pressed="true"]{background:var(--accent); color:var(--bg); font-weight:600}
+.mode button:focus-visible{outline:2px solid var(--accent); outline-offset:-2px}
+.picks{width:100%; display:none; flex-wrap:wrap; gap:6px; align-items:center; font-size:12px; color:var(--muted)}
+.picks.open{display:flex}
+.chip{
+  display:inline-flex; align-items:center; gap:2px; padding:0 2px 0 4px;
+  background:var(--surface); border:1px solid var(--col); border-radius:14px; font-size:13px;
+}
+.chip .go{
+  display:inline-flex; align-items:center; gap:5px; padding:2px 2px 2px 4px;
+  font:inherit; color:var(--text); background:none; border:0; cursor:pointer;
+}
+.chip .go i{width:8px; height:8px; border-radius:50%; background:var(--col)}
+.chip .go:hover{color:var(--col)}
+.chip .x{
+  width:20px; height:20px; padding:0; border:0; border-radius:50%; cursor:pointer;
+  font-size:15px; line-height:1; color:var(--muted); background:none;
+}
+.chip .x:hover{background:var(--grid); color:var(--text)}
+.picks .clear{font:inherit; font-size:12px; color:var(--accent); font-weight:600; background:none; border:0; cursor:pointer; padding:2px 4px}
 .legend{
   width:100%; display:flex; flex-wrap:wrap; gap:4px 14px; font-size:12px; color:var(--muted);
 }
@@ -170,14 +199,19 @@ body.v .person .bar{top:0; left:0; width:10px}
   <h1>Línea de tiempo bíblica</h1>
   <div class="tools">
     <div class="search">
-      <input id="q" type="search" placeholder="Buscar personaje… (ej. Abrahán)" autocomplete="off" aria-label="Buscar personaje bíblico">
+      <input id="q" type="search" placeholder="Buscar personajes… (ej. Abrahán)" autocomplete="off" aria-label="Buscar personaje bíblico">
       <ul id="suggest" class="suggest" role="listbox"></ul>
+    </div>
+    <div class="mode" role="group" aria-label="Modo de búsqueda">
+      <button id="modeDim" aria-pressed="true" title="Muestra a todos y atenúa a los que no buscaste">Atenuar</button>
+      <button id="modeSolo" aria-pressed="false" title="Muestra solo a los personajes que buscaste">Solo buscados</button>
     </div>
     <div class="zoom">
       <button id="zoomOut" title="Alejar" aria-label="Alejar">−</button>
       <button id="zoomIn" title="Acercar" aria-label="Acercar">+</button>
     </div>
   </div>
+  <div class="picks" id="picks" aria-label="Personajes buscados"></div>
   <div class="legend" id="legend"></div>
 </header>
 
@@ -432,7 +466,11 @@ const zoom = {h:1.6, v:1.1};
 let selected = null;
 let query = '';
 const catFilter = new Set();   // categorías visibles (vacío = todas)
-const visible = p => !catFilter.size || catFilter.has(p.c);
+const picked = new Set();      // ids de los personajes buscados
+let soloMode = false;          // true = mostrar solo los buscados; false = atenuar a los demás
+try { soloMode = localStorage.getItem('modoBusqueda') === 'solo'; } catch (e) {}
+const catOk = p => !catFilter.size || catFilter.has(p.c);
+const visible = p => catOk(p) && (!soloMode || !picked.size || picked.has(p.id));
 
 const wideQuery = matchMedia('(min-width: 760px) and (min-aspect-ratio: 1/1)');
 
@@ -640,10 +678,84 @@ let matches = [];
 let active = 0;
 
 function applyFilter(){
-  canvas.classList.toggle('filtering', !!query);
-  const ids = new Set(matches.map(p => p.id));
+  // Resaltados: los buscados + lo que se está escribiendo ahora mismo
+  const ids = new Set(picked);
+  if (query) matches.forEach(p => ids.add(p.id));
+  // En "Solo buscados" con personajes elegidos, todo lo visible ya es buscado: no se atenúa nada
+  const on = ids.size > 0 && !(soloMode && picked.size);
+  canvas.classList.toggle('filtering', on);
   canvas.querySelectorAll('.person').forEach(n => n.classList.toggle('match', ids.has(+n.dataset.id)));
 }
+
+/* ---------- Personajes buscados (varios) ---------- */
+const picksBox = document.getElementById('picks');
+const coarse = matchMedia('(pointer: coarse)');
+const setHead = () => document.documentElement.style.setProperty('--head', document.getElementById('head').offsetHeight + 'px');
+
+function renderPicks(){
+  picksBox.replaceChildren();
+  picksBox.classList.toggle('open', picked.size > 0);
+  if (!picked.size){ setHead(); return; }
+  picksBox.append(soloMode ? 'Mostrando solo:' : 'Buscados:');
+  [...picked].map(id => PEOPLE[id]).sort((a,b) => a.s - b.s).forEach(p => {
+    const chip = el('span', 'chip');
+    chip.style.setProperty('--col', `var(${CATS[p.c].v})`);
+    const go = el('button', 'go');
+    go.title = `Ir a ${p.n}`;
+    go.append(el('i'), p.n);
+    go.addEventListener('click', () => select(p.id, true));
+    const x = el('button', 'x');
+    x.textContent = '×';
+    x.title = `Quitar a ${p.n}`;
+    x.setAttribute('aria-label', x.title);
+    x.addEventListener('click', () => removePick(p.id));
+    chip.append(go, x);
+    picksBox.append(chip);
+  });
+  const clear = el('button', 'clear');
+  clear.textContent = '✕ Quitar todos';
+  clear.addEventListener('click', clearPicks);
+  picksBox.append(clear);
+  setHead();
+}
+
+// Vuelve a dibujar según el modo y cierra la ficha si su personaje quedó oculto
+function refresh(){
+  renderPicks();
+  if (selected !== null && !visible(PEOPLE[selected])) closeCard();
+  if (soloMode) render(); else applyFilter();
+}
+
+function addPick(id){
+  const p = PEOPLE[id];
+  picked.add(id);
+  if (!catOk(p)) setCatFilter([]);   // estaba oculto por la leyenda
+  refresh();
+  select(id, true);
+}
+function removePick(id){
+  picked.delete(id);
+  refresh();
+}
+function clearPicks(){
+  picked.clear();
+  refresh();
+}
+
+function setMode(solo){
+  soloMode = solo;
+  try { localStorage.setItem('modoBusqueda', solo ? 'solo' : 'atenuar'); } catch (e) {}
+  document.getElementById('modeDim').setAttribute('aria-pressed', !solo);
+  document.getElementById('modeSolo').setAttribute('aria-pressed', solo);
+  renderPicks();
+  render();
+  if (selected !== null && visible(PEOPLE[selected])) select(selected, true);
+  else if (picked.size) select([...picked].map(id => PEOPLE[id]).filter(visible).sort((a,b) => a.s - b.s)[0]?.id ?? [...picked][0], true);
+}
+document.getElementById('modeDim').addEventListener('click', () => setMode(false));
+document.getElementById('modeSolo').addEventListener('click', () => setMode(true));
+document.getElementById('modeDim').setAttribute('aria-pressed', !soloMode);   // modo recordado de la última visita
+document.getElementById('modeSolo').setAttribute('aria-pressed', soloMode);
 
 function updateSearch(){
   query = norm(qInput.value.trim());
@@ -659,7 +771,7 @@ function updateSearch(){
         const li = document.createElement('li');
         li.setAttribute('role','option');
         li.innerHTML = '<span></span><small></small>';
-        li.firstChild.textContent = p.n;
+        li.firstChild.textContent = (picked.has(p.id) ? '✓ ' : '') + p.n;
         li.lastChild.textContent = dateRange(p);
         li.addEventListener('mousedown', e => { e.preventDefault(); choose(i); });
         sugg.append(li);
@@ -676,10 +788,11 @@ function highlightActive(){
 function choose(i){
   const p = matches[i];
   if (!p) return;
-  sugg.classList.remove('open');
-  qInput.blur();
-  if (!visible(p)) setCatFilter([]);   // el personaje buscado estaba oculto por la leyenda
-  select(p.id, true);
+  // Se añade a los buscados y se limpia el cuadro para poder buscar otro
+  qInput.value = '';
+  updateSearch();
+  if (coarse.matches) qInput.blur();   // en el móvil, ocultar el teclado
+  addPick(p.id);
 }
 qInput.addEventListener('input', updateSearch);
 qInput.addEventListener('focus', () => { if (query) sugg.classList.add('open'); });
@@ -689,6 +802,9 @@ qInput.addEventListener('keydown', e => {
   else if (e.key === 'ArrowUp'){ active = Math.max(active-1, 0); highlightActive(); e.preventDefault(); }
   else if (e.key === 'Enter'){ choose(active); e.preventDefault(); }
   else if (e.key === 'Escape'){ qInput.value = ''; updateSearch(); qInput.blur(); }
+  else if (e.key === 'Backspace' && !qInput.value && picked.size){
+    removePick([...picked].pop());     // borrar con el cuadro vacío quita el último buscado
+  }
 });
 document.addEventListener('keydown', e => {
   if (e.key === '/' && document.activeElement !== qInput){ e.preventDefault(); qInput.focus(); }
