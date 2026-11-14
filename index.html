@@ -1,0 +1,589 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Línea de tiempo bíblica</title>
+<style>
+:root{
+  --bg:#f7f5f0; --surface:#ffffff; --text:#1f1d1a; --muted:#6b665e;
+  --line:#e6e1d6; --grid:#ece7dc; --axis:#bdb5a5; --accent:#8a5a1f;
+  --c-ante:#7b5ea7; --c-patri:#b5762a; --c-israel:#2f7d6d; --c-reyes:#b23a48;
+  --c-prof:#2f6db3; --c-exilio:#6f7f22; --c-cristo:#c0562b;
+  --event:#9a8f7a; --pill:#fffaf0; --shadow:0 6px 24px rgba(40,30,10,.18);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#16140f; --surface:#211e17; --text:#ece6da; --muted:#a39b8b;
+    --line:#332e24; --grid:#2a261e; --axis:#5c5446; --accent:#e0a85a;
+    --c-ante:#a98ad6; --c-patri:#e0a24f; --c-israel:#4fb8a2; --c-reyes:#e06474;
+    --c-prof:#6aa3e6; --c-exilio:#a8bb4c; --c-cristo:#ee8758;
+    --event:#8c836f; --pill:#2a261d; --shadow:0 6px 24px rgba(0,0,0,.5);
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background:var(--bg); color:var(--text);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  font-size:15px; line-height:1.4;
+}
+
+/* ---------- Encabezado ---------- */
+header{
+  position:sticky; top:0; z-index:30;
+  background:var(--bg); border-bottom:1px solid var(--line);
+  padding:10px 16px;
+  display:flex; flex-wrap:wrap; gap:8px 16px; align-items:center;
+}
+h1{font-size:18px; margin:0; font-weight:700; letter-spacing:.2px}
+.tools{display:flex; gap:8px; align-items:center; flex:1; min-width:240px; justify-content:flex-end}
+.search{position:relative; flex:1; max-width:340px}
+.search input{
+  width:100%; padding:8px 12px; font:inherit; color:var(--text);
+  background:var(--surface); border:1px solid var(--line); border-radius:8px;
+}
+.search input:focus{outline:2px solid var(--accent); outline-offset:0; border-color:transparent}
+.suggest{
+  position:absolute; top:calc(100% + 4px); left:0; right:0; z-index:40;
+  list-style:none; margin:0; padding:4px; display:none;
+  background:var(--surface); border:1px solid var(--line); border-radius:8px; box-shadow:var(--shadow);
+  max-height:320px; overflow:auto;
+}
+.suggest.open{display:block}
+.suggest li{padding:6px 8px; border-radius:6px; cursor:pointer; display:flex; justify-content:space-between; gap:8px}
+.suggest li small{color:var(--muted); white-space:nowrap}
+.suggest li.active,.suggest li:hover{background:var(--grid)}
+.suggest .empty{color:var(--muted); cursor:default}
+.zoom{display:flex; gap:4px}
+.zoom button{
+  width:34px; height:34px; font:inherit; font-size:18px; cursor:pointer; color:var(--text);
+  background:var(--surface); border:1px solid var(--line); border-radius:8px;
+}
+.zoom button:hover{border-color:var(--axis)}
+.legend{
+  width:100%; display:flex; flex-wrap:wrap; gap:4px 14px; font-size:12px; color:var(--muted);
+}
+.legend span{display:inline-flex; align-items:center; gap:5px}
+.legend i{width:14px; height:8px; border-radius:3px; display:inline-block}
+.legend i.aprox{background:var(--axis); background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.55) 0 2px,transparent 2px 5px)}
+
+/* ---------- Línea de tiempo ---------- */
+#scroller{position:relative; overflow:auto}
+body.h #scroller{height:calc(100vh - var(--head,110px))}
+body.v #scroller{overflow-y:visible}
+#canvas{position:relative}
+
+.grid{position:absolute; background:var(--grid)}
+.tick{position:absolute; font-size:11px; color:var(--muted); white-space:nowrap; line-height:1.1}
+body.h .tick{transform:translateX(-50%); text-align:center}
+body.v .tick{transform:translateY(-50%); text-align:right; width:42px; left:2px}
+.tick b{display:block; font-weight:600; color:var(--text); font-size:12px}
+.axisline{position:absolute; background:var(--axis)}
+
+.evline{position:absolute; border:0 dashed var(--event); opacity:.7; pointer-events:none}
+body.h .evline{border-left-width:1px; width:0}
+body.v .evline{border-top-width:1px; height:0}
+.evlabel{
+  position:absolute; font-size:11px; color:var(--muted); white-space:nowrap;
+  background:var(--pill); border:1px solid var(--line); border-radius:10px; padding:1px 7px;
+  z-index:2;
+}
+.evlabel b{color:var(--text); font-weight:600}
+
+.person{
+  position:absolute; padding:0; margin:0; border:0; background:none; cursor:pointer;
+  color:var(--text); font:inherit; text-align:left; transition:opacity .15s;
+  z-index:3;
+}
+.person .bar{position:absolute; border-radius:5px; background:var(--col)}
+.person.aprox .bar{background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.45) 0 3px,transparent 3px 7px)}
+.person .lbl{position:absolute; font-size:13px; font-weight:600; white-space:nowrap; line-height:1}
+body.h .person .lbl{top:0; left:0}
+body.h .person .bar{left:0; top:17px; height:10px}
+body.v .person .lbl{left:14px; top:0; writing-mode:vertical-rl}
+body.v .person .bar{top:0; left:0; width:10px}
+.person:hover .lbl{color:var(--col)}
+.person:focus-visible{outline:2px solid var(--accent); outline-offset:3px; border-radius:4px}
+.person.sel .bar{box-shadow:0 0 0 3px var(--bg),0 0 0 5px var(--col)}
+.person.sel .lbl{color:var(--col)}
+#canvas.filtering .person:not(.match){opacity:.15}
+#canvas.filtering .person.match .lbl{color:var(--col)}
+
+/* ---------- Ficha ---------- */
+#card{
+  position:fixed; z-index:50; left:16px; right:16px; bottom:16px; margin:0 auto; max-width:460px;
+  background:var(--surface); border:1px solid var(--line); border-left:5px solid var(--col,var(--accent));
+  border-radius:10px; box-shadow:var(--shadow); padding:14px 16px 14px 16px; display:none;
+}
+#card.open{display:block}
+#card h2{margin:0 28px 2px 0; font-size:19px}
+#card .cat{font-size:12px; color:var(--col); font-weight:600; text-transform:uppercase; letter-spacing:.5px}
+#card .dates{margin:8px 0 4px; font-weight:600}
+#card .dur{color:var(--muted); font-size:14px}
+#card p{margin:8px 0 6px}
+#card .refs{font-size:13px; color:var(--muted)}
+#card h2 a{color:inherit; text-decoration:underline; text-decoration-color:var(--col); text-underline-offset:3px}
+#card h2 a:hover{color:var(--col)}
+#card .more{
+  display:inline-block; margin-top:10px; padding:7px 12px; border-radius:8px;
+  background:var(--col); color:#fff; font-weight:600; font-size:14px; text-decoration:none;
+}
+#card .more:hover{filter:brightness(1.08)}
+#card .close{
+  position:absolute; top:8px; right:8px; width:30px; height:30px; border:0; border-radius:6px;
+  background:none; color:var(--muted); font-size:20px; cursor:pointer;
+}
+#card .close:hover{background:var(--grid)}
+.note{font-size:12px; color:var(--muted); padding:10px 16px 90px}
+</style>
+</head>
+<body>
+<header id="head">
+  <h1>Línea de tiempo bíblica</h1>
+  <div class="tools">
+    <div class="search">
+      <input id="q" type="search" placeholder="Buscar personaje… (ej. Abrahán)" autocomplete="off" aria-label="Buscar personaje bíblico">
+      <ul id="suggest" class="suggest" role="listbox"></ul>
+    </div>
+    <div class="zoom">
+      <button id="zoomOut" title="Alejar" aria-label="Alejar">−</button>
+      <button id="zoomIn" title="Acercar" aria-label="Acercar">+</button>
+    </div>
+  </div>
+  <div class="legend" id="legend"></div>
+</header>
+
+<div id="scroller"><div id="canvas"></div></div>
+<p class="note">Fechas según la cronología bíblica de las publicaciones de los testigos de Jehová (por ejemplo, la creación de Adán en 4026 a.e.c. y el Diluvio en 2370 a.e.c.). Las barras rayadas indican fechas aproximadas. Cuando no se conoce el nacimiento o la muerte, la barra muestra el período en que el personaje aparece en el registro bíblico.</p>
+
+<div id="card" role="dialog" aria-live="polite">
+  <button class="close" aria-label="Cerrar">×</button>
+  <div class="cat"></div>
+  <h2><a class="name" target="_blank" rel="noopener"></a></h2>
+  <div class="dates"></div>
+  <div class="dur"></div>
+  <p class="desc"></p>
+  <div class="refs"></div>
+  <a class="more" target="_blank" rel="noopener">Más información en jw.org ↗</a>
+</div>
+
+<script>
+/* ===================== DATOS =====================
+   Años: negativo = a.e.c. (antes de la era común), positivo = e.c.
+   a: qué fechas son aproximadas ('s' inicio, 'e' fin, 'se' ambas)
+   k: 'vida' = nacimiento-muerte; 'registro' = aparición-desaparición en el relato
+*/
+const CATS = {
+  ante:   {n:'Antes del Diluvio', v:'--c-ante'},
+  patri:  {n:'Patriarcas',        v:'--c-patri'},
+  israel: {n:'Israel y jueces',   v:'--c-israel'},
+  reyes:  {n:'Reyes',             v:'--c-reyes'},
+  prof:   {n:'Profetas',          v:'--c-prof'},
+  exilio: {n:'Exilio y regreso',  v:'--c-exilio'},
+  cristo: {n:'Era cristiana',     v:'--c-cristo'},
+};
+
+const PEOPLE = [
+  {n:'Adán', s:-4026, e:-3096, c:'ante', k:'vida', d:'El primer hombre, creado por Jehová. Vivió 930 años.', r:'Génesis 2:7; 5:3-5'},
+  {n:'Set', s:-3896, e:-2984, c:'ante', k:'vida', d:'Hijo de Adán y Eva, nacido después de la muerte de Abel.', r:'Génesis 4:25; 5:3-8'},
+  {n:'Enós', s:-3791, e:-2886, c:'ante', k:'vida', d:'Hijo de Set. En sus días se empezó a invocar el nombre de Jehová.', r:'Génesis 4:26; 5:6-11'},
+  {n:'Quenán', s:-3701, e:-2791, c:'ante', k:'vida', d:'Hijo de Enós.', r:'Génesis 5:9-14', al:'Cainán Kenan'},
+  {n:'Mahalalel', s:-3631, e:-2736, c:'ante', k:'vida', d:'Hijo de Quenán.', r:'Génesis 5:12-17'},
+  {n:'Jared', s:-3566, e:-2604, c:'ante', k:'vida', d:'Hijo de Mahalalel y padre de Enoc.', r:'Génesis 5:15-20'},
+  {n:'Enoc', s:-3404, e:-3039, c:'ante', k:'vida', d:'Caminó con Dios y profetizó contra los impíos.', r:'Génesis 5:18-24; Judas 14, 15', al:'Henoc'},
+  {n:'Matusalén', s:-3339, e:-2370, c:'ante', k:'vida', d:'El hombre más longevo del registro: 969 años. Murió el año del Diluvio.', r:'Génesis 5:21-27'},
+  {n:'Lamec', s:-3152, e:-2375, c:'ante', k:'vida', d:'Hijo de Matusalén y padre de Noé.', r:'Génesis 5:25-31'},
+  {n:'Noé', s:-2970, e:-2020, c:'ante', k:'vida', d:'Construyó el arca y sobrevivió al Diluvio con su familia.', r:'Génesis 5:28–9:29', al:'Noe'},
+  {n:'Sem', s:-2468, e:-1868, c:'patri', k:'vida', d:'Hijo de Noé y antepasado de Abrahán.', r:'Génesis 11:10, 11'},
+  {n:'Taré', s:-2148, e:-1943, c:'patri', k:'vida', d:'Padre de Abrahán. Murió en Harán.', r:'Génesis 11:24-32', al:'Tare Terah'},
+  {n:'Abrahán', s:-2018, e:-1843, c:'patri', k:'vida', d:'Amigo de Jehová y padre de la nación de Israel. Jehová hizo un pacto con él.', r:'Génesis 11:26–25:10; Santiago 2:23', al:'Abraham Abram'},
+  {n:'Sara', s:-2008, e:-1881, c:'patri', k:'vida', d:'Esposa de Abrahán y madre de Isaac.', r:'Génesis 17:17; 23:1, 2', al:'Sarai'},
+  {n:'Ismael', s:-1932, e:-1795, c:'patri', k:'vida', d:'Hijo de Abrahán y Agar.', r:'Génesis 16:16; 25:17'},
+  {n:'Isaac', s:-1918, e:-1738, c:'patri', k:'vida', d:'Hijo prometido de Abrahán y Sara.', r:'Génesis 21:5; 35:28, 29'},
+  {n:'Jacob', s:-1858, e:-1711, c:'patri', k:'vida', d:'Hijo de Isaac. Jehová le cambió el nombre a Israel; sus 12 hijos dieron origen a las tribus.', r:'Génesis 25:26; 47:28', al:'Israel'},
+  {n:'José', s:-1767, e:-1657, c:'patri', k:'vida', d:'Hijo de Jacob. Vendido como esclavo, llegó a ser administrador de Egipto.', r:'Génesis 30:24; 41:46; 50:26', al:'Jose'},
+  {n:'Aarón', s:-1596, e:-1473, c:'israel', k:'vida', d:'Hermano de Moisés y primer sumo sacerdote de Israel.', r:'Éxodo 7:7; Números 33:39', al:'Aaron'},
+  {n:'Moisés', s:-1593, e:-1473, c:'israel', k:'vida', d:'Sacó a Israel de Egipto y fue el mediador del pacto de la Ley.', r:'Éxodo 2:1-10; 7:7; Deuteronomio 34:7', al:'Moises'},
+  {n:'Josué', s:-1560, e:-1450, a:'se', c:'israel', k:'vida', d:'Sucesor de Moisés. Dirigió la conquista de Canaán.', r:'Josué 1:1, 2; 24:29', al:'Josue'},
+  {n:'Samuel', s:-1180, e:-1080, a:'se', c:'israel', k:'vida', d:'Profeta y último juez de Israel. Ungió a Saúl y a David.', r:'1 Samuel 1–25'},
+  {n:'Saúl', s:-1117, e:-1078, c:'reyes', k:'registro', d:'Primer rey de Israel. Reinó 40 años.', r:'1 Samuel 10:1; 31:4-6; Hechos 13:21', al:'Saul'},
+  {n:'David', s:-1107, e:-1037, c:'reyes', k:'vida', d:'Pastor, salmista y rey de Israel. Jehová hizo con él un pacto para un reino.', r:'2 Samuel 5:4, 5; 1 Reyes 2:10, 11'},
+  {n:'Salomón', s:-1060, e:-998, a:'s', c:'reyes', k:'vida', d:'Rey conocido por su sabiduría. Construyó el templo de Jehová en Jerusalén.', r:'1 Reyes 3:12; 6:1; 11:42, 43', al:'Salomon'},
+  {n:'Elías', s:-940, e:-905, a:'se', c:'prof', k:'registro', d:'Profeta en tiempos del rey Acab. Se enfrentó a los profetas de Baal.', r:'1 Reyes 17–19; 2 Reyes 2; 2 Crónicas 21:12', al:'Elias'},
+  {n:'Eliseo', s:-920, e:-850, a:'se', c:'prof', k:'registro', d:'Sucesor de Elías. Realizó muchos milagros.', r:'1 Reyes 19:19-21; 2 Reyes 2–13'},
+  {n:'Isaías', s:-778, e:-732, a:'se', c:'prof', k:'registro', d:'Profetizó en Judá durante los reinados de Uzías, Jotán, Acaz y Ezequías.', r:'Isaías 1:1; 6:1', al:'Isaias'},
+  {n:'Ezequías', s:-770, e:-717, c:'reyes', k:'vida', d:'Rey fiel de Judá. Jehová lo libró de los asirios.', r:'2 Reyes 18:1-7; 19:35', al:'Ezequias'},
+  {n:'Josías', s:-667, e:-629, c:'reyes', k:'vida', d:'Rey de Judá que restauró la adoración pura.', r:'2 Reyes 22:1, 2; 23:29', al:'Josias'},
+  {n:'Jeremías', s:-647, e:-580, a:'e', c:'prof', k:'registro', d:'Profetizó la destrucción de Jerusalén y la vio cumplirse.', r:'Jeremías 1:1-3; 52', al:'Jeremias'},
+  {n:'Nabucodonosor', s:-624, e:-582, c:'exilio', k:'registro', d:'Rey de Babilonia. Destruyó Jerusalén en 607 a.e.c.', r:'2 Reyes 25:1-10; Daniel 1–4'},
+  {n:'Daniel', s:-617, e:-536, a:'e', c:'exilio', k:'registro', d:'Llevado cautivo a Babilonia. Profeta fiel hasta su vejez.', r:'Daniel 1:1-6; 6; 10:1', al:'Beltsasar'},
+  {n:'Ezequiel', s:-613, e:-591, a:'e', c:'prof', k:'registro', d:'Sacerdote y profeta entre los exiliados en Babilonia.', r:'Ezequiel 1:1-3; 29:17'},
+  {n:'Ciro', s:-539, e:-530, c:'exilio', k:'registro', d:'Rey persa que conquistó Babilonia y permitió a los judíos volver a Jerusalén.', r:'Isaías 45:1; Esdras 1:1-4'},
+  {n:'Ester', s:-490, e:-475, a:'se', c:'exilio', k:'registro', d:'Reina judía de Persia que ayudó a salvar a su pueblo.', r:'Ester 2:16, 17; 4:14', al:'Hadasá Hadasa'},
+  {n:'Esdras', s:-468, e:-455, a:'e', c:'exilio', k:'registro', d:'Sacerdote y copista. Llegó a Jerusalén en 468 a.e.c. y enseñó la Ley.', r:'Esdras 7:6-9; Nehemías 8'},
+  {n:'Nehemías', s:-455, e:-443, a:'e', c:'exilio', k:'registro', d:'Gobernador que reconstruyó los muros de Jerusalén.', r:'Nehemías 2:1-8; 6:15; 13:6', al:'Nehemias'},
+  {n:'María', s:-3, e:33, a:'s', c:'cristo', k:'registro', d:'Madre de Jesús. Estaba entre los discípulos en el año 33.', r:'Lucas 1:26-38; Hechos 1:14', al:'Maria'},
+  {n:'Juan el Bautista', s:-2, e:32, a:'e', c:'cristo', k:'vida', d:'Precursor del Mesías. Bautizó a Jesús.', r:'Lucas 1:36, 57-63; Mateo 3:13-17; 14:10', al:'Bautista'},
+  {n:'Jesús', s:-2, e:33, c:'cristo', k:'vida', age:'unos 33 años y medio', d:'El Mesías, Hijo de Dios. Fue bautizado en el año 29 y murió en el 33.', r:'Lucas 2:1-7; 3:23; Juan 19', al:'Jesus Cristo Mesías Mesias'},
+  {n:'Pedro', s:29, e:64, a:'e', c:'cristo', k:'registro', d:'Apóstol de Jesús. Escribió dos cartas bíblicas.', r:'Juan 1:40-42; Hechos 2; 1 y 2 Pedro', al:'Simón Simon Cefas'},
+  {n:'Juan (apóstol)', s:29, e:98, a:'e', c:'cristo', k:'registro', d:'Apóstol de Jesús. Escribió un Evangelio, tres cartas y el libro de Apocalipsis.', r:'Juan 1:35-40; Apocalipsis 1:9', al:'Juan apostol'},
+  {n:'Esteban', s:33, e:34, a:'se', c:'cristo', k:'registro', d:'Discípulo lleno de fe. Fue el primer mártir cristiano.', r:'Hechos 6:5–7:60'},
+  {n:'Pablo', s:34, e:65, a:'se', c:'cristo', k:'registro', d:'Antes perseguidor (Saulo). Apóstol a las naciones; escribió 14 cartas.', r:'Hechos 7:58; 9:1-19; 2 Timoteo 4:6-8', al:'Saulo'},
+  {n:'Timoteo', s:50, e:65, a:'se', c:'cristo', k:'registro', d:'Compañero de viaje de Pablo y superintendente cristiano.', r:'Hechos 16:1-3; 1 y 2 Timoteo'},
+];
+
+const EVENTS = [
+  {y:-4026, n:'Creación de Adán'},
+  {y:-2370, n:'Diluvio'},
+  {y:-1943, n:'Pacto con Abrahán'},
+  {y:-1513, n:'Éxodo de Egipto'},
+  {y:-1473, n:'Entrada en Canaán'},
+  {y:-1117, n:'Saúl, rey'},
+  {y:-1027, n:'Templo terminado'},
+  {y:-997,  n:'Reino dividido'},
+  {y:-740,  n:'Caída de Samaria'},
+  {y:-607,  n:'Destrucción de Jerusalén'},
+  {y:-537,  n:'Regreso del exilio'},
+  {y:29,    n:'Bautismo de Jesús'},
+  {y:33,    n:'Muerte de Jesús'},
+  {y:70,    n:'Roma destruye Jerusalén'},
+];
+
+/* ===================== UTILIDADES ===================== */
+// Convierte año calendario a recta numérica continua (no existe el año 0).
+const T = y => y < 0 ? y + 1 : y;
+const T0 = T(-4120), T1 = T(120);
+const fmtY = y => y < 0 ? `${-y} a.e.c.` : `${y} e.c.`;
+const norm = s => s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+
+// Artículo de "Perspicacia para comprender las Escrituras" en la Biblioteca en Línea Watchtower (wol.jw.org)
+const JW = {
+  'Adán':'1200000089', 'Set':'1200003911', 'Enós':'1200001372', 'Quenán':'1200002588',
+  'Mahalalel':'1200002839', 'Jared':'1200002329', 'Enoc':'1200001371', 'Matusalén':'1200003022',
+  'Lamec':'1200002673', 'Noé':'1200003266', 'Sem':'1200003997', 'Taré':'1200004368',
+  'Abrahán':'1200000060', 'Sara':'1200003837', 'Ismael':'1200002215', 'Isaac':'1200002203',
+  'Jacob':'1200002279', 'José':'1200002515', 'Aarón':'1200000005', 'Moisés':'1200003118',
+  'Josué':'1200002523', 'Samuel':'1200003824', 'Saúl':'1200003847', 'David':'1200001130',
+  'Salomón':'1200004178', 'Elías':'1200001307', 'Eliseo':'1200001316', 'Isaías':'1200002204',
+  'Ezequías':'1200002011', 'Josías':'1200002525', 'Jeremías':'1200002421', 'Nabucodonosor':'1200003200',
+  'Daniel':'1200001117', 'Ezequiel':'1200001469', 'Ciro':'1200001102', 'Ester':'1200001430',
+  'Esdras':'1200001475', 'Nehemías':'1200003212', 'María':'1200002918', 'Juan el Bautista':'1200002489',
+  'Jesús':'1200002451', 'Pedro':'1200003451', 'Juan (apóstol)':'1200002489', 'Esteban':'1200004230',
+  'Pablo':'1200003406', 'Timoteo':'1200004416',
+};
+const jwUrl = p => JW[p.n] ? `https://wol.jw.org/es/wol/d/r4/lp-s/${JW[p.n]}`
+                           : `https://wol.jw.org/es/wol/s/r4/lp-s?q=${encodeURIComponent(p.n)}`;
+
+PEOPLE.forEach((p,i) => {
+  p.id = i;
+  p.approx = p.a || '';
+  p.key = norm(p.n + ' ' + (p.al||''));
+});
+
+const canvas = document.getElementById('canvas');
+const scroller = document.getElementById('scroller');
+const measureCtx = document.createElement('canvas').getContext('2d');
+const textW = (t, f='600 13px system-ui, sans-serif') => { measureCtx.font = f; return measureCtx.measureText(t).width; };
+
+let horizontal = true;
+const zoom = {h:1.6, v:1.1};
+let selected = null;
+let query = '';
+
+const wideQuery = matchMedia('(min-width: 760px) and (min-aspect-ratio: 1/1)');
+
+/* ===================== DIBUJO ===================== */
+function el(tag, cls, style){
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (style) Object.assign(e.style, style);
+  return e;
+}
+
+function tickStep(scale){
+  const min = horizontal ? 90 : 42;
+  for (const s of [5,10,20,25,50,100,200,250,500,1000]) if (s*scale >= min) return s;
+  return 1000;
+}
+
+function render(){
+  horizontal = wideQuery.matches;
+  document.body.classList.toggle('h', horizontal);
+  document.body.classList.toggle('v', !horizontal);
+  document.documentElement.style.setProperty('--head', document.getElementById('head').offsetHeight + 'px');
+
+  const scale = horizontal ? zoom.h : zoom.v;
+  const PAD = 24;
+  const pos = y => PAD + (T(y) - T0) * scale;
+  const span = PAD*2 + (T1 - T0) * scale;
+  canvas.innerHTML = '';
+
+  // --- Asignar carriles (sin que se encimen barras ni nombres) ---
+  const items = PEOPLE.slice().sort((a,b) => a.s - b.s || a.e - b.e);
+  const laneEnd = [];
+  const GAP = 10;
+  for (const p of items){
+    const a = pos(p.s);
+    p.len = Math.max(pos(p.e) - a, 4);
+    p.lw = textW(p.n) + 6;
+    const occ = a + Math.max(p.len, p.lw);
+    let lane = laneEnd.findIndex(end => end + GAP <= a);
+    if (lane === -1){ lane = laneEnd.length; laneEnd.push(0); }
+    laneEnd[lane] = occ;
+    p.lane = lane; p.px = a;
+  }
+  const lanes = laneEnd.length;
+
+  // --- Eventos: filas para sus etiquetas ---
+  const evs = EVENTS.map(ev => ({...ev, p: pos(ev.y), w: textW(`${fmtY(ev.y)} · ${ev.n}`, '11px system-ui, sans-serif') + 18}));
+  const evRowEnd = [];
+  for (const ev of evs){
+    const size = horizontal ? ev.w : 22;
+    const start = horizontal ? ev.p - 6 : ev.p - 11;
+    let r = evRowEnd.findIndex(end => end + 6 <= start);
+    if (r === -1){ r = evRowEnd.length; evRowEnd.push(0); }
+    evRowEnd[r] = start + size;
+    ev.row = r;
+  }
+
+  if (horizontal){
+    const EV_H = evRowEnd.length * 22 + 6;
+    const AX_H = 34;
+    const ROW = 36;
+    const top0 = EV_H + AX_H + 10;
+    const height = top0 + lanes * ROW + 10;
+    Object.assign(canvas.style, {width: span + 'px', height: height + 'px'});
+
+    // Rejilla y eje
+    const step = tickStep(scale);
+    ticks(step).forEach(y => {
+      const x = pos(y);
+      canvas.append(el('div','grid',{left:x+'px', top:(EV_H+AX_H)+'px', width:'1px', height:(height-EV_H-AX_H)+'px'}));
+      const t = el('div','tick',{left:x+'px', top:(EV_H+4)+'px'});
+      t.innerHTML = `<b>${Math.abs(y)}</b>${y<0?'a.e.c.':'e.c.'}`;
+      canvas.append(t);
+    });
+    canvas.append(el('div','axisline',{left:PAD+'px', top:(EV_H+AX_H)+'px', width:(span-PAD*2)+'px', height:'1px'}));
+
+    // Eventos
+    for (const ev of evs){
+      canvas.append(el('div','evline',{left:ev.p+'px', top:(ev.row*22+20)+'px', height:(height - ev.row*22 - 20)+'px'}));
+      const l = el('div','evlabel',{left:(ev.p-6)+'px', top:(ev.row*22+3)+'px'});
+      l.innerHTML = `<b>${fmtY(ev.y)}</b> · ${ev.n}`;
+      canvas.append(l);
+    }
+
+    // Personajes
+    for (const p of items){
+      const b = personEl(p);
+      Object.assign(b.style, {left:p.px+'px', top:(top0 + p.lane*ROW)+'px', width:Math.max(p.len,p.lw)+'px', height:'30px'});
+      b.querySelector('.bar').style.width = p.len + 'px';
+      canvas.append(b);
+    }
+  } else {
+    const AX_W = 48;
+    const COL = 30;
+    const left0 = AX_W + 10;
+    const width = Math.max(left0 + lanes * COL + 8, scroller.clientWidth);
+    Object.assign(canvas.style, {width: width + 'px', height: span + 'px'});
+
+    const step = tickStep(scale);
+    ticks(step).forEach(y => {
+      const v = pos(y);
+      canvas.append(el('div','grid',{top:v+'px', left:AX_W+'px', height:'1px', width:(width-AX_W)+'px'}));
+      const t = el('div','tick',{top:v+'px'});
+      t.innerHTML = `<b>${Math.abs(y)}</b>${y<0?'a.e.c.':'e.c.'}`;
+      canvas.append(t);
+    });
+    canvas.append(el('div','axisline',{left:AX_W+'px', top:PAD+'px', width:'1px', height:(span-PAD*2)+'px'}));
+
+    let prevBottom = -Infinity;
+    for (const ev of evs){
+      canvas.append(el('div','evline',{top:ev.p+'px', left:AX_W+'px', width:(width-AX_W)+'px'}));
+      const top = Math.max(ev.p - 10, prevBottom + 3);
+      prevBottom = top + 20;
+      const l = el('div','evlabel',{top:top+'px', right:'8px'});
+      l.innerHTML = `<b>${fmtY(ev.y)}</b> · ${ev.n}`;
+      canvas.append(l);
+    }
+
+    for (const p of items){
+      const b = personEl(p);
+      Object.assign(b.style, {top:p.px+'px', left:(left0 + p.lane*COL)+'px', height:Math.max(p.len,p.lw)+'px', width:'28px'});
+      b.querySelector('.bar').style.height = p.len + 'px';
+      canvas.append(b);
+    }
+  }
+  applyFilter();
+}
+
+function ticks(step){
+  const out = [];
+  for (let y = Math.floor(4100/step)*step; y >= step; y -= step) out.push(-y);
+  for (let y = step; y <= 110; y += step) out.push(y);
+  return out;
+}
+
+function personEl(p){
+  const b = el('button', 'person' + (p.approx ? ' aprox' : '') + (selected === p.id ? ' sel' : ''));
+  b.dataset.id = p.id;
+  b.style.setProperty('--col', `var(${CATS[p.c].v})`);
+  b.title = `${p.n}: ${dateRange(p)}`;
+  b.innerHTML = `<span class="bar"></span><span class="lbl"></span>`;
+  b.querySelector('.lbl').textContent = p.n;
+  b.addEventListener('click', () => select(p.id, false));
+  return b;
+}
+
+function dateRange(p){
+  const s = (p.approx.includes('s') ? 'c. ' : '') + fmtY(p.s);
+  const e = (p.approx.includes('e') ? 'c. ' : '') + fmtY(p.e);
+  return `${s} – ${e}`;
+}
+
+function duration(p){
+  const years = T(p.e) - T(p.s);
+  const aprox = p.approx ? 'unos ' : '';
+  if (p.k === 'vida') return `Vivió ${p.age || aprox + years + ' años'}`;
+  return `Aparece en el registro bíblico durante ${aprox}${years} años (no se conocen sus fechas de nacimiento y muerte)`;
+}
+
+/* ===================== FICHA ===================== */
+const card = document.getElementById('card');
+function select(id, scroll){
+  selected = id;
+  const p = PEOPLE[id];
+  canvas.querySelectorAll('.person.sel').forEach(n => n.classList.remove('sel'));
+  const node = canvas.querySelector(`.person[data-id="${id}"]`);
+  if (node){
+    node.classList.add('sel');
+    if (scroll) node.scrollIntoView({behavior:'smooth', block:'center', inline:'center'});
+  }
+  card.style.setProperty('--col', `var(${CATS[p.c].v})`);
+  card.querySelector('.cat').textContent = CATS[p.c].n;
+  const name = card.querySelector('.name');
+  name.textContent = p.n;
+  name.href = card.querySelector('.more').href = jwUrl(p);
+  name.title = `Leer sobre ${p.n} en jw.org`;
+  card.querySelector('.dates').textContent = dateRange(p);
+  card.querySelector('.dur').textContent = duration(p);
+  card.querySelector('.desc').textContent = p.d;
+  card.querySelector('.refs').textContent = 'Textos: ' + p.r;
+  card.classList.add('open');
+}
+function closeCard(){
+  card.classList.remove('open');
+  selected = null;
+  canvas.querySelectorAll('.person.sel').forEach(n => n.classList.remove('sel'));
+}
+card.querySelector('.close').addEventListener('click', closeCard);
+
+/* ===================== BÚSQUEDA ===================== */
+const qInput = document.getElementById('q');
+const sugg = document.getElementById('suggest');
+let matches = [];
+let active = 0;
+
+function applyFilter(){
+  canvas.classList.toggle('filtering', !!query);
+  const ids = new Set(matches.map(p => p.id));
+  canvas.querySelectorAll('.person').forEach(n => n.classList.toggle('match', ids.has(+n.dataset.id)));
+}
+
+function updateSearch(){
+  query = norm(qInput.value.trim());
+  matches = query ? PEOPLE.filter(p => p.key.includes(query))
+                          .sort((a,b) => norm(a.n).indexOf(query) - norm(b.n).indexOf(query) || a.s - b.s) : [];
+  active = 0;
+  sugg.innerHTML = '';
+  if (query){
+    if (!matches.length){
+      sugg.innerHTML = '<li class="empty">Sin resultados</li>';
+    } else {
+      matches.forEach((p,i) => {
+        const li = document.createElement('li');
+        li.setAttribute('role','option');
+        li.innerHTML = '<span></span><small></small>';
+        li.firstChild.textContent = p.n;
+        li.lastChild.textContent = dateRange(p);
+        li.addEventListener('mousedown', e => { e.preventDefault(); choose(i); });
+        sugg.append(li);
+      });
+    }
+  }
+  sugg.classList.toggle('open', !!query);
+  highlightActive();
+  applyFilter();
+}
+function highlightActive(){
+  [...sugg.children].forEach((li,i) => li.classList.toggle('active', i === active && matches.length > 0));
+}
+function choose(i){
+  const p = matches[i];
+  if (!p) return;
+  sugg.classList.remove('open');
+  qInput.blur();
+  select(p.id, true);
+}
+qInput.addEventListener('input', updateSearch);
+qInput.addEventListener('focus', () => { if (query) sugg.classList.add('open'); });
+qInput.addEventListener('blur', () => sugg.classList.remove('open'));
+qInput.addEventListener('keydown', e => {
+  if (e.key === 'ArrowDown'){ active = Math.min(active+1, matches.length-1); highlightActive(); e.preventDefault(); }
+  else if (e.key === 'ArrowUp'){ active = Math.max(active-1, 0); highlightActive(); e.preventDefault(); }
+  else if (e.key === 'Enter'){ choose(active); e.preventDefault(); }
+  else if (e.key === 'Escape'){ qInput.value = ''; updateSearch(); qInput.blur(); }
+});
+document.addEventListener('keydown', e => {
+  if (e.key === '/' && document.activeElement !== qInput){ e.preventDefault(); qInput.focus(); }
+  if (e.key === 'Escape' && document.activeElement !== qInput) closeCard();
+});
+
+/* ===================== ZOOM ===================== */
+function centerYear(){
+  const scale = horizontal ? zoom.h : zoom.v;
+  const mid = horizontal ? scroller.scrollLeft + scroller.clientWidth/2
+                         : window.scrollY - scroller.offsetTop + innerHeight/2;
+  return (mid - 24) / scale + T0;
+}
+function setZoom(f){
+  const t = centerYear();
+  const key = horizontal ? 'h' : 'v';
+  zoom[key] = Math.min(24, Math.max(0.25, zoom[key] * f));
+  render();
+  const px = 24 + (t - T0) * zoom[key];
+  if (horizontal) scroller.scrollLeft = px - scroller.clientWidth/2;
+  else window.scrollTo(0, px + scroller.offsetTop - innerHeight/2);
+}
+document.getElementById('zoomIn').addEventListener('click', () => setZoom(1.5));
+document.getElementById('zoomOut').addEventListener('click', () => setZoom(1/1.5));
+
+// En vista ancha, la rueda del ratón desplaza la línea de tiempo hacia los lados.
+scroller.addEventListener('wheel', e => {
+  if (!horizontal || e.ctrlKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+  scroller.scrollLeft += e.deltaY;
+  e.preventDefault();
+}, {passive:false});
+
+/* ===================== LEYENDA E INICIO ===================== */
+const legend = document.getElementById('legend');
+for (const k in CATS){
+  const s = document.createElement('span');
+  s.innerHTML = `<i style="background:var(${CATS[k].v})"></i>${CATS[k].n}`;
+  legend.append(s);
+}
+legend.insertAdjacentHTML('beforeend', '<span><i class="aprox"></i>Fecha aproximada</span><span>┆ Acontecimiento</span>');
+
+let lastMode = null;
+function onResize(){
+  const mode = wideQuery.matches;
+  if (mode !== lastMode){ lastMode = mode; render(); if (selected !== null) select(selected, true); }
+  else document.documentElement.style.setProperty('--head', document.getElementById('head').offsetHeight + 'px');
+}
+addEventListener('resize', onResize);
+onResize();
+</script>
+</body>
+</html>
