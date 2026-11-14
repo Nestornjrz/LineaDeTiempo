@@ -9,6 +9,7 @@
   --bg:#f7f5f0; --surface:#ffffff; --text:#1f1d1a; --muted:#6b665e;
   --line:#e6e1d6; --grid:#ece7dc; --axis:#bdb5a5; --accent:#8a5a1f;
   --c-ante:#7b5ea7; --c-patri:#b5762a; --c-israel:#2f7d6d; --c-reyes:#b23a48;
+  --c-juda:#b0306f; --c-isr:#56677a;
   --c-prof:#2f6db3; --c-exilio:#6f7f22; --c-cristo:#c0562b;
   --event:#9a8f7a; --pill:#fffaf0; --shadow:0 6px 24px rgba(40,30,10,.18);
 }
@@ -17,6 +18,7 @@
     --bg:#16140f; --surface:#211e17; --text:#ece6da; --muted:#a39b8b;
     --line:#332e24; --grid:#2a261e; --axis:#5c5446; --accent:#e0a85a;
     --c-ante:#a98ad6; --c-patri:#e0a24f; --c-israel:#4fb8a2; --c-reyes:#e06474;
+    --c-juda:#e66fa6; --c-isr:#9aaabd;
     --c-prof:#6aa3e6; --c-exilio:#a8bb4c; --c-cristo:#ee8758;
     --event:#8c836f; --pill:#2a261d; --shadow:0 6px 24px rgba(0,0,0,.5);
   }
@@ -166,7 +168,7 @@ body.v .person .bar{top:0; left:0; width:10px}
 </header>
 
 <div id="scroller"><div id="canvas"></div></div>
-<p class="note">Fechas según la cronología bíblica de las publicaciones de los testigos de Jehová (por ejemplo, la creación de Adán en 4026 a.e.c. y el Diluvio en 2370 a.e.c.). Las barras rayadas indican fechas aproximadas. Cuando no se conoce el nacimiento o la muerte, la barra muestra el período en que el personaje aparece en el registro bíblico.</p>
+<p class="note">Fechas según la cronología bíblica de las publicaciones de los testigos de Jehová (por ejemplo, la creación de Adán en 4026 a.e.c. y el Diluvio en 2370 a.e.c.). Las barras rayadas indican fechas aproximadas. En los reyes de Judá y de Israel, la barra muestra los años de reinado. Cuando no se conoce el nacimiento o la muerte, la barra muestra el período en que el personaje aparece en el registro bíblico.</p>
 
 <div id="card" role="dialog" aria-live="polite">
   <button class="close" aria-label="Cerrar">×</button>
@@ -183,13 +185,17 @@ body.v .person .bar{top:0; left:0; width:10px}
 /* ===================== DATOS =====================
    Años: negativo = a.e.c. (antes de la era común), positivo = e.c.
    a: qué fechas son aproximadas ('s' inicio, 'e' fin, 'se' ambas)
-   k: 'vida' = nacimiento-muerte; 'registro' = aparición-desaparición en el relato
+   k: 'vida' = nacimiento-muerte; 'registro' = aparición-desaparición en el relato;
+      'reinado' = años de reinado (rn: duración tal como la indica la Biblia)
+   q: término de búsqueda en jw.org cuando el nombre lleva aclaración, p. ej. "Ocozías (Judá)"
 */
 const CATS = {
   ante:   {n:'Antes del Diluvio', v:'--c-ante'},
   patri:  {n:'Patriarcas',        v:'--c-patri'},
   israel: {n:'Israel y jueces',   v:'--c-israel'},
-  reyes:  {n:'Reyes',             v:'--c-reyes'},
+  reyes:  {n:'Reino unido',       v:'--c-reyes', t:'Reyes de las 12 tribus antes de la división del reino'},
+  juda:   {n:'Reyes de Judá',     v:'--c-juda',  t:'Reino de dos tribus (Judá y Benjamín), capital Jerusalén'},
+  isr:    {n:'Reyes de Israel',   v:'--c-isr',   t:'Reino de diez tribus, capital Samaria'},
   prof:   {n:'Profetas',          v:'--c-prof'},
   exilio: {n:'Exilio y regreso',  v:'--c-exilio'},
   cristo: {n:'Era cristiana',     v:'--c-cristo'},
@@ -224,8 +230,6 @@ const PEOPLE = [
   {n:'Elías', s:-940, e:-905, a:'se', c:'prof', k:'registro', d:'Profeta en tiempos del rey Acab. Se enfrentó a los profetas de Baal.', r:'1 Reyes 17–19; 2 Reyes 2; 2 Crónicas 21:12', al:'Elias'},
   {n:'Eliseo', s:-920, e:-850, a:'se', c:'prof', k:'registro', d:'Sucesor de Elías. Realizó muchos milagros.', r:'1 Reyes 19:19-21; 2 Reyes 2–13'},
   {n:'Isaías', s:-778, e:-732, a:'se', c:'prof', k:'registro', d:'Profetizó en Judá durante los reinados de Uzías, Jotán, Acaz y Ezequías.', r:'Isaías 1:1; 6:1', al:'Isaias'},
-  {n:'Ezequías', s:-770, e:-717, c:'reyes', k:'vida', d:'Rey fiel de Judá. Jehová lo libró de los asirios.', r:'2 Reyes 18:1-7; 19:35', al:'Ezequias'},
-  {n:'Josías', s:-667, e:-629, c:'reyes', k:'vida', d:'Rey de Judá que restauró la adoración pura.', r:'2 Reyes 22:1, 2; 23:29', al:'Josias'},
   {n:'Jeremías', s:-647, e:-580, a:'e', c:'prof', k:'registro', d:'Profetizó la destrucción de Jerusalén y la vio cumplirse.', r:'Jeremías 1:1-3; 52', al:'Jeremias'},
   {n:'Nabucodonosor', s:-624, e:-582, c:'exilio', k:'registro', d:'Rey de Babilonia. Destruyó Jerusalén en 607 a.e.c.', r:'2 Reyes 25:1-10; Daniel 1–4'},
   {n:'Daniel', s:-617, e:-536, a:'e', c:'exilio', k:'registro', d:'Llevado cautivo a Babilonia. Profeta fiel hasta su vejez.', r:'Daniel 1:1-6; 6; 10:1', al:'Beltsasar'},
@@ -234,6 +238,49 @@ const PEOPLE = [
   {n:'Ester', s:-490, e:-475, a:'se', c:'exilio', k:'registro', d:'Reina judía de Persia que ayudó a salvar a su pueblo.', r:'Ester 2:16, 17; 4:14', al:'Hadasá Hadasa'},
   {n:'Esdras', s:-468, e:-455, a:'e', c:'exilio', k:'registro', d:'Sacerdote y copista. Llegó a Jerusalén en 468 a.e.c. y enseñó la Ley.', r:'Esdras 7:6-9; Nehemías 8'},
   {n:'Nehemías', s:-455, e:-443, a:'e', c:'exilio', k:'registro', d:'Gobernador que reconstruyó los muros de Jerusalén.', r:'Nehemías 2:1-8; 6:15; 13:6', al:'Nehemias'},
+
+  // --- Reino de Judá (dos tribus) ---
+  {n:'Rehoboam', s:-997, e:-980, c:'juda', k:'reinado', rn:'17 años', d:'Hijo de Salomón. Durante su reinado, diez tribus se separaron y el reino se dividió.', r:'1 Reyes 12:1-24; 14:21-31', al:'Roboam'},
+  {n:'Abiyam', s:-980, e:-977, c:'juda', k:'reinado', rn:'3 años', d:'Hijo de Rehoboam. También se le llama Abías.', r:'1 Reyes 15:1-8; 2 Crónicas 13', al:'Abias Abías'},
+  {n:'Asá', s:-977, e:-936, c:'juda', k:'reinado', rn:'41 años', d:'Rey fiel que eliminó la idolatría de Judá.', r:'1 Reyes 15:9-24; 2 Crónicas 14–16', al:'Asa'},
+  {n:'Jehosafat', s:-936, e:-911, c:'juda', k:'reinado', rn:'25 años', d:'Rey fiel que hizo que se enseñara la Ley de Jehová por todo Judá.', r:'1 Reyes 22:41-50; 2 Crónicas 17–20', al:'Josafat'},
+  {n:'Jehoram (Judá)', q:'Jehoram', s:-913, e:-906, c:'juda', k:'reinado', rn:'8 años', d:'Hijo de Jehosafat. Se casó con Atalía, hija de Acab, e hizo lo malo.', r:'2 Reyes 8:16-24; 2 Crónicas 21', al:'Joram'},
+  {n:'Ocozías (Judá)', q:'Ocozías', s:-906, e:-905, a:'se', c:'juda', k:'reinado', rn:'1 año', d:'Hijo de Jehoram y Atalía. Lo mató Jehú.', r:'2 Reyes 8:25-29; 9:27-29', al:'Ocozias'},
+  {n:'Atalía', s:-905, e:-898, a:'s', c:'juda', k:'reinado', rn:'6 años', d:'Hija de Acab y Jezabel. Se apoderó del trono tras intentar exterminar la descendencia real. Fue la única reina que gobernó Judá.', r:'2 Reyes 11:1-16; 2 Crónicas 22:10–23:15', al:'Atalia'},
+  {n:'Jehoás (Judá)', q:'Jehoás', s:-898, e:-858, c:'juda', k:'reinado', rn:'40 años', d:'Salvado de niño por su tía Jehoseba. Reparó el templo, pero después se apartó de Jehová.', r:'2 Reyes 12; 2 Crónicas 24', al:'Joas Jehoas'},
+  {n:'Amasías', s:-858, e:-829, c:'juda', k:'reinado', rn:'29 años', d:'Hijo de Jehoás. Venció a Edom, pero luego adoró a los dioses de los edomitas.', r:'2 Reyes 14:1-20; 2 Crónicas 25', al:'Amasias'},
+  {n:'Uzías', s:-829, e:-777, c:'juda', k:'reinado', rn:'52 años', d:'También llamado Azarías. Por orgullo quiso ofrecer incienso en el templo, y Jehová lo castigó con lepra.', r:'2 Reyes 15:1-7; 2 Crónicas 26', al:'Uzias Azarías Azarias'},
+  {n:'Jotán', s:-777, e:-762, a:'s', c:'juda', k:'reinado', rn:'16 años', d:'Hijo de Uzías. Hizo lo recto a los ojos de Jehová.', r:'2 Reyes 15:32-38; 2 Crónicas 27', al:'Jotan Jotam'},
+  {n:'Acaz', s:-762, e:-746, c:'juda', k:'reinado', rn:'16 años', d:'Rey idólatra que pidió ayuda a Asiria en vez de confiar en Jehová.', r:'2 Reyes 16; 2 Crónicas 28; Isaías 7'},
+  {n:'Ezequías', s:-746, e:-717, c:'juda', k:'reinado', rn:'29 años', d:'Rey fiel de Judá. Empezó a reinar a los 25 años, y Jehová lo libró de los asirios.', r:'2 Reyes 18:1-7; 19:35', al:'Ezequias'},
+  {n:'Manasés', s:-716, e:-661, c:'juda', k:'reinado', rn:'55 años', d:'Hijo de Ezequías. Fue muy idólatra, pero se arrepintió y Jehová lo perdonó.', r:'2 Reyes 21:1-18; 2 Crónicas 33:1-20', al:'Manases'},
+  {n:'Amón', s:-661, e:-659, c:'juda', k:'reinado', rn:'2 años', d:'Hijo de Manasés. Hizo lo malo y sus siervos lo asesinaron.', r:'2 Reyes 21:19-26; 2 Crónicas 33:21-25', al:'Amon'},
+  {n:'Josías', s:-659, e:-629, c:'juda', k:'reinado', rn:'31 años', d:'Empezó a reinar a los 8 años y restauró la adoración pura en Judá.', r:'2 Reyes 22:1, 2; 23:29', al:'Josias'},
+  {n:'Jehoacaz (Judá)', q:'Jehoacaz', s:-628, e:-628, c:'juda', k:'reinado', rn:'3 meses', d:'Hijo de Josías. El faraón Nekó lo llevó cautivo a Egipto.', r:'2 Reyes 23:31-34; 2 Crónicas 36:1-4', al:'Salum'},
+  {n:'Jehoiaquim', s:-628, e:-618, c:'juda', k:'reinado', rn:'11 años', d:'Hijo de Josías, puesto en el trono por el faraón. Quemó el rollo con las profecías de Jeremías.', r:'2 Reyes 23:34–24:6; Jeremías 36', al:'Eliaquim Joacim'},
+  {n:'Joaquín', s:-618, e:-617, c:'juda', k:'reinado', rn:'3 meses y 10 días', d:'Hijo de Jehoiaquim. Nabucodonosor se lo llevó cautivo a Babilonia.', r:'2 Reyes 24:8-15; 25:27-30; 2 Crónicas 36:9, 10', al:'Jeconías Jeconias Conías'},
+  {n:'Sedequías', s:-617, e:-607, c:'juda', k:'reinado', rn:'11 años', d:'Último rey de Judá. Se rebeló contra Babilonia, y Jerusalén fue destruida en 607 a.e.c.', r:'2 Reyes 24:17–25:7; Jeremías 52:1-11', al:'Sedequias Matanías'},
+
+  // --- Reino de Israel (diez tribus) ---
+  {n:'Jeroboam', s:-997, e:-976, a:'e', c:'isr', k:'reinado', rn:'22 años', d:'Primer rey de las diez tribus. Estableció la adoración de becerros de oro en Dan y Betel.', r:'1 Reyes 11:26-40; 12:20-33; 14:20', al:'Jeroboán'},
+  {n:'Nadab', s:-976, e:-975, a:'se', c:'isr', k:'reinado', rn:'2 años', d:'Hijo de Jeroboam. Lo mató Baasá.', r:'1 Reyes 15:25-31'},
+  {n:'Baasá', s:-975, e:-952, a:'se', c:'isr', k:'reinado', rn:'24 años', d:'Mató a Nadab y exterminó a la casa de Jeroboam.', r:'1 Reyes 15:27–16:7', al:'Baasa'},
+  {n:'Elá', s:-952, e:-951, a:'se', c:'isr', k:'reinado', rn:'2 años', d:'Hijo de Baasá. Zimrí lo mató mientras estaba borracho.', r:'1 Reyes 16:8-10', al:'Ela'},
+  {n:'Zimrí', s:-951, e:-951, a:'se', c:'isr', k:'reinado', rn:'7 días', d:'Jefe militar que mató a Elá. Murió al prenderle fuego a la casa del rey estando él dentro.', r:'1 Reyes 16:9-20', al:'Zimri'},
+  {n:'Omrí', s:-951, e:-940, a:'se', c:'isr', k:'reinado', rn:'12 años', d:'Jefe del ejército. Venció a Tibní, que también quería el trono, y fundó Samaria.', r:'1 Reyes 16:16-28', al:'Omri'},
+  {n:'Acab', s:-940, e:-920, a:'se', c:'isr', k:'reinado', rn:'22 años', d:'Hijo de Omrí y esposo de Jezabel. Promovió la adoración de Baal.', r:'1 Reyes 16:29–22:40', al:'Ahab'},
+  {n:'Ocozías (Israel)', q:'Ocozías', s:-920, e:-918, a:'se', c:'isr', k:'reinado', rn:'2 años', d:'Hijo de Acab. Consultó a Baal-Zebub, el dios de Ecrón.', r:'1 Reyes 22:51-53; 2 Reyes 1', al:'Ocozias'},
+  {n:'Jehoram (Israel)', q:'Jehoram', s:-917, e:-905, a:'se', c:'isr', k:'reinado', rn:'12 años', d:'Hijo de Acab, también llamado Joram. Lo mató Jehú.', r:'2 Reyes 3:1-3; 9:14-26', al:'Joram'},
+  {n:'Jehú', s:-905, e:-877, a:'s', c:'isr', k:'reinado', rn:'28 años', d:'Ungido por orden de Eliseo. Acabó con la casa de Acab y con la adoración de Baal en Israel.', r:'2 Reyes 9; 10', al:'Jehu'},
+  {n:'Jehoacaz (Israel)', q:'Jehoacaz', s:-876, e:-859, c:'isr', k:'reinado', rn:'17 años', d:'Hijo de Jehú. Israel sufrió la opresión de Siria.', r:'2 Reyes 13:1-9'},
+  {n:'Jehoás (Israel)', q:'Jehoás', s:-862, e:-846, a:'s', c:'isr', k:'reinado', rn:'16 años', d:'Visitó a Eliseo antes de que muriera y venció a Siria tres veces.', r:'2 Reyes 13:10-25; 14:8-16', al:'Joas Jehoas'},
+  {n:'Jeroboam II', s:-844, e:-803, a:'se', c:'isr', k:'reinado', rn:'41 años', d:'Recuperó territorio para Israel, tal como profetizó Jonás.', r:'2 Reyes 14:23-29', al:'Jeroboán'},
+  {n:'Zacarías', s:-792, e:-792, a:'se', c:'isr', k:'reinado', rn:'6 meses', d:'Hijo de Jeroboam II y último rey de la dinastía de Jehú. Lo mató Salum.', r:'2 Reyes 15:8-12', al:'Zacarias'},
+  {n:'Salum', s:-791, e:-791, a:'se', c:'isr', k:'reinado', rn:'1 mes', d:'Mató a Zacarías y reinó solo un mes; lo mató Menahem.', r:'2 Reyes 15:10-15'},
+  {n:'Menahem', s:-791, e:-781, a:'se', c:'isr', k:'reinado', rn:'10 años', d:'Pagó tributo a Pul, rey de Asiria.', r:'2 Reyes 15:14-22'},
+  {n:'Pekahías', s:-780, e:-778, a:'se', c:'isr', k:'reinado', rn:'2 años', d:'Hijo de Menahem. Lo mató Pécah, uno de sus oficiales.', r:'2 Reyes 15:23-26', al:'Pekahias'},
+  {n:'Pécah', s:-778, e:-758, a:'se', c:'isr', k:'reinado', rn:'20 años', d:'Se alió con Siria contra Judá. Lo mató Oseas.', r:'2 Reyes 15:25-31; Isaías 7:1-9', al:'Pecah Peka'},
+  {n:'Oseas', s:-758, e:-740, a:'s', c:'isr', k:'reinado', rn:'9 años (desde c. 748 a.e.c.)', d:'Último rey de Israel. En 740 a.e.c., Asiria conquistó Samaria y se llevó cautivo al pueblo.', r:'2 Reyes 15:30; 17:1-6', al:'Hoshea'},
   {n:'María', s:-3, e:33, a:'s', c:'cristo', k:'registro', d:'Madre de Jesús. Estaba entre los discípulos en el año 33.', r:'Lucas 1:26-38; Hechos 1:14', al:'Maria'},
   {n:'Juan el Bautista', s:-2, e:32, a:'e', c:'cristo', k:'vida', d:'Precursor del Mesías. Bautizó a Jesús.', r:'Lucas 1:36, 57-63; Mateo 3:13-17; 14:10', al:'Bautista'},
   {n:'Jesús', s:-2, e:33, c:'cristo', k:'vida', age:'unos 33 años y medio', d:'El Mesías, Hijo de Dios. Fue bautizado en el año 29 y murió en el 33.', r:'Lucas 2:1-7; 3:23; Juan 19', al:'Jesus Cristo Mesías Mesias'},
@@ -285,7 +332,7 @@ const JW = {
   'Pablo':'1200003406', 'Timoteo':'1200004416',
 };
 const jwUrl = p => JW[p.n] ? `https://wol.jw.org/es/wol/d/r4/lp-s/${JW[p.n]}`
-                           : `https://wol.jw.org/es/wol/s/r4/lp-s?q=${encodeURIComponent(p.n)}`;
+                           : `https://wol.jw.org/es/wol/s/r4/lp-s?q=${encodeURIComponent(p.q || p.n)}`;
 
 PEOPLE.forEach((p,i) => {
   p.id = i;
@@ -460,6 +507,7 @@ function duration(p){
   const years = T(p.e) - T(p.s);
   const aprox = p.approx ? 'unos ' : '';
   if (p.k === 'vida') return `Vivió ${p.age || aprox + years + ' años'}`;
+  if (p.k === 'reinado') return `Reinó ${p.rn || aprox + years + ' años'}`;
   return `Aparece en el registro bíblico durante ${aprox}${years} años (no se conocen sus fechas de nacimiento y muerte)`;
 }
 
@@ -587,7 +635,7 @@ for (const k in CATS){
   const b = document.createElement('button');
   b.className = 'cat';
   b.dataset.cat = k;
-  b.title = `Mostrar solo: ${CATS[k].n} (Ctrl+clic para combinar categorías)`;
+  b.title = (CATS[k].t ? CATS[k].t + '\n' : '') + `Mostrar solo: ${CATS[k].n} (Ctrl+clic para combinar categorías)`;
   b.setAttribute('aria-pressed', 'false');
   b.innerHTML = `<i style="background:var(${CATS[k].v})"></i>${CATS[k].n}`;
   b.addEventListener('click', e => {
