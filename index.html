@@ -67,6 +67,17 @@ h1{font-size:18px; margin:0; font-weight:700; letter-spacing:.2px}
 .legend span{display:inline-flex; align-items:center; gap:5px}
 .legend i{width:14px; height:8px; border-radius:3px; display:inline-block}
 .legend i.aprox{background:var(--axis); background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.55) 0 2px,transparent 2px 5px)}
+.legend button{
+  display:inline-flex; align-items:center; gap:5px; margin:0 -6px; padding:2px 6px;
+  font:inherit; color:inherit; background:none; border:1px solid transparent; border-radius:12px; cursor:pointer;
+  transition:opacity .15s;
+}
+.legend button:hover{border-color:var(--line); color:var(--text)}
+.legend button:focus-visible{outline:2px solid var(--accent); outline-offset:1px}
+.legend.filtered button.cat:not(.on){opacity:.4}
+.legend button.cat.on{background:var(--surface); border-color:var(--axis); color:var(--text); font-weight:600}
+.legend button.reset{display:none; color:var(--accent); font-weight:600}
+.legend.filtered button.reset{display:inline-flex}
 
 /* ---------- Línea de tiempo ---------- */
 #scroller{position:relative; overflow:auto}
@@ -291,6 +302,8 @@ let horizontal = true;
 const zoom = {h:1.6, v:1.1};
 let selected = null;
 let query = '';
+const catFilter = new Set();   // categorías visibles (vacío = todas)
+const visible = p => !catFilter.size || catFilter.has(p.c);
 
 const wideQuery = matchMedia('(min-width: 760px) and (min-aspect-ratio: 1/1)');
 
@@ -321,7 +334,7 @@ function render(){
   canvas.innerHTML = '';
 
   // --- Asignar carriles (sin que se encimen barras ni nombres) ---
-  const items = PEOPLE.slice().sort((a,b) => a.s - b.s || a.e - b.e);
+  const items = PEOPLE.filter(visible).sort((a,b) => a.s - b.s || a.e - b.e);
   const laneEnd = [];
   const GAP = 10;
   for (const p of items){
@@ -525,6 +538,7 @@ function choose(i){
   if (!p) return;
   sugg.classList.remove('open');
   qInput.blur();
+  if (!visible(p)) setCatFilter([]);   // el personaje buscado estaba oculto por la leyenda
   select(p.id, true);
 }
 qInput.addEventListener('input', updateSearch);
@@ -570,11 +584,52 @@ scroller.addEventListener('wheel', e => {
 /* ===================== LEYENDA E INICIO ===================== */
 const legend = document.getElementById('legend');
 for (const k in CATS){
-  const s = document.createElement('span');
-  s.innerHTML = `<i style="background:var(${CATS[k].v})"></i>${CATS[k].n}`;
-  legend.append(s);
+  const b = document.createElement('button');
+  b.className = 'cat';
+  b.dataset.cat = k;
+  b.title = `Mostrar solo: ${CATS[k].n} (Ctrl+clic para combinar categorías)`;
+  b.setAttribute('aria-pressed', 'false');
+  b.innerHTML = `<i style="background:var(${CATS[k].v})"></i>${CATS[k].n}`;
+  b.addEventListener('click', e => {
+    const multi = e.ctrlKey || e.metaKey || e.shiftKey;
+    const next = new Set(catFilter);
+    if (multi){
+      next.has(k) ? next.delete(k) : next.add(k);
+    } else if (next.size === 1 && next.has(k)){
+      next.clear();                       // clic de nuevo en la misma: mostrar todas
+    } else {
+      next.clear(); next.add(k);
+    }
+    setCatFilter([...next]);
+  });
+  legend.append(b);
 }
-legend.insertAdjacentHTML('beforeend', '<span><i class="aprox"></i>Fecha aproximada</span><span>┆ Acontecimiento</span>');
+legend.insertAdjacentHTML('beforeend',
+  '<button class="reset" title="Mostrar todas las categorías">✕ Mostrar todos</button>' +
+  '<span><i class="aprox"></i>Fecha aproximada</span><span>┆ Acontecimiento</span>');
+legend.querySelector('.reset').addEventListener('click', () => setCatFilter([]));
+
+function setCatFilter(cats){
+  catFilter.clear();
+  cats.forEach(c => catFilter.add(c));
+  legend.classList.toggle('filtered', catFilter.size > 0);
+  legend.querySelectorAll('button.cat').forEach(b => {
+    const on = catFilter.has(b.dataset.cat);
+    b.classList.toggle('on', on);
+    b.setAttribute('aria-pressed', on);
+  });
+  if (selected !== null && !visible(PEOPLE[selected])) closeCard();
+  render();
+  // Llevar la vista al primer personaje de las categorías elegidas
+  if (catFilter.size){
+    const first = PEOPLE.filter(visible).sort((a,b) => a.s - b.s)[0];
+    const node = first && canvas.querySelector(`.person[data-id="${first.id}"]`);
+    if (node){
+      if (horizontal) scroller.scrollTo({left: node.offsetLeft - 40, behavior:'smooth'});
+      else window.scrollTo({top: scroller.offsetTop + node.offsetTop - document.getElementById('head').offsetHeight - 20, behavior:'smooth'});
+    }
+  }
+}
 
 let lastMode = null;
 function onResize(){
