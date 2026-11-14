@@ -21,7 +21,8 @@
   --line:#e6e1d6; --grid:#ece7dc; --axis:#bdb5a5; --accent:#8a5a1f;
   --c-ante:#7b5ea7; --c-patri:#b5762a; --c-israel:#2f7d6d; --c-reyes:#b23a48;
   --c-juda:#b0306f; --c-isr:#56677a;
-  --c-prof:#2f6db3; --c-exilio:#6f7f22; --c-cristo:#c0562b;
+  --c-profp:#2f6db3; --c-profm:#1689a8; --c-prof:#5a55b8;
+  --c-exilio:#6f7f22; --c-cristo:#c0562b;
   --good:#2e8b57; --bad:#c0392b; --tibio:#a87a00;
   --event:#9a8f7a; --pill:#fffaf0; --shadow:0 6px 24px rgba(40,30,10,.18);
 }
@@ -32,7 +33,8 @@
     --c-ante:#a98ad6; --c-patri:#e0a24f; --c-israel:#4fb8a2; --c-reyes:#e06474;
     --c-juda:#e66fa6; --c-isr:#9aaabd;
     --good:#5cc98a; --bad:#ef6b5e; --tibio:#e8c04a;
-    --c-prof:#6aa3e6; --c-exilio:#a8bb4c; --c-cristo:#ee8758;
+    --c-profp:#6aa3e6; --c-profm:#4cc4e0; --c-prof:#9b96ec;
+    --c-exilio:#a8bb4c; --c-cristo:#ee8758;
     --event:#8c836f; --pill:#2a261d; --shadow:0 6px 24px rgba(0,0,0,.5);
   }
 }
@@ -253,6 +255,7 @@ body.v .person .bar{top:0; left:0; width:10px}
    Años: negativo = a.e.c. (antes de la era común), positivo = e.c.
    a: qué fechas son aproximadas ('s' inicio, 'e' fin, 'se' ambas)
    k: 'vida' = nacimiento-muerte; 'registro' = aparición-desaparición en el relato;
+      'profecia' = periodo en que profetizó (pt: texto propio para la duración);
       'reinado' = años de reinado (rn: duración tal como la indica la Biblia)
    q: término de búsqueda en jw.org cuando el nombre lleva aclaración, p. ej. "Ocozías (Judá)"
 */
@@ -263,7 +266,9 @@ const CATS = {
   reyes:  {n:'Reino unido',       v:'--c-reyes', t:'Reyes de las 12 tribus antes de la división del reino'},
   juda:   {n:'Reyes de Judá',     v:'--c-juda',  t:'Reino de dos tribus (Judá y Benjamín), capital Jerusalén'},
   isr:    {n:'Reyes de Israel',   v:'--c-isr',   t:'Reino de diez tribus, capital Samaria'},
-  prof:   {n:'Profetas',          v:'--c-prof'},
+  profp:  {n:'Profetas principales', v:'--c-profp', t:'Isaías, Jeremías, Ezequiel y Daniel: sus libros proféticos son los más extensos'},
+  profm:  {n:'Profetas menores',  v:'--c-profm', t:'Los 12 libros proféticos más breves, de Oseas a Malaquías'},
+  prof:   {n:'Otros profetas',    v:'--c-prof',  t:'Profetas que no tienen un libro de la Biblia con su nombre'},
   exilio: {n:'Exilio y regreso',  v:'--c-exilio'},
   cristo: {n:'Era cristiana',     v:'--c-cristo'},
 };
@@ -296,11 +301,30 @@ const PEOPLE = [
   {n:'Salomón', s:-1060, e:-998, a:'s', c:'reyes', k:'vida', d:'Rey conocido por su sabiduría. Construyó el templo de Jehová en Jerusalén.', r:'1 Reyes 3:12; 6:1; 11:42, 43', al:'Salomon'},
   {n:'Elías', s:-940, e:-905, a:'se', c:'prof', k:'registro', d:'Profeta en tiempos del rey Acab. Se enfrentó a los profetas de Baal.', r:'1 Reyes 17–19; 2 Reyes 2; 2 Crónicas 21:12', al:'Elias'},
   {n:'Eliseo', s:-920, e:-850, a:'se', c:'prof', k:'registro', d:'Sucesor de Elías. Realizó muchos milagros.', r:'1 Reyes 19:19-21; 2 Reyes 2–13'},
-  {n:'Isaías', s:-778, e:-732, a:'se', c:'prof', k:'registro', d:'Profetizó en Judá durante los reinados de Uzías, Jotán, Acaz y Ezequías.', r:'Isaías 1:1; 6:1', al:'Isaias'},
-  {n:'Jeremías', s:-647, e:-580, a:'e', c:'prof', k:'registro', d:'Profetizó la destrucción de Jerusalén y la vio cumplirse.', r:'Jeremías 1:1-3; 52', al:'Jeremias'},
+  {n:'Isaías', s:-778, e:-732, a:'se', c:'profp', k:'profecia', d:'Profetizó en Judá durante los reinados de Uzías, Jotán, Acaz y Ezequías.', r:'Isaías 1:1; 6:1', al:'Isaias'},
+  {n:'Jeremías', s:-647, e:-580, a:'e', c:'profp', k:'profecia', d:'Profetizó la destrucción de Jerusalén y la vio cumplirse.', r:'Jeremías 1:1-3; 52', al:'Jeremias'},
+  {n:'Natán', s:-1070, e:-1037, a:'se', c:'prof', k:'registro', d:'Profeta en tiempos de David. Le comunicó el pacto del Reino, lo reprendió por su pecado con Bat-Seba y ayudó a que Salomón fuera rey.', r:'2 Samuel 7:1-17; 12:1-14; 1 Reyes 1:32-34', al:'Natan'},
+  {n:'Gad', s:-1100, e:-1037, a:'se', c:'prof', k:'registro', d:'Profeta y visionario de David. Le aconsejó cuando huía de Saúl y le comunicó el castigo por el censo.', r:'1 Samuel 22:5; 2 Samuel 24:11-19; 1 Crónicas 29:29'},
+  {n:'Ahíyá', s:-1000, e:-980, a:'se', c:'prof', k:'registro', d:'Profeta de Siló. Le anunció a Jeroboam que gobernaría diez tribus y luego predijo el fin de su casa.', r:'1 Reyes 11:29-39; 14:1-18', al:'Ahiya Ahías Ahias'},
+  {n:'Micaías', s:-920, e:-920, a:'se', c:'prof', k:'profecia', pt:'Profetizó contra Acab poco antes de su muerte', d:'Mientras 400 profetas falsos anunciaban la victoria, predijo la derrota y muerte del rey Acab.', r:'1 Reyes 22:8-28; 2 Crónicas 18', al:'Micaias'},
+  {n:'Hulda', s:-642, e:-642, a:'se', c:'prof', k:'profecia', pt:'Profetizó en el año 18 del reinado de Josías', d:'Profetisa en días del rey Josías. Cuando se halló el libro de la Ley, confirmó el juicio de Jehová contra Judá.', r:'2 Reyes 22:14-20; 2 Crónicas 34:22-28'},
+
+  // --- Profetas menores (fechas de escritura según "Toda Escritura es inspirada de Dios") ---
+  {n:'Jonás', s:-844, e:-844, a:'se', c:'profm', k:'profecia', pt:'Escribió su libro c. 844 a.e.c.', d:'Primero huyó de su comisión, pero luego predicó en Nínive, y sus habitantes se arrepintieron. También profetizó en días de Jeroboam II.', r:'Jonás 1:1-3; 3:1-10; 2 Reyes 14:25', al:'Jonas'},
+  {n:'Joel', s:-820, e:-820, a:'se', c:'profm', k:'profecia', pt:'Escribió su libro c. 820 a.e.c. (fecha incierta)', d:'Hijo de Petuel. Profetizó en Judá sobre una plaga de langostas y anunció el gran y temible día de Jehová.', r:'Joel 1:1-4; 2:28-32'},
+  {n:'Amós', s:-804, e:-804, a:'se', c:'profm', k:'profecia', pt:'Escribió su libro c. 804 a.e.c.', d:'Pastor y cultivador de higos de Tecoa, en Judá. Jehová lo envió a profetizar contra el reino de Israel en días de Uzías y Jeroboam II.', r:'Amós 1:1; 7:14, 15', al:'Amos'},
+  {n:'Oseas (profeta)', q:'Oseas', s:-804, e:-745, a:'se', c:'profm', k:'profecia', d:'Profetizó en Israel durante unos 59 años. Su matrimonio con Gómer ilustró la misericordia de Jehová con su pueblo infiel.', r:'Oseas 1:1-3; 3:1; 14:1, 2', al:'Oseas Hosea'},
+  {n:'Miqueas', s:-777, e:-717, a:'se', c:'profm', k:'profecia', d:'De Moréset. Profetizó en días de Jotán, Acaz y Ezequías, y predijo que el Mesías nacería en Belén.', r:'Miqueas 1:1; 5:2; Jeremías 26:18'},
+  {n:'Sofonías', s:-648, e:-648, a:'se', c:'profm', k:'profecia', pt:'Escribió su libro antes de 648 a.e.c.', d:'Descendiente del rey Ezequías. Profetizó en días de Josías y advirtió que el día de Jehová estaba cerca.', r:'Sofonías 1:1, 14-18; 2:3', al:'Sofonias'},
+  {n:'Nahúm', s:-634, e:-634, a:'se', c:'profm', k:'profecia', pt:'Escribió su libro antes de 632 a.e.c.', d:'Profetizó la destrucción de Nínive, la capital de Asiria, que se cumplió en 632 a.e.c.', r:'Nahúm 1:1; 3:1-7', al:'Nahum'},
+  {n:'Habacuc', s:-628, e:-628, a:'se', c:'profm', k:'profecia', pt:'Escribió su libro c. 628 a.e.c. (fecha incierta)', d:'Le preguntó a Jehová por qué permitía la injusticia. Profetizó que los caldeos castigarían a Judá y que el justo viviría por su fe.', r:'Habacuc 1:1-6; 2:4'},
+  {n:'Abdías', s:-607, e:-607, a:'se', c:'profm', k:'profecia', pt:'Escribió su libro c. 607 a.e.c.', d:'Profetizó la destrucción de Edom por haberse alegrado de la caída de Jerusalén.', r:'Abdías 1, 10-15', al:'Abdias'},
+  {n:'Ageo', s:-520, e:-520, c:'profm', k:'profecia', pt:'Profetizó durante 112 días en el año 520 a.e.c.', d:'Animó a los judíos que regresaron del exilio a terminar la reconstrucción del templo.', r:'Ageo 1:1-8; Esdras 5:1, 2; 6:14'},
+  {n:'Zacarías (profeta)', q:'Zacarías', s:-520, e:-518, c:'profm', k:'profecia', d:'Hijo de Berequías. Junto con Ageo, animó a reconstruir el templo y profetizó mucho sobre el Mesías.', r:'Zacarías 1:1; 9:9; Esdras 5:1; 6:14', al:'Zacarias'},
+  {n:'Malaquías', s:-443, e:-443, a:'se', c:'profm', k:'profecia', pt:'Escribió su libro después de 443 a.e.c.', d:'Último profeta de las Escrituras Hebreas. Denunció a los sacerdotes infieles y anunció la llegada de un mensajero que prepararía el camino.', r:'Malaquías 1:6-8; 3:1; 4:5, 6', al:'Malaquias'},
   {n:'Nabucodonosor', s:-624, e:-582, c:'exilio', k:'registro', d:'Rey de Babilonia. Destruyó Jerusalén en 607 a.e.c.', r:'2 Reyes 25:1-10; Daniel 1–4'},
-  {n:'Daniel', s:-617, e:-536, a:'e', c:'exilio', k:'registro', d:'Llevado cautivo a Babilonia. Profeta fiel hasta su vejez.', r:'Daniel 1:1-6; 6; 10:1', al:'Beltsasar'},
-  {n:'Ezequiel', s:-613, e:-591, a:'e', c:'prof', k:'registro', d:'Sacerdote y profeta entre los exiliados en Babilonia.', r:'Ezequiel 1:1-3; 29:17'},
+  {n:'Daniel', s:-617, e:-536, a:'e', c:'profp', k:'registro', d:'Llevado cautivo a Babilonia. Profeta fiel hasta su vejez.', r:'Daniel 1:1-6; 6; 10:1', al:'Beltsasar'},
+  {n:'Ezequiel', s:-613, e:-591, a:'e', c:'profp', k:'profecia', d:'Sacerdote y profeta entre los exiliados en Babilonia.', r:'Ezequiel 1:1-3; 29:17'},
   {n:'Ciro', s:-539, e:-530, c:'exilio', k:'registro', d:'Rey persa que conquistó Babilonia y permitió a los judíos volver a Jerusalén.', r:'Isaías 45:1; Esdras 1:1-4'},
   {n:'Ester', s:-490, e:-475, a:'se', c:'exilio', k:'registro', d:'Reina judía de Persia que ayudó a salvar a su pueblo.', r:'Ester 2:16, 17; 4:14', al:'Hadasá Hadasa'},
   {n:'Esdras', s:-468, e:-455, a:'e', c:'exilio', k:'registro', d:'Sacerdote y copista. Llegó a Jerusalén en 468 a.e.c. y enseñó la Ley.', r:'Esdras 7:6-9; Nehemías 8'},
@@ -639,6 +663,7 @@ function personEl(p){
 
 function dateRange(p){
   const s = (p.approx.includes('s') ? 'c. ' : '') + fmtY(p.s);
+  if (p.s === p.e) return s;
   const e = (p.approx.includes('e') ? 'c. ' : '') + fmtY(p.e);
   return `${s} – ${e}`;
 }
@@ -648,6 +673,7 @@ function duration(p){
   const aprox = p.approx ? 'unos ' : '';
   if (p.k === 'vida') return `Vivió ${p.age || aprox + years + ' años'}`;
   if (p.k === 'reinado') return `Reinó ${p.rn || aprox + years + ' años'}`;
+  if (p.k === 'profecia') return p.pt || `Profetizó durante ${aprox}${years} años`;
   return `Aparece en el registro bíblico durante ${aprox}${years} años (no se conocen sus fechas de nacimiento y muerte)`;
 }
 
