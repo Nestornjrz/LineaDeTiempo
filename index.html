@@ -131,6 +131,37 @@ h1{font-size:18px; margin:0; font-weight:700; letter-spacing:.2px}
 .legend button.reset{display:none; color:var(--accent); font-weight:600}
 .legend.filtered button.reset{display:inline-flex}
 
+/* ---------- Botón para mostrar u ocultar la leyenda ---------- */
+.legend-toggle{
+  display:inline-flex; align-items:center; gap:6px; height:34px; padding:0 10px;
+  font:inherit; font-size:13px; white-space:nowrap; cursor:pointer; color:var(--text);
+  background:var(--surface); border:1px solid var(--line); border-radius:8px;
+}
+.legend-toggle:hover{border-color:var(--axis)}
+.legend-toggle:focus-visible{outline:2px solid var(--accent); outline-offset:1px}
+.legend-toggle .count{
+  min-width:18px; height:18px; padding:0 5px; border-radius:9px;
+  font-size:11px; font-weight:700; line-height:18px; text-align:center;
+  color:var(--bg); background:var(--accent);
+}
+.legend-toggle .count:empty{display:none}
+.legend-toggle .arrow{font-size:10px; transition:transform .15s}
+.legend-toggle[aria-expanded="true"] .arrow{transform:rotate(180deg)}
+header.legend-closed .legend{display:none}
+header > .tools{order:1}
+header > .legend-toggle{order:2}
+header > .picks{order:3}
+header > .legend{order:4}
+@media (max-width: 759px){
+  /* En el celular, el botón va junto al título y las herramientas pasan a la fila siguiente */
+  header > .legend-toggle{order:0; margin-left:auto}
+  header > .tools{flex-basis:100%; justify-content:flex-start}
+  .search{flex:1 1 150px; max-width:none}
+  /* En el celular, la leyenda abierta no ocupa más de un tercio de la pantalla */
+  .legend{max-height:34vh; overflow-y:auto; overscroll-behavior:contain; gap:6px 14px; padding-bottom:2px}
+  .legend button{padding:4px 8px}
+}
+
 /* ---------- Valoración de los reyes ---------- */
 .val{
   display:inline-block; margin-inline-start:5px; padding:1px 4px; vertical-align:1px;
@@ -162,6 +193,10 @@ body.v .evline{border-top-width:1px; height:0}
   z-index:2;
 }
 .evlabel b{color:var(--text); font-weight:600}
+/* Acontecimientos con fecha aproximada: línea de puntos más tenue y etiqueta en cursiva */
+.evline.aprox{border-style:dotted; opacity:.5}
+.evlabel.aprox{font-style:italic; border-style:dashed; pointer-events:auto; cursor:help}
+.legend .ev-aprox{font-style:italic}
 
 .person{
   position:absolute; padding:0; margin:0; border:0; background:none; cursor:pointer;
@@ -205,6 +240,20 @@ body.v .person .bar{top:0; left:0; width:10px}
   background:var(--col); color:#fff; font-weight:600; font-size:14px; text-decoration:none;
 }
 #card .more:hover{filter:brightness(1.08)}
+#card .seegroup{
+  margin-top:10px; padding:7px 12px; border:0; border-radius:8px; cursor:pointer;
+  background:var(--col); color:#fff; font:inherit; font-weight:600; font-size:14px;
+}
+#card .seegroup:hover{filter:brightness(1.08)}
+#card.group .more, #card:not(.group) .seegroup{display:none}
+#card.group .refs{max-height:7.5em; overflow-y:auto}
+#card.group h2 a{text-decoration:none; pointer-events:none}
+
+/* ---------- Vista por grupos ---------- */
+.person.group .bar{height:14px}
+body.h .person.group .bar{top:16px}
+body.v .person.group .bar{width:14px}
+body.v .person.group .lbl{left:18px}
 #card .close{
   position:absolute; top:8px; right:8px; width:30px; height:30px; border:0; border-radius:6px;
   background:none; color:var(--muted); font-size:20px; cursor:pointer;
@@ -221,6 +270,10 @@ body.v .person .bar{top:0; left:0; width:10px}
       <input id="q" type="search" placeholder="Buscar personajes… (ej. Abrahán)" autocomplete="off" aria-label="Buscar personaje bíblico">
       <ul id="suggest" class="suggest" role="listbox"></ul>
     </div>
+    <div class="mode view" role="group" aria-label="Vista">
+      <button id="viewPeople" aria-pressed="true" title="Una barra por cada personaje">Personas</button>
+      <button id="viewGroups" aria-pressed="false" title="Una barra por cada categoría, desde su primer personaje hasta el último">Grupos</button>
+    </div>
     <div class="mode" role="group" aria-label="Modo de búsqueda">
       <button id="modeDim" aria-pressed="true" title="Muestra a todos y atenúa a los que no buscaste">Atenuar</button>
       <button id="modeSolo" aria-pressed="false" title="Muestra solo a los personajes que buscaste">Solo buscados</button>
@@ -231,12 +284,15 @@ body.v .person .bar{top:0; left:0; width:10px}
     </div>
     <button id="install" class="install" hidden title="Instalar como aplicación en este dispositivo">⬇ Instalar</button>
   </div>
+  <button id="legendToggle" class="legend-toggle" aria-expanded="true" aria-controls="legend" title="Mostrar u ocultar las categorías">
+    Categorías <b class="count" id="legendCount" title="Categorías filtradas"></b><span class="arrow" aria-hidden="true">▼</span>
+  </button>
   <div class="picks" id="picks" aria-label="Personajes buscados"></div>
   <div class="legend" id="legend"></div>
 </header>
 
 <div id="scroller"><div id="canvas"></div></div>
-<p class="note">Fechas según la cronología bíblica de las publicaciones de los testigos de Jehová (por ejemplo, la creación de Adán en 4026 a.e.c. y el Diluvio en 2370 a.e.c.). Las barras rayadas indican fechas aproximadas. En los reyes de Judá y de Israel, la barra muestra los años de reinado. En todos los reyes, el icono (✓ bueno, ◐ tibio, ✗ malo; más símbolos, mayor grado) resume lo que la Biblia dice de su conducta. Cuando no se conoce el nacimiento o la muerte, la barra muestra el período en que el personaje aparece en el registro bíblico.</p>
+<p class="note">Fechas según la cronología bíblica de las publicaciones de los testigos de Jehová (por ejemplo, la creación de Adán en 4026 a.e.c. y el Diluvio en 2370 a.e.c.). Las barras rayadas indican fechas aproximadas. En la vista «Grupos», cada barra representa una categoría y va desde su primer personaje hasta el último. Los acontecimientos con línea de puntos y etiqueta en cursiva tienen una fecha aproximada que la Biblia no precisa. En los reyes de Judá y de Israel, la barra muestra los años de reinado. En todos los reyes, el icono (✓ bueno, ◐ tibio, ✗ malo; más símbolos, mayor grado) resume lo que la Biblia dice de su conducta. Cuando no se conoce el nacimiento o la muerte, la barra muestra el período en que el personaje aparece en el registro bíblico.</p>
 
 <div id="card" role="dialog" aria-live="polite">
   <button class="close" aria-label="Cerrar">×</button>
@@ -248,6 +304,7 @@ body.v .person .bar{top:0; left:0; width:10px}
   <p class="desc"></p>
   <div class="refs"></div>
   <a class="more" target="_blank" rel="noopener">Más información en jw.org ↗</a>
+  <button class="seegroup">Ver estas personas en la línea de tiempo</button>
 </div>
 
 <script>
@@ -282,7 +339,10 @@ const CATS = {
 };
 
 const PEOPLE = [
-  {n:'Adán', s:-4026, e:-3096, c:'ante', k:'vida', d:'El primer hombre, creado por Jehová. Vivió 930 años.', r:'Génesis 2:7; 5:3-5'},
+  {n:'Adán', s:-4026, e:-3096, c:'ante', k:'vida', d:'El primer hombre, creado por Jehová. Vivió 930 años. Pecó y fue expulsado del jardín de Edén; la Biblia no dice en qué año ocurrió.', r:'Génesis 2:7; 3:17-24; 5:3-5'},
+  {n:'Eva', s:-4026, e:-3896, a:'e', c:'ante', k:'registro', dt:'Fue creada en 4026 a.e.c., poco después de Adán. La Biblia no dice cuándo murió; aparece por última vez en el nacimiento de Set (3896 a.e.c.)', d:'La primera mujer, creada de una costilla de Adán. Satanás la engañó y desobedeció a Jehová. Es la madre de todos los seres humanos.', r:'Génesis 2:21-23; 3:1-6, 20; 4:1, 25; 2 Corintios 11:3', al:'Eva'},
+  {n:'Caín', s:-4015, e:-3896, a:'se', c:'ante', k:'registro', dt:'La Biblia no dice cuándo nació ni cuándo murió. Nació después de la expulsión del Edén; la barra llega hasta el nacimiento de Set (3896 a.e.c.), cuando ya había matado a Abel', d:'Primer hijo de Adán y Eva, y agricultor. Por envidia mató a su hermano Abel, y Jehová lo condenó a vagar por la tierra.', r:'Génesis 4:1-17; 1 Juan 3:12', al:'Cain'},
+  {n:'Abel', s:-4013, e:-3896, a:'se', c:'ante', k:'registro', dt:'La Biblia no dice cuándo nació ni cuándo murió. Nació después de Caín y murió asesinado antes del nacimiento de Set (3896 a.e.c.)', d:'Segundo hijo de Adán y Eva, y pastor de ovejas. Por su fe ofreció un sacrificio que agradó a Jehová. Fue el primer hombre fiel y murió asesinado por su hermano.', r:'Génesis 4:2-8, 25; Mateo 23:35; Hebreos 11:4'},
   {n:'Set', s:-3896, e:-2984, c:'ante', k:'vida', d:'Hijo de Adán y Eva, nacido después de la muerte de Abel.', r:'Génesis 4:25; 5:3-8'},
   {n:'Enós', s:-3791, e:-2886, c:'ante', k:'vida', d:'Hijo de Set. En sus días se empezó a invocar el nombre de Jehová.', r:'Génesis 4:26; 5:6-11'},
   {n:'Quenán', s:-3701, e:-2791, c:'ante', k:'vida', d:'Hijo de Enós.', r:'Génesis 5:9-14', al:'Cainán Kenan'},
@@ -545,8 +605,12 @@ function valBadge(v){
   return s;
 }
 
+/* a: true = fecha aproximada; la línea se dibuja en y, pero la etiqueta muestra el texto t
+   en lugar del año, y d explica por qué no se conoce la fecha */
 const EVENTS = [
   {y:-4026, n:'Creación de Adán'},
+  {y:-4016, a:true, t:'Poco después de 4026 a.e.c.', n:'Expulsión del Edén',
+   d:'Fecha aproximada: la Biblia no dice en qué año fueron expulsados Adán y Eva. Fue después de la creación de Adán (4026 a.e.c.) y antes de que nacieran sus hijos; Set nació en 3896 a.e.c. (Génesis 3:23, 24; 4:1, 2; 5:3)'},
   {y:-2370, n:'Diluvio'},
   {y:-1943, n:'Pacto con Abrahán'},
   {y:-1513, n:'Éxodo de Egipto'},
@@ -611,6 +675,24 @@ try { soloMode = localStorage.getItem('modoBusqueda') === 'solo'; } catch (e) {}
 const catOk = p => !catFilter.size || catFilter.has(p.c);
 const visible = p => catOk(p) && (!soloMode || !picked.size || picked.has(p.id));
 
+// Vista por grupos: una barra por categoría, desde su primer personaje hasta el último
+let groupView = false;
+try { groupView = localStorage.getItem('vista') === 'grupos'; } catch (e) {}
+let selectedGroup = null;
+function groupOf(k){
+  const people = PEOPLE.filter(p => p.c === k).sort((a,b) => a.s - b.s || a.e - b.e);
+  if (!people.length) return null;
+  const s = Math.min(...people.map(p => p.s));
+  const e = Math.max(...people.map(p => p.e));
+  // El inicio (o el fin) es aproximado si todos los que marcan ese extremo tienen fecha aproximada
+  const sA = people.filter(p => p.s === s).every(p => p.approx.includes('s'));
+  const eA = people.filter(p => p.e === e).every(p => p.approx.includes('e'));
+  return {k, c:k, n:CATS[k].n, s, e, approx:(sA ? 's' : '') + (eA ? 'e' : ''), people,
+          label:`${CATS[k].n} (${people.length})`};
+}
+const groupVisible = g => (!catFilter.size || catFilter.has(g.k)) &&
+  (!soloMode || !picked.size || g.people.some(p => picked.has(p.id)));
+
 const wideQuery = matchMedia('(min-width: 760px) and (min-aspect-ratio: 1/1)');
 
 /* ===================== DIBUJO ===================== */
@@ -640,13 +722,14 @@ function render(){
   canvas.innerHTML = '';
 
   // --- Asignar carriles (sin que se encimen barras ni nombres) ---
-  const items = PEOPLE.filter(visible).sort((a,b) => a.s - b.s || a.e - b.e);
+  const items = (groupView ? Object.keys(CATS).map(groupOf).filter(g => g && groupVisible(g))
+                           : PEOPLE.filter(visible)).sort((a,b) => a.s - b.s || a.e - b.e);
   const laneEnd = [];
   const GAP = 10;
   for (const p of items){
     const a = pos(p.s);
     p.len = Math.max(pos(p.e) - a, 4);
-    p.lw = textW(p.n) + 6 + (p.val !== undefined ? textW(valTxt(p.val), '700 10px system-ui, sans-serif') + 16 : 0);
+    p.lw = textW(p.label || p.n) + 6 + (p.val !== undefined ? textW(valTxt(p.val), '700 10px system-ui, sans-serif') + 16 : 0);
     const occ = a + Math.max(p.len, p.lw);
     let lane = laneEnd.findIndex(end => end + GAP <= a);
     if (lane === -1){ lane = laneEnd.length; laneEnd.push(0); }
@@ -656,7 +739,7 @@ function render(){
   const lanes = laneEnd.length;
 
   // --- Eventos: filas para sus etiquetas ---
-  const evs = EVENTS.map(ev => ({...ev, p: pos(ev.y), w: textW(`${fmtY(ev.y)} · ${ev.n}`, '11px system-ui, sans-serif') + 18}));
+  const evs = EVENTS.map(ev => ({...ev, p: pos(ev.y), w: textW(`${evDate(ev)} · ${ev.n}`, '11px system-ui, sans-serif') + 18}));
   const evRowEnd = [];
   for (const ev of evs){
     const size = horizontal ? ev.w : 22;
@@ -688,15 +771,13 @@ function render(){
 
     // Eventos
     for (const ev of evs){
-      canvas.append(el('div','evline',{left:ev.p+'px', top:(ev.row*22+20)+'px', height:(height - ev.row*22 - 20)+'px'}));
-      const l = el('div','evlabel',{left:(ev.p-6)+'px', top:(ev.row*22+3)+'px'});
-      l.innerHTML = `<b>${fmtY(ev.y)}</b> · ${ev.n}`;
-      canvas.append(l);
+      canvas.append(el('div','evline' + (ev.a ? ' aprox' : ''),{left:ev.p+'px', top:(ev.row*22+20)+'px', height:(height - ev.row*22 - 20)+'px'}));
+      canvas.append(evLabel(ev, {left:(ev.p-6)+'px', top:(ev.row*22+3)+'px'}));
     }
 
     // Personajes
     for (const p of items){
-      const b = personEl(p);
+      const b = groupView ? groupEl(p) : personEl(p);
       Object.assign(b.style, {left:p.px+'px', top:(top0 + p.lane*ROW)+'px', width:Math.max(p.len,p.lw)+'px', height:'30px'});
       b.querySelector('.bar').style.width = p.len + 'px';
       canvas.append(b);
@@ -720,22 +801,30 @@ function render(){
 
     let prevBottom = -Infinity;
     for (const ev of evs){
-      canvas.append(el('div','evline',{top:ev.p+'px', left:AX_W+'px', width:(width-AX_W)+'px'}));
+      canvas.append(el('div','evline' + (ev.a ? ' aprox' : ''),{top:ev.p+'px', left:AX_W+'px', width:(width-AX_W)+'px'}));
       const top = Math.max(ev.p - 10, prevBottom + 3);
       prevBottom = top + 20;
-      const l = el('div','evlabel',{top:top+'px', right:'8px'});
-      l.innerHTML = `<b>${fmtY(ev.y)}</b> · ${ev.n}`;
-      canvas.append(l);
+      canvas.append(evLabel(ev, {top:top+'px', right:'8px'}));
     }
 
     for (const p of items){
-      const b = personEl(p);
+      const b = groupView ? groupEl(p) : personEl(p);
       Object.assign(b.style, {top:p.px+'px', left:(left0 + p.lane*COL)+'px', height:Math.max(p.len,p.lw)+'px', width:'28px'});
       b.querySelector('.bar').style.height = p.len + 'px';
       canvas.append(b);
     }
   }
   applyFilter();
+}
+
+// Fecha que muestra la etiqueta de un acontecimiento: el año, o un texto si es aproximada
+const evDate = ev => ev.t || fmtY(ev.y);
+
+function evLabel(ev, style){
+  const l = el('div', 'evlabel' + (ev.a ? ' aprox' : ''), style);
+  l.innerHTML = `<b>${evDate(ev)}</b> · ${ev.n}`;
+  if (ev.d) l.title = ev.d;
+  return l;
 }
 
 function ticks(step){
@@ -755,6 +844,17 @@ function personEl(p){
   lbl.textContent = p.n;
   if (p.val !== undefined) lbl.append(valBadge(p.val));
   b.addEventListener('click', () => select(p.id, false));
+  return b;
+}
+
+function groupEl(g){
+  const b = el('button', 'person group' + (g.approx ? ' aprox' : '') + (selectedGroup === g.k ? ' sel' : ''));
+  b.dataset.cat = g.k;
+  b.style.setProperty('--col', `var(${CATS[g.k].v})`);
+  b.title = `${g.n}: ${dateRange(g)} · ${g.people.length} personajes`;
+  b.innerHTML = `<span class="bar"></span><span class="lbl"></span>`;
+  b.querySelector('.lbl').textContent = g.label;
+  b.addEventListener('click', () => selectGroup(g.k));
   return b;
 }
 
@@ -780,6 +880,8 @@ function duration(p){
 const card = document.getElementById('card');
 function select(id, scroll){
   selected = id;
+  selectedGroup = null;
+  card.classList.remove('group');
   const p = PEOPLE[id];
   canvas.querySelectorAll('.person.sel').forEach(n => n.classList.remove('sel'));
   const node = canvas.querySelector(`.person[data-id="${id}"]`);
@@ -807,12 +909,43 @@ function select(id, scroll){
   card.querySelector('.refs').textContent = 'Textos: ' + p.r;
   card.classList.add('open');
 }
+// Ficha de un grupo (vista "Grupos")
+function selectGroup(k){
+  const g = groupOf(k);
+  selected = null;
+  selectedGroup = k;
+  canvas.querySelectorAll('.person.sel').forEach(n => n.classList.remove('sel'));
+  canvas.querySelector(`.person.group[data-cat="${k}"]`)?.classList.add('sel');
+  card.classList.add('group');
+  card.style.setProperty('--col', `var(${CATS[k].v})`);
+  card.querySelector('.cat').textContent = 'Grupo';
+  const name = card.querySelector('.name');
+  name.textContent = g.n;
+  name.removeAttribute('href');
+  name.title = '';
+  card.querySelector('.dates').textContent = dateRange(g);
+  const years = T(g.e) - T(g.s);
+  card.querySelector('.dur').textContent =
+    `Abarca ${g.approx ? 'unos ' : ''}${years} años · ${g.people.length} personajes, desde ${g.people[0].n} hasta ` +
+    [...g.people].sort((a,b) => b.e - a.e)[0].n;
+  card.querySelector('.verdict').style.display = 'none';
+  card.querySelector('.desc').textContent = CATS[k].t || '';
+  card.querySelector('.refs').textContent = 'Personajes: ' + g.people.map(p => p.n).join(', ') + '.';
+  card.classList.add('open');
+}
 function closeCard(){
   card.classList.remove('open');
   selected = null;
+  selectedGroup = null;
   canvas.querySelectorAll('.person.sel').forEach(n => n.classList.remove('sel'));
 }
 card.querySelector('.close').addEventListener('click', closeCard);
+card.querySelector('.seegroup').addEventListener('click', () => {
+  const k = selectedGroup;
+  closeCard();
+  setView(false);
+  setCatFilter([k]);
+});
 
 /* ===================== BÚSQUEDA ===================== */
 const qInput = document.getElementById('q');
@@ -827,7 +960,10 @@ function applyFilter(){
   // En "Solo buscados" con personajes elegidos, todo lo visible ya es buscado: no se atenúa nada
   const on = ids.size > 0 && !(soloMode && picked.size);
   canvas.classList.toggle('filtering', on);
-  canvas.querySelectorAll('.person').forEach(n => n.classList.toggle('match', ids.has(+n.dataset.id)));
+  // En la vista "Grupos" se resaltan los grupos que contienen a algún personaje buscado
+  const cats = new Set([...ids].map(id => PEOPLE[id].c));
+  canvas.querySelectorAll('.person').forEach(n =>
+    n.classList.toggle('match', n.dataset.cat ? cats.has(n.dataset.cat) : ids.has(+n.dataset.id)));
 }
 
 /* ---------- Personajes buscados (varios) ---------- */
@@ -895,6 +1031,19 @@ function setMode(solo){
   if (selected !== null && visible(PEOPLE[selected])) select(selected, true);
   else if (picked.size) select([...picked].map(id => PEOPLE[id]).filter(visible).sort((a,b) => a.s - b.s)[0]?.id ?? [...picked][0], true);
 }
+function setView(groups){
+  groupView = groups;
+  try { localStorage.setItem('vista', groups ? 'grupos' : 'personas'); } catch (e) {}
+  document.getElementById('viewPeople').setAttribute('aria-pressed', !groups);
+  document.getElementById('viewGroups').setAttribute('aria-pressed', groups);
+  if (card.classList.contains('open')) closeCard();
+  render();
+}
+document.getElementById('viewPeople').addEventListener('click', () => setView(false));
+document.getElementById('viewGroups').addEventListener('click', () => setView(true));
+document.getElementById('viewPeople').setAttribute('aria-pressed', !groupView);   // vista recordada
+document.getElementById('viewGroups').setAttribute('aria-pressed', groupView);
+
 document.getElementById('modeDim').addEventListener('click', () => setMode(false));
 document.getElementById('modeSolo').addEventListener('click', () => setMode(true));
 document.getElementById('modeDim').setAttribute('aria-pressed', !soloMode);   // modo recordado de la última visita
@@ -1006,25 +1155,45 @@ for (const k in CATS){
 legend.insertAdjacentHTML('beforeend',
   '<button class="reset" title="Mostrar todas las categorías">✕ Mostrar todos</button>' +
   '<span><i class="aprox"></i>Fecha aproximada</span><span>┆ Acontecimiento</span>' +
+  '<span class="ev-aprox" title="La Biblia no da el año exacto; la etiqueta indica la fecha de forma aproximada">⁞ Acontecimiento con fecha aproximada</span>' +
   '<span title="Valoración de los reyes según la Biblia; más símbolos indican mayor grado">' +
   '<span class="val good">✓</span>bueno <span class="val tibio">◐</span>tibio <span class="val bad">✗</span>malo</span>');
 legend.querySelector('.reset').addEventListener('click', () => setCatFilter([]));
+
+// Mostrar u ocultar la leyenda. En pantallas estrechas empieza cerrada; se recuerda la elección.
+const head = document.getElementById('head');
+const legendToggle = document.getElementById('legendToggle');
+const legendCount = document.getElementById('legendCount');
+let legendOpen = wideQuery.matches;
+try { const v = localStorage.getItem('leyendaAbierta'); if (v !== null) legendOpen = v === '1'; } catch (e) {}
+function setLegendOpen(open, save){
+  legendOpen = open;
+  head.classList.toggle('legend-closed', !open);
+  legendToggle.setAttribute('aria-expanded', open);
+  if (save) try { localStorage.setItem('leyendaAbierta', open ? '1' : '0'); } catch (e) {}
+  setHead();
+}
+legendToggle.addEventListener('click', () => setLegendOpen(!legendOpen, true));
+setLegendOpen(legendOpen, false);
 
 function setCatFilter(cats){
   catFilter.clear();
   cats.forEach(c => catFilter.add(c));
   legend.classList.toggle('filtered', catFilter.size > 0);
+  legendCount.textContent = catFilter.size || '';
   legend.querySelectorAll('button.cat').forEach(b => {
     const on = catFilter.has(b.dataset.cat);
     b.classList.toggle('on', on);
     b.setAttribute('aria-pressed', on);
   });
   if (selected !== null && !visible(PEOPLE[selected])) closeCard();
+  if (selectedGroup !== null && catFilter.size && !catFilter.has(selectedGroup)) closeCard();
   render();
-  // Llevar la vista al primer personaje de las categorías elegidas
+  // Llevar la vista al primer personaje (o grupo) de las categorías elegidas
   if (catFilter.size){
     const first = PEOPLE.filter(visible).sort((a,b) => a.s - b.s)[0];
-    const node = first && canvas.querySelector(`.person[data-id="${first.id}"]`);
+    const node = groupView ? canvas.querySelector('.person.group')   // los grupos se dibujan en orden cronológico
+                           : first && canvas.querySelector(`.person[data-id="${first.id}"]`);
     if (node){
       if (horizontal) scroller.scrollTo({left: node.offsetLeft - 40, behavior:'smooth'});
       else window.scrollTo({top: scroller.offsetTop + node.offsetTop - document.getElementById('head').offsetHeight - 20, behavior:'smooth'});
