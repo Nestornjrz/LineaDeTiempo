@@ -22,7 +22,7 @@
   --c-ante:#7b5ea7; --c-patri:#b5762a; --c-epat:#8f5f4a; --c-israel:#2f7d6d; --c-reyes:#b23a48;
   --c-juda:#b0306f; --c-isr:#56677a;
   --c-profp:#2f6db3; --c-profm:#1689a8; --c-prof:#5a55b8;
-  --c-exilio:#6f7f22; --c-cristo:#c0562b; --c-apost:#3d8c40; --c-gob:#8a6d1f; --c-disc:#a0688f; --c-crono:#5b544a; --c-guerra:#9c3a1e;
+  --c-exilio:#6f7f22; --c-cristo:#c0562b; --c-apost:#3d8c40; --c-gob:#8a6d1f; --c-disc:#a0688f; --c-crono:#5b544a; --c-guerra:#9c3a1e; --c-pres:#2a6f97;
   --good:#2e8b57; --bad:#c0392b; --tibio:#a87a00;
   --mil:rgba(138,90,31,.17); --mil-line:rgba(138,90,31,.35); --sheen:rgba(255,255,255,.45); --event:#9a8f7a; --pill:#fffaf0; --shadow:0 6px 24px rgba(40,30,10,.18);
 }
@@ -34,7 +34,7 @@
     --c-juda:#e66fa6; --c-isr:#9aaabd;
     --good:#5cc98a; --bad:#ef6b5e; --tibio:#e8c04a;
     --c-profp:#6aa3e6; --c-profm:#4cc4e0; --c-prof:#9b96ec;
-    --c-exilio:#a8bb4c; --c-cristo:#ee8758; --c-apost:#6cc26f; --c-gob:#d1b04f; --c-disc:#d39bc2; --c-crono:#ada188; --c-guerra:#e0714f;
+    --c-exilio:#a8bb4c; --c-cristo:#ee8758; --c-apost:#6cc26f; --c-gob:#d1b04f; --c-disc:#d39bc2; --c-crono:#ada188; --c-guerra:#e0714f; --c-pres:#6fb3d9;
     --mil:rgba(255,236,205,.12); --mil-line:rgba(224,168,90,.3); --sheen:rgba(255,255,255,.6); --event:#8c836f; --pill:#2a261d; --shadow:0 6px 24px rgba(0,0,0,.5);
   }
 }
@@ -402,6 +402,7 @@ body.v .person.crono .bar::after{
    dt: texto propio para la duración (se usa en lugar del texto automático)
    seg: tramos de una profecía [{n, s, e, d}]; mark: momentos destacados dentro de ella [{y, n}]
    lb: nombre corto para la barra en la vista vertical (celular)
+   src: fuente (publicación) cuando no hay textos bíblicos que citar
    q: término de búsqueda en jw.org cuando el nombre lleva aclaración, p. ej. "Ocozías (Judá)"
 */
 const CATS = {
@@ -420,6 +421,7 @@ const CATS = {
   cristo: {n:'Jesús y su familia', v:'--c-cristo', t:'Jesús, sus padres, sus medios hermanos y sus parientes'},
   gob:    {n:'Gobernantes y sacerdotes', v:'--c-gob', t:'Reyes, emperadores, gobernadores y sumos sacerdotes del tiempo de Jesús'},
   disc:   {n:'Discípulos y otros', v:'--c-disc', t:'Discípulos y otras personas de los Evangelios y de los primeros años del cristianismo'},
+  pres:   {n:'Presidentes de la Watch Tower', v:'--c-pres', t:'Presidentes de la Sociedad Watch Tower Bible and Tract Society of Pennsylvania, la entidad legal de los testigos de Jehová'},
   // capa: no es una categoría de personas; se muestra u oculta con su propio botón y no se agrupa
   crono:  {n:'Profecías cronológicas', v:'--c-crono', t:'Profecías bíblicas que indican un periodo de tiempo y cuyo cumplimiento se puede fechar', capa:true},
   guerra: {n:'Guerras', v:'--c-guerra', t:'Guerras y conquistas importantes del relato bíblico y de su cumplimiento profético', capa:true},
@@ -696,6 +698,28 @@ const PEOPLE = [
    d:'La guerra más destructiva de la historia. Las publicaciones de los testigos de Jehová la consideran parte del cumplimiento de la señal de los últimos días.',
    r:'Mateo 24:7; 2 Timoteo 3:1-5; Apocalipsis 6:4', al:'guerra mundial segunda'},
 
+  // --- Presidentes de la Sociedad Watch Tower (la barra muestra los años de presidencia) ---
+  {n:'Charles T. Russell', q:'Charles Taze Russell', s:1884, e:1916, c:'pres', k:'presidencia',
+   dt:'Presidente de 1884 a 1916 (32 años). Nació en 1852 y murió en 1916',
+   d:'Con un grupo de Estudiantes de la Biblia de Pittsburgh (EE. UU.) empezó a estudiar la Biblia a fondo y en 1879 comenzó a publicar la revista que hoy se llama La Atalaya. Fue el primer presidente de la Sociedad Watch Tower.',
+   src:'Los testigos de Jehová, proclamadores del Reino de Dios (1993) y otras publicaciones de jw.org', r:'', al:'Russell Charles Taze Atalaya Estudiantes de la Biblia'},
+  {n:'Joseph F. Rutherford', q:'Joseph Rutherford', s:1917, e:1942, c:'pres', k:'presidencia',
+   dt:'Presidente de 1917 a 1942 (25 años). Nació en 1869 y murió en 1942',
+   d:'Abogado. Durante su presidencia, en 1931, los Estudiantes de la Biblia adoptaron el nombre bíblico de testigos de Jehová (Isaías 43:10).',
+   src:'Los testigos de Jehová, proclamadores del Reino de Dios (1993) y otras publicaciones de jw.org', r:'', al:'Rutherford Joseph Franklin juez'},
+  {n:'Nathan H. Knorr', q:'Nathan Knorr', s:1942, e:1977, c:'pres', k:'presidencia',
+   dt:'Presidente de 1942 a 1977 (35 años). Nació en 1905 y murió en 1977',
+   d:'Impulsó la capacitación de los predicadores: en 1943 se fundó la Escuela Bíblica de Galaad para formar misioneros y en las congregaciones se inició una escuela para enseñar a predicar.',
+   src:'Los testigos de Jehová, proclamadores del Reino de Dios (1993) y otras publicaciones de jw.org', r:'', al:'Knorr Nathan Homer Galaad'},
+  {n:'Frederick W. Franz', q:'Frederick Franz', s:1977, e:1992, c:'pres', k:'presidencia',
+   dt:'Presidente de 1977 a 1992 (15 años). Nació en 1893 y murió en 1992',
+   d:'Estudioso de la Biblia y de sus idiomas originales. Fue vicepresidente durante la presidencia de Knorr y miembro del Cuerpo Gobernante.',
+   src:'Los testigos de Jehová, proclamadores del Reino de Dios (1993) y otras publicaciones de jw.org', r:'', al:'Franz Frederick William'},
+  {n:'Milton G. Henschel', q:'Milton Henschel', s:1992, e:2000, c:'pres', k:'presidencia',
+   dt:'Presidente de 1992 a 2000 (8 años). Nació en 1920 y murió en 2003',
+   d:'Miembro del Cuerpo Gobernante. En el año 2000, los miembros del Cuerpo Gobernante dejaron la dirección de las corporaciones legales para concentrarse en la enseñanza y el cuidado espiritual.',
+   src:'Los testigos de Jehová, proclamadores del Reino de Dios (1993) y otras publicaciones de jw.org', r:'', al:'Henschel Milton George Cuerpo Gobernante'},
+
   {n:'Timoteo', s:50, e:65, a:'se', c:'disc', k:'registro', d:'Compañero de viaje de Pablo y superintendente cristiano.', r:'Hechos 16:1-3; 1 y 2 Timoteo'},
 ];
 
@@ -795,13 +819,13 @@ const EVENTS = [
 const ORD = ['', '1.er', '2.º', '3.er', '4.º', '5.º'];
 const MILLENNIA = [
   ...[5, 4, 3, 2, 1].map(k => ({s:-k * 1000, e:-(k - 1) * 1000 - 1, n:`${ORD[k]} milenio a.e.c.`})),
-  ...[1, 2].map(k => ({s:(k - 1) * 1000 + 1, e:k * 1000, n:`${ORD[k]} milenio e.c.`})),
+  ...[1, 2, 3].map(k => ({s:(k - 1) * 1000 + 1, e:k * 1000, n:`${ORD[k]} milenio e.c.`})),
 ];
 
 /* ===================== UTILIDADES ===================== */
 // Convierte año calendario a recta numérica continua (no existe el año 0).
 const T = y => y < 0 ? y + 1 : y;
-const T0 = T(-4120), T1 = T(1960);   // hasta pasado 1914, fin de los siete tiempos
+const T0 = T(-4120), T1 = T(2030);   // hasta la actualidad (presidentes de la Watch Tower)
 const fmtY = y => y < 0 ? `${-y} a.e.c.` : `${y} e.c.`;
 const norm = s => s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
 const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
@@ -1217,7 +1241,7 @@ function select(id, scroll){
   }
   card.querySelector('.desc').textContent = p.d;
   fillSegs(p);
-  card.querySelector('.refs').textContent = 'Textos: ' + p.r;
+  card.querySelector('.refs').textContent = p.src ? 'Fuente: ' + p.src : 'Textos: ' + p.r;
   card.classList.add('open');
 }
 // Ficha de un grupo (vista "Grupos")
