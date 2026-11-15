@@ -665,7 +665,9 @@ const measureCtx = document.createElement('canvas').getContext('2d');
 const textW = (t, f='600 13px system-ui, sans-serif') => { measureCtx.font = f; return measureCtx.measureText(t).width; };
 
 let horizontal = true;
-const zoom = {h:1.6, v:1.1};
+// Zoom (píxeles por año), compartido por las dos vistas para que al cambiar de vista se vea
+// la misma zona. Con fit, se ajusta a la pantalla hasta que se usan los botones de zoom.
+const zoom = {h:1.6, v:1.1, fit:{h:false, v:false}};
 let selected = null;
 let query = '';
 const catFilter = new Set();   // categorías visibles (vacío = todas)
@@ -676,9 +678,19 @@ const catOk = p => !catFilter.size || catFilter.has(p.c);
 const visible = p => catOk(p) && (!soloMode || !picked.size || picked.has(p.id));
 
 // Vista por grupos: una barra por categoría, desde su primer personaje hasta el último
-let groupView = false;
-try { groupView = localStorage.getItem('vista') === 'grupos'; } catch (e) {}
+let groupView = true;   // vista inicial: grupos (salvo que el usuario haya elegido "Personas")
+try { groupView = localStorage.getItem('vista') !== 'personas'; } catch (e) {}
+if (groupView) zoom.fit = {h:true, v:true};   // la vista inicial por grupos muestra toda la historia
 let selectedGroup = null;
+
+// Zoom que hace caber toda la línea de tiempo en la pantalla, dejando sitio al final
+// para la etiqueta más larga (las de los últimos grupos se dibujan más allá de su barra)
+function fitScale(){
+  const longest = Math.max(...Object.keys(CATS).map(k => textW(`${CATS[k].n} (00)`))) + 12;
+  const avail = (horizontal ? scroller.clientWidth
+                            : innerHeight - document.getElementById('head').offsetHeight) - 48 - longest;
+  return Math.max(0.1, avail / (T1 - T0));
+}
 function groupOf(k){
   const people = PEOPLE.filter(p => p.c === k).sort((a,b) => a.s - b.s || a.e - b.e);
   if (!people.length) return null;
@@ -715,7 +727,9 @@ function render(){
   document.body.classList.toggle('v', !horizontal);
   document.documentElement.style.setProperty('--head', document.getElementById('head').offsetHeight + 'px');
 
-  const scale = horizontal ? zoom.h : zoom.v;
+  const zkey = horizontal ? 'h' : 'v';
+  if (zoom.fit?.[zkey]) zoom[zkey] = fitScale();
+  const scale = zoom[zkey];
   const PAD = 24;
   const pos = y => PAD + (T(y) - T0) * scale;
   const span = PAD*2 + (T1 - T0) * scale;
@@ -737,6 +751,8 @@ function render(){
     p.lane = lane; p.px = a;
   }
   const lanes = laneEnd.length;
+  // Largo total: la línea de tiempo o el final de la etiqueta más lejana, lo que sea mayor
+  const extent = Math.max(span, ...laneEnd.map(end => end + PAD));
 
   // --- Eventos: filas para sus etiquetas ---
   const evs = EVENTS.map(ev => ({...ev, p: pos(ev.y), w: textW(`${evDate(ev)} · ${ev.n}`, '11px system-ui, sans-serif') + 18}));
@@ -756,7 +772,7 @@ function render(){
     const ROW = 36;
     const top0 = EV_H + AX_H + 10;
     const height = top0 + lanes * ROW + 10;
-    Object.assign(canvas.style, {width: span + 'px', height: height + 'px'});
+    Object.assign(canvas.style, {width: extent + 'px', height: height + 'px'});
 
     // Rejilla y eje
     const step = tickStep(scale);
@@ -784,10 +800,10 @@ function render(){
     }
   } else {
     const AX_W = 48;
-    const COL = 30;
+    const COL = groupView ? 34 : 30;
     const left0 = AX_W + 10;
     const width = Math.max(left0 + lanes * COL + 8, scroller.clientWidth);
-    Object.assign(canvas.style, {width: width + 'px', height: span + 'px'});
+    Object.assign(canvas.style, {width: width + 'px', height: extent + 'px'});
 
     const step = tickStep(scale);
     ticks(step).forEach(y => {
@@ -1032,12 +1048,14 @@ function setMode(solo){
   else if (picked.size) select([...picked].map(id => PEOPLE[id]).filter(visible).sort((a,b) => a.s - b.s)[0]?.id ?? [...picked][0], true);
 }
 function setView(groups){
+  const t = centerYear();   // mantener a la vista el mismo año y el mismo zoom
   groupView = groups;
   try { localStorage.setItem('vista', groups ? 'grupos' : 'personas'); } catch (e) {}
   document.getElementById('viewPeople').setAttribute('aria-pressed', !groups);
   document.getElementById('viewGroups').setAttribute('aria-pressed', groups);
   if (card.classList.contains('open')) closeCard();
   render();
+  scrollToYear(t);
 }
 document.getElementById('viewPeople').addEventListener('click', () => setView(false));
 document.getElementById('viewGroups').addEventListener('click', () => setView(true));
@@ -1113,9 +1131,14 @@ function centerYear(){
 function setZoom(f){
   const t = centerYear();
   const key = horizontal ? 'h' : 'v';
-  zoom[key] = Math.min(24, Math.max(0.25, zoom[key] * f));
+  zoom[key] = Math.min(24, Math.max(0.1, zoom[key] * f));
+  zoom.fit[key] = false;   // el usuario eligió su propio zoom
   render();
-  const px = 24 + (t - T0) * zoom[key];
+  scrollToYear(t);
+}
+// Desplaza la línea de tiempo para que el año t quede en el centro de la pantalla
+function scrollToYear(t){
+  const px = 24 + (t - T0) * (horizontal ? zoom.h : zoom.v);
   if (horizontal) scroller.scrollLeft = px - scroller.clientWidth/2;
   else window.scrollTo(0, px + scroller.offsetTop - innerHeight/2);
 }
@@ -1205,6 +1228,7 @@ let lastMode = null;
 function onResize(){
   const mode = wideQuery.matches;
   if (mode !== lastMode){ lastMode = mode; render(); if (selected !== null) select(selected, true); }
+  else if (zoom.fit?.[horizontal ? 'h' : 'v']) render();   // reajustar al nuevo tamaño de pantalla
   else document.documentElement.style.setProperty('--head', document.getElementById('head').offsetHeight + 'px');
 }
 addEventListener('resize', onResize);
