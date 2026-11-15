@@ -157,7 +157,17 @@ body.v .mil{border-top:1px solid var(--mil-line)}
 body.v .mil-lbl{writing-mode:vertical-rl}
 .legend button.capa i.mil{background:repeating-linear-gradient(90deg, var(--mil-line) 0 4px, transparent 4px 8px); border:1px solid var(--mil-line)}
 /* Sin la capa Personas se ocultan sus filtros */
-.legend.no-personas button.cat, .legend.no-personas button.reset, .legend.no-personas .reyes-val{display:none !important}
+.legend.no-personas button.cat, .legend.no-personas button.reset, .legend.no-personas .reyes-val,
+.legend.no-personas .supgroup{display:none !important}
+/* Grupos principales en la leyenda: botón que filtra todo el grupo, flecha y subgrupos desplegables */
+.legend i.bands{background:linear-gradient(180deg, var(--bands))}
+.legend .supgroup{flex-wrap:wrap; gap:4px 14px}
+.legend .supbtn{gap:0}
+.legend button.sup{margin-right:0; padding-right:3px}
+.legend button.exp{margin:0 -6px 0 0; padding:2px 6px 2px 3px; color:var(--muted)}
+.legend .tw{display:inline-block; margin:0}
+.legend .subs{display:none; flex-wrap:wrap; gap:4px 14px; padding:1px 12px; border-radius:12px; background:var(--grid)}
+.legend .subs.shown{display:inline-flex}
 header.no-personas .mode.view{display:none}
 .person.guerra .lbl{color:var(--text)}
 /* Botón de capa: casilla que se marca o desmarca, independiente de las categorías */
@@ -199,6 +209,8 @@ header > .legend{order:4}
   /* En el celular, la leyenda abierta no ocupa más de un tercio de la pantalla */
   .legend{max-height:34vh; overflow-y:auto; overscroll-behavior:contain; gap:6px 14px; padding-bottom:2px}
   .legend button{padding:4px 8px}
+  .legend button.sup{padding-right:3px}
+  .legend button.exp{padding:4px 10px 4px 4px}
 }
 
 /* ---------- Valoración de los reyes ---------- */
@@ -302,6 +314,28 @@ body.v .person .bar{top:0; left:0; width:10px}
 body.h .person.group .bar{top:16px}
 body.v .person.group .bar{width:14px}
 body.v .person.group .lbl{left:18px}
+/* Grupo principal cerrado: una franja por subgrupo, con su color (en vertical, una columna por subgrupo) */
+body.h .person.sup .bar{background-image:linear-gradient(180deg, var(--bands))}
+body.v .person.sup .bar{background-image:linear-gradient(90deg, var(--bands))}
+body.h .person.sup.aprox .bar{background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.45) 0 3px,transparent 3px 7px), linear-gradient(180deg, var(--bands))}
+body.v .person.sup.aprox .bar{background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.45) 0 3px,transparent 3px 7px), linear-gradient(90deg, var(--bands))}
+/* Grupo principal abierto: línea fina sobre sus subgrupos */
+body.h .person.sup.open .bar, body.v .person.sup.open .bar{background:var(--axis)}
+body.h .person.sup.open .bar{height:4px; top:21px}
+body.v .person.sup.open .bar{width:4px; left:5px}
+.person.sup.open .lbl{color:var(--muted)}
+.person.sup.open:not(.fixed):hover .lbl{color:var(--text)}
+.person.sup.fixed{cursor:default}
+/* Flecha de los grupos principales (un triángulo dibujado con bordes, igual en todos los dispositivos).
+   Cerrado señala el sentido del texto; abierto, hacia donde aparecen los subgrupos: abajo en
+   horizontal y a la derecha en vertical. La misma flecha despliega los subgrupos en «Filtros». */
+.tw{
+  display:inline-block; width:0; height:0; margin-inline-end:6px; vertical-align:1px;
+  border-left:6px solid currentColor; border-top:4px solid transparent; border-bottom:4px solid transparent;
+  transition:transform .15s;
+}
+.person.sup.open .tw, body.v .person.sup:not(.open) .tw, .legend button.exp[aria-expanded="true"] .tw{transform:rotate(90deg)}
+body.v .person.sup.open .tw{transform:none}
 
 /* ---------- Profecías cronológicas: barra dividida en tramos ---------- */
 .person.crono .bar{height:14px}
@@ -396,7 +430,7 @@ body.v .person.crono .bar::after{
 <!-- Ayuda: oculta de entrada; se despliega con el enlace -->
 <details class="note">
   <summary><span aria-hidden="true">ⓘ </span>Cómo leer la línea de tiempo</summary>
-  <p>Fechas según la cronología bíblica de las publicaciones de los testigos de Jehová (por ejemplo, la creación de Adán en 4026 a.e.c. y el Diluvio en 2370 a.e.c.). Las barras rayadas indican fechas aproximadas. Las profecías cronológicas se muestran arriba, como barras divididas en sus tramos; las guerras llevan el símbolo ⚔. Personas, profecías y guerras son capas que se muestran u ocultan por separado desde «Filtros»; allí también se pueden ocultar las franjas de fondo de los milenios del calendario. Las barras con borde punteado y relleno claro son extrabíblicas: personas y guerras que la Biblia no narra, aunque algunas cumplan profecías bíblicas (por ejemplo, los presidentes de la Watch Tower, la guerra judía contra Roma y las guerras mundiales). De entrada solo se muestra lo bíblico; la fila «Fuente» de «Filtros» muestra u oculta por separado lo bíblico y lo extrabíblico. En la vista «Grupos», cada barra representa una categoría y va desde su primer personaje hasta el último. Los acontecimientos con línea de puntos y etiqueta en cursiva tienen una fecha aproximada que la Biblia no precisa. En los reyes de Judá y de Israel, la barra muestra los años de reinado. En todos los reyes, el icono (✓ bueno, ◐ tibio, ✗ malo; más símbolos, mayor grado) resume lo que la Biblia dice de su conducta. Cuando no se conoce el nacimiento o la muerte, la barra muestra el período en que el personaje aparece en el registro bíblico.</p>
+  <p>Fechas según la cronología bíblica de las publicaciones de los testigos de Jehová (por ejemplo, la creación de Adán en 4026 a.e.c. y el Diluvio en 2370 a.e.c.). Las barras rayadas indican fechas aproximadas. Las profecías cronológicas se muestran arriba, como barras divididas en sus tramos; las guerras llevan el símbolo ⚔. Personas, profecías y guerras son capas que se muestran u ocultan por separado desde «Filtros»; allí también se pueden ocultar las franjas de fondo de los milenios del calendario. Las barras con borde punteado y relleno claro son extrabíblicas: personas y guerras que la Biblia no narra, aunque algunas cumplan profecías bíblicas (por ejemplo, los presidentes de la Watch Tower, la guerra judía contra Roma y las guerras mundiales). De entrada solo se muestra lo bíblico; la fila «Fuente» de «Filtros» muestra u oculta por separado lo bíblico y lo extrabíblico. En la vista «Grupos», cada barra representa una categoría y va desde su primer personaje hasta el último. Algunas categorías se juntan en un grupo principal (Época patriarcal, Reyes, Profetas y Tiempo de Jesús y los apóstoles), que lleva una flecha y una franja de color por subgrupo: al tocarlo se separa en sus subgrupos, y al tocarlo otra vez se vuelven a juntar. En «Filtros», la flecha junto a cada grupo principal muestra sus subgrupos para elegirlos por separado. Los acontecimientos con línea de puntos y etiqueta en cursiva tienen una fecha aproximada que la Biblia no precisa. En los reyes de Judá y de Israel, la barra muestra los años de reinado. En todos los reyes, el icono (✓ bueno, ◐ tibio, ✗ malo; más símbolos, mayor grado) resume lo que la Biblia dice de su conducta. Cuando no se conoce el nacimiento o la muerte, la barra muestra el período en que el personaje aparece en el registro bíblico.</p>
 </details>
 
 <div id="card" role="dialog" aria-live="polite">
@@ -436,7 +470,7 @@ body.v .person.crono .bar::after{
 const CATS = {
   ante:   {n:'Antes del Diluvio', v:'--c-ante'},
   patri:  {n:'Patriarcas',        v:'--c-patri', t:'Abrahán, Isaac, Jacob y los 12 hijos de Jacob, entre otros (Hechos 7:8, 9)'},
-  epat:   {n:'Época patriarcal',  v:'--c-epat',  t:'Esposas, hijos y otros personajes del tiempo de los patriarcas'},
+  epat:   {n:'Familias y otros',  v:'--c-epat',  t:'Esposas, hijos y otros personajes del tiempo de los patriarcas'},
   israel: {n:'Israel y jueces',   v:'--c-israel'},
   reyes:  {n:'Reino unido',       v:'--c-reyes', t:'Reyes de las 12 tribus antes de la división del reino'},
   juda:   {n:'Reyes de Judá',     v:'--c-juda',  t:'Reino de dos tribus (Judá y Benjamín), capital Jerusalén'},
@@ -454,6 +488,23 @@ const CATS = {
   crono:  {n:'Profecías cronológicas', v:'--c-crono', t:'Profecías bíblicas que indican un periodo de tiempo y cuyo cumplimiento se puede fechar', capa:true},
   guerra: {n:'Guerras', v:'--c-guerra', t:'Guerras y conquistas importantes del relato bíblico, y guerras posteriores (extrabíblicas) que cumplen profecías bíblicas según las publicaciones', capa:true},
 };
+
+/* ===================== GRUPOS PRINCIPALES =====================
+   En la vista «Grupos» y en «Filtros», estas categorías se juntan en un grupo principal que
+   se abre con un clic para verlas por separado. Las demás categorías van solas.
+   cats: sus categorías, en el orden de «Filtros»; lb: nombre corto (vista vertical y fichas) */
+const GRUPOS = {
+  patriarcal: {n:'Época patriarcal', cats:['patri','epat'],
+               t:'Los patriarcas, sus familias y otras personas de su tiempo'},
+  monarquia:  {n:'Reyes', cats:['reyes','juda','isr'],
+               t:'Los reyes del reino unido de Israel y, después de su división, los de Judá y los de Israel'},
+  profetas:   {n:'Profetas', cats:['profp','profm','prof'],
+               t:'Profetas con libro en la Biblia (principales y menores) y otros profetas'},
+  jesus:      {n:'Tiempo de Jesús y los apóstoles', lb:'Jesús y apóstoles', cats:['gob','cristo','disc','apost'],
+               t:'Gobernantes y sacerdotes de su tiempo, la familia de Jesús, sus discípulos y sus apóstoles'},
+};
+const SUP_OF = {};   // categoría -> su grupo principal
+for (const s in GRUPOS) GRUPOS[s].cats.forEach(c => SUP_OF[c] = s);
 
 const PEOPLE = [
   {n:'Adán', s:-4026, e:-3096, c:'ante', k:'vida', d:'El primer hombre, creado por Jehová. Vivió 930 años. Pecó y fue expulsado del jardín de Edén; la Biblia no dice en qué año ocurrió.', r:'Génesis 2:7; 3:17-24; 5:3-5'},
@@ -933,11 +984,13 @@ try { groupView = localStorage.getItem('vista') !== 'personas'; } catch (e) {}
 // barras e hitos no queden amontonados; en "Personas", 5, para leer los nombres
 zoomLevel = groupView && matchMedia('(min-width: 760px) and (min-aspect-ratio: 1/1)').matches ? 1 : 5;
 let selectedGroup = null;
+const openSup = new Set();   // grupos principales abiertos (empiezan cerrados en cada visita)
 
 // Escala del nivel 1: hace caber toda la línea de tiempo en la pantalla, dejando sitio al final
 // para la etiqueta más larga (las de los últimos grupos se dibujan más allá de su barra)
 function fitScale(){
-  const longest = Math.max(...Object.keys(CATS).map(k => textW(`${CATS[k].n} (00)`))) + 12;
+  const labels = [...Object.values(CATS).map(c => `${c.n} (00)`), ...Object.values(GRUPOS).map(g => `${g.n} (00)`)];
+  const longest = Math.max(...labels.map(t => textW(t))) + TW + 12;
   const avail = (horizontal ? document.documentElement.clientWidth
                             : innerHeight - document.getElementById('head').offsetHeight) - 48 - longest;
   return Math.max(0.1, avail / (T1 - T0));
@@ -951,20 +1004,72 @@ function baseScale(){
   if (key !== base.key){ base.key = key; base.val = fitScale(); }
   return base.val;
 }
+// Inicio y fin de un conjunto de personas. El inicio (o el fin) es aproximado si todos los que
+// marcan ese extremo tienen fecha aproximada
+function spanOf(people){
+  const s = Math.min(...people.map(p => p.s));
+  const e = Math.max(...people.map(p => p.e));
+  const sA = people.filter(p => p.s === s).every(p => p.approx.includes('s'));
+  const eA = people.filter(p => p.e === e).every(p => p.approx.includes('e'));
+  return {s, e, approx:(sA ? 's' : '') + (eA ? 'e' : '')};
+}
 function groupOf(k){
   const people = PEOPLE.filter(p => p.c === k).sort((a,b) => a.s - b.s || a.e - b.e);
   if (!people.length) return null;
-  const s = Math.min(...people.map(p => p.s));
-  const e = Math.max(...people.map(p => p.e));
-  // El inicio (o el fin) es aproximado si todos los que marcan ese extremo tienen fecha aproximada
-  const sA = people.filter(p => p.s === s).every(p => p.approx.includes('s'));
-  const eA = people.filter(p => p.e === e).every(p => p.approx.includes('e'));
-  return {k, c:k, n:CATS[k].n, s, e, approx:(sA ? 's' : '') + (eA ? 'e' : ''), people,
+  return {k, c:k, n:CATS[k].n, ...spanOf(people), people,
           x:people.every(isExtra),   // grupo extrabíblico: todos sus personajes lo son
           label:`${CATS[k].n} (${people.length})`, lb:CATS[k].n};   // en vertical, sin el número
 }
 const groupVisible = g => g.people.some(srcOk) && (!catFilter.size || catFilter.has(g.k)) &&
   (!soloMode || !picked.size || g.people.some(p => picked.has(p.id)));
+
+// Grupo principal con sus subgrupos visibles (subs). Cerrado, es una sola barra; abierto, una
+// línea fina con sus subgrupos debajo (kids). Si los filtros ocultan alguno de sus subgrupos,
+// se muestra abierto y fijo, para que se vea cuáles quedan.
+function supGroup(s, subs, total){
+  const G = GRUPOS[s];
+  const people = subs.flatMap(g => g.people);
+  const fixed = subs.length < total;
+  const open = fixed || openSup.has(s);
+  return {sup:s, k:s, n:G.n, ...spanOf(people), people, subs, open, fixed,
+          kids: open ? subs : null,
+          tw: !fixed,   // lleva flecha (no la lleva si está fijo por los filtros)
+          label:`${G.n} (${people.length})`, lb:G.lb || G.n};
+}
+const TW = 14;   // ancho de la flecha de un grupo principal, con su espacio
+// Barras de la vista "Grupos": categorías sueltas y grupos principales
+function groupItems(){
+  const out = [];
+  for (const k in CATS){
+    if (CATS[k].capa || SUP_OF[k]) continue;
+    const g = groupOf(k);
+    if (g && groupVisible(g)) out.push(g);
+  }
+  for (const s in GRUPOS){
+    const all = GRUPOS[s].cats.map(groupOf).filter(Boolean);
+    const subs = all.filter(groupVisible).sort((a,b) => a.s - b.s || a.e - b.e);
+    if (subs.length) out.push(supGroup(s, subs, all.length));
+  }
+  return out;
+}
+// Abrir o cerrar un grupo principal en la línea de tiempo
+function toggleSup(s){
+  if (openSup.has(s)){
+    openSup.delete(s);
+    if (selectedGroup !== null && SUP_OF[selectedGroup] === s) closeCard();   // su subgrupo ya no se ve
+  } else openSup.add(s);
+  render();
+}
+// Franjas de color de un grupo principal, una por categoría (para el CSS: --bands)
+const bandsOf = cats => cats.map((c, i, a) =>
+  `var(${CATS[c].v}) ${(i * 100 / a.length).toFixed(2)}% ${((i + 1) * 100 / a.length).toFixed(2)}%`).join(', ');
+// Nombre de la categoría en las fichas, con su grupo principal cuando el nombre solo no lo aclara
+// (p. ej. «Época patriarcal · Familias y otros», pero no «Profetas · Profetas menores»)
+function catLabel(c){
+  const s = SUP_OF[c];
+  if (!s || norm(CATS[c].n).includes(norm(GRUPOS[s].n))) return CATS[c].n;
+  return `${GRUPOS[s].lb || GRUPOS[s].n} · ${CATS[c].n}`;
+}
 
 const wideQuery = matchMedia('(min-width: 760px) and (min-aspect-ratio: 1/1)');
 
@@ -1001,21 +1106,41 @@ function render(){
   const crono = PEOPLE.filter(p => p.c === 'crono' && visible(p)).sort(byDate);
   const wars = PEOPLE.filter(p => p.c === 'guerra' && visible(p)).sort(byDate);
   const rest = !layers.personas ? [] :
-    (groupView ? Object.keys(CATS).filter(k => !CATS[k].capa).map(groupOf).filter(g => g && groupVisible(g))
-               : PEOPLE.filter(p => !isCapa(p) && visible(p))).sort(byDate);
-  const items = [...crono, ...wars, ...rest];
+    (groupView ? groupItems() : PEOPLE.filter(p => !isCapa(p) && visible(p))).sort(byDate);
+  // Lo que se dibuja: cada elemento y, tras un grupo principal abierto, sus subgrupos
+  const items = [...crono, ...wars, ...rest].flatMap(p => p.kids ? [p, ...p.kids] : [p]);
   const laneEnd = [];
   const GAP = 10;
+  const measure = p => {
+    p.px = pos(p.s);
+    p.len = Math.max(pos(p.e) - p.px, 4);
+    p.lw = textW(barLabel(p)) + 6 + (p.tw ? TW : 0) + (p.val !== undefined ? textW(valTxt(p.val), '700 10px system-ui, sans-serif') + 16 : 0);
+    p.occ = p.px + Math.max(p.len, p.lw);
+  };
+  // Filas de los subgrupos de un grupo principal abierto, sin que se encimen entre sí
+  const subRows = kids => {
+    const rows = [], ends = [];
+    for (const p of kids){
+      let r = ends.findIndex(end => end + GAP <= p.px);
+      if (r === -1){ r = ends.length; ends.push(0); rows.push([]); }
+      ends[r] = p.occ;
+      rows[r].push(p);
+    }
+    return rows;
+  };
+  // Cada elemento va en el primer carril libre desde "first". Un grupo principal abierto ocupa
+  // varios carriles seguidos (su línea y, debajo, sus subgrupos), para que queden juntos.
   const pack = (list, first) => {
-    for (const p of list){
-      const a = pos(p.s);
-      p.len = Math.max(pos(p.e) - a, 4);
-      p.lw = textW(barLabel(p)) + 6 + (p.val !== undefined ? textW(valTxt(p.val), '700 10px system-ui, sans-serif') + 16 : 0);
-      const occ = a + Math.max(p.len, p.lw);
-      let lane = laneEnd.findIndex((end, i) => i >= first && end + GAP <= a);
-      if (lane === -1){ lane = laneEnd.length; laneEnd.push(0); }
-      laneEnd[lane] = occ;
-      p.lane = lane; p.px = a;
+    for (const it of list){
+      measure(it);
+      if (it.kids) it.kids.forEach(measure);
+      const rows = [[it], ...(it.kids ? subRows(it.kids) : [])];
+      let L = first;
+      while (rows.some((row, i) => (laneEnd[L + i] ?? 0) + GAP > row[0].px)) L++;
+      rows.forEach((row, i) => {
+        row.forEach(p => p.lane = L + i);
+        laneEnd[L + i] = Math.max(laneEnd[L + i] ?? 0, row[row.length - 1].occ);
+      });
     }
   };
   pack(crono, 0);
@@ -1086,7 +1211,7 @@ function render(){
 
     // Personajes
     for (const p of items){
-      const b = p.people ? groupEl(p) : personEl(p);
+      const b = p.sup ? supEl(p) : p.people ? groupEl(p) : personEl(p);
       Object.assign(b.style, {left:p.px+'px', top:(top0 + p.lane*ROW)+'px', width:Math.max(p.len,p.lw)+'px', height:'30px'});
       b.querySelector('.bar').style.width = p.len + 'px';
       canvas.append(b);
@@ -1128,7 +1253,7 @@ function render(){
     }
 
     for (const p of items){
-      const b = p.people ? groupEl(p) : personEl(p);
+      const b = p.sup ? supEl(p) : p.people ? groupEl(p) : personEl(p);
       Object.assign(b.style, {top:p.px+'px', left:(left0 + p.lane*COL)+'px', height:Math.max(p.len,p.lw)+'px', width:'28px'});
       b.querySelector('.bar').style.height = p.len + 'px';
       canvas.append(b);
@@ -1233,6 +1358,29 @@ function groupEl(g){
   return b;
 }
 
+// Grupo principal: cerrado, una barra con una franja por subgrupo; abierto, una línea fina sobre
+// sus subgrupos. Un clic lo abre o lo cierra (salvo si está fijo por los filtros).
+function supEl(S){
+  const b = el('button', 'person group sup' + (S.open ? ' open' : '') + (S.fixed ? ' fixed' : '') +
+                         (S.approx && !S.open ? ' aprox' : ''));
+  b.dataset.sup = S.k;
+  b.style.setProperty('--col', `var(${CATS[S.subs[0].k].v})`);
+  b.style.setProperty('--bands', bandsOf(S.subs.map(g => g.k)));
+  b.title = `${S.n}: ${dateRange(S)} · ${S.people.length} personajes\n` +
+    (S.fixed ? 'Se muestra abierto porque los filtros ocultan parte de sus subgrupos'
+     : S.open ? 'Clic para juntar los subgrupos'
+     : 'Clic para separar en: ' + S.subs.map(g => g.n).join(', '));
+  b.innerHTML = `<span class="bar"></span><span class="lbl"></span>`;
+  b.querySelector('.lbl').textContent = barLabel(S);
+  if (S.tw) b.querySelector('.lbl').prepend(el('span', 'tw'));
+  if (S.fixed) b.setAttribute('aria-disabled', 'true');
+  else {
+    b.setAttribute('aria-expanded', S.open);
+    b.addEventListener('click', () => toggleSup(S.k));
+  }
+  return b;
+}
+
 function dateRange(p){
   const s = (p.approx.includes('s') ? 'c. ' : '') + fmtY(p.s);
   if (p.s === p.e) return s;
@@ -1265,7 +1413,7 @@ function select(id, scroll){
     if (scroll) node.scrollIntoView({behavior:'smooth', block:'center', inline:'center'});
   }
   card.style.setProperty('--col', `var(${CATS[p.c].v})`);
-  card.querySelector('.cat').textContent = CATS[p.c].n;
+  card.querySelector('.cat').textContent = catLabel(p.c);
   const name = card.querySelector('.name');
   name.textContent = p.n;
   name.href = card.querySelector('.more').href = jwUrl(p);
@@ -1305,7 +1453,7 @@ function selectGroup(k){
   canvas.querySelector(`.person.group[data-cat="${k}"]`)?.classList.add('sel');
   card.classList.add('group');
   card.style.setProperty('--col', `var(${CATS[k].v})`);
-  card.querySelector('.cat').textContent = 'Grupo';
+  card.querySelector('.cat').textContent = 'Grupo' + (SUP_OF[k] ? ' · ' + (GRUPOS[SUP_OF[k]].lb || GRUPOS[SUP_OF[k]].n) : '');
   const name = card.querySelector('.name');
   name.textContent = g.n;
   name.removeAttribute('href');
@@ -1352,7 +1500,8 @@ function applyFilter(){
   // En la vista "Grupos" se resaltan los grupos que contienen a algún personaje buscado
   const cats = new Set([...ids].map(id => PEOPLE[id].c));
   canvas.querySelectorAll('.person').forEach(n =>
-    n.classList.toggle('match', n.dataset.cat ? cats.has(n.dataset.cat) : ids.has(+n.dataset.id)));
+    n.classList.toggle('match', n.dataset.sup ? GRUPOS[n.dataset.sup].cats.some(c => cats.has(c))
+                              : n.dataset.cat ? cats.has(n.dataset.cat) : ids.has(+n.dataset.id)));
 }
 
 /* ---------- Personajes buscados (varios) ---------- */
@@ -1400,6 +1549,8 @@ function addPick(id){
   if (!srcOk(p)) setFuente(fuenteOf(p), true);                       // su fuente estaba oculta
   if (!layers[layerOf(p)]) setLayer(layerOf(p), true);              // su capa estaba oculta
   if (!isCapa(p) && !catOk(p)) setCatFilter([]);                     // estaba oculto por la leyenda
+  const s = SUP_OF[p.c];                                             // en "Grupos", abrir su grupo principal
+  if (groupView && s && !openSup.has(s)){ openSup.add(s); render(); }
   refresh();
   select(id, true);
 }
@@ -1540,28 +1691,60 @@ scroller.addEventListener('wheel', e => {
 
 /* ===================== LEYENDA E INICIO ===================== */
 const legend = document.getElementById('legend');
-for (const k in CATS){
-  if (CATS[k].capa) continue;   // las capas tienen su propio botón (ver abajo)
-  const b = document.createElement('button');
-  b.className = 'cat';
+// Clic: mostrar solo esas categorías (otro clic: todas); Ctrl+clic: sumarlas o quitarlas
+function filterClick(cats, e){
+  const all = cats.every(c => catFilter.has(c));
+  const next = new Set(catFilter);
+  if (e.ctrlKey || e.metaKey || e.shiftKey) cats.forEach(c => all ? next.delete(c) : next.add(c));
+  else if (all && catFilter.size === cats.length) next.clear();   // clic de nuevo en la misma: mostrar todas
+  else { next.clear(); cats.forEach(c => next.add(c)); }
+  setCatFilter([...next]);
+}
+function catButton(k){
+  const b = el('button', 'cat');
   b.dataset.cat = k;
   b.title = (CATS[k].t ? CATS[k].t + '\n' : '') + `Mostrar solo: ${CATS[k].n} (Ctrl+clic para combinar categorías)`;
   b.setAttribute('aria-pressed', 'false');
   b.innerHTML = CATS[k].x ? `<i class="extra" style="--col:var(${CATS[k].v})"></i>${CATS[k].n}`   // extrabíblica
                           : `<i style="background:var(${CATS[k].v})"></i>${CATS[k].n}`;
-  b.addEventListener('click', e => {
-    const multi = e.ctrlKey || e.metaKey || e.shiftKey;
-    const next = new Set(catFilter);
-    if (multi){
-      next.has(k) ? next.delete(k) : next.add(k);
-    } else if (next.size === 1 && next.has(k)){
-      next.clear();                       // clic de nuevo en la misma: mostrar todas
-    } else {
-      next.clear(); next.add(k);
-    }
-    setCatFilter([...next]);
-  });
-  legend.append(b);
+  b.addEventListener('click', e => filterClick([k], e));
+  return b;
+}
+// Categorías sueltas y grupos principales. El botón de un grupo principal filtra todas sus
+// categorías a la vez; la flecha de al lado despliega sus subgrupos para elegirlos por separado.
+const legendSup = {};   // grupos principales desplegados en la leyenda
+for (const k in CATS){
+  if (CATS[k].capa) continue;   // las capas tienen su propio botón (ver abajo)
+  const s = SUP_OF[k];
+  if (!s){ legend.append(catButton(k)); continue; }
+  if (GRUPOS[s].cats[0] !== k) continue;   // el grupo principal se pone una vez, en su primera categoría
+  const G = GRUPOS[s];
+  const b = el('button', 'cat sup');
+  b.dataset.sup = s;
+  b.title = `${G.t}\nMostrar solo: ${G.n} (Ctrl+clic para combinar categorías)`;
+  b.setAttribute('aria-pressed', 'false');
+  b.innerHTML = `<i class="bands" style="--bands:${bandsOf(G.cats)}"></i>${G.n}`;
+  b.addEventListener('click', e => filterClick(G.cats, e));
+  const x = el('button', 'exp');
+  x.innerHTML = '<span class="tw"></span>';   // flecha: gira al desplegar (aria-expanded)
+  x.title = `Ver por separado: ${G.cats.map(c => CATS[c].n).join(', ')}`;
+  x.setAttribute('aria-label', `Desplegar los subgrupos de ${G.n}`);
+  x.setAttribute('aria-expanded', 'false');
+  x.addEventListener('click', () => setLegendSup(s, !legendSup[s]));
+  const subs = el('span', 'subs');
+  subs.dataset.sup = s;
+  subs.append(...G.cats.map(catButton));
+  const btns = el('span', 'supbtn');
+  btns.append(b, x);
+  const wrap = el('span', 'supgroup');
+  wrap.append(btns, subs);
+  legend.append(wrap);
+}
+function setLegendSup(s, open){
+  legendSup[s] = open;
+  legend.querySelector(`button.sup[data-sup="${s}"] + .exp`).setAttribute('aria-expanded', open);
+  legend.querySelector(`.subs[data-sup="${s}"]`).classList.toggle('shown', open);
+  setHead();   // la leyenda cambia de alto
 }
 legend.insertAdjacentHTML('beforeend',
   '<button class="reset" title="Mostrar todas las categorías">✕ Mostrar todos</button>' +
@@ -1662,11 +1845,16 @@ function setLegendOpen(open, save){
 }
 legendToggle.addEventListener('click', () => setLegendOpen(!legendOpen, true));
 // Contador del botón "Filtros": capas ocultas + fuentes distintas de las iniciales
-// + categorías elegidas (si se ven las personas)
+// + categorías elegidas (si se ven las personas; un grupo principal entero cuenta como una)
 function updateBadge(){
+  let cats = catFilter.size;
+  for (const s in GRUPOS){
+    const c = GRUPOS[s].cats;
+    if (c.every(k => catFilter.has(k))) cats -= c.length - 1;
+  }
   const n = Object.values(layers).filter(on => !on).length +
             Object.keys(FUENTES).filter(k => fuentes[k] !== FUENTES_INI[k]).length +
-            (layers.personas ? catFilter.size : 0);
+            (layers.personas ? cats : 0);
   legendCount.textContent = n || '';
 }
 updateBadge();
@@ -1678,10 +1866,15 @@ function setCatFilter(cats){
   legend.classList.toggle('filtered', catFilter.size > 0);
   updateBadge();
   legend.querySelectorAll('button.cat').forEach(b => {
-    const on = catFilter.has(b.dataset.cat);
+    const on = b.dataset.sup ? GRUPOS[b.dataset.sup].cats.every(c => catFilter.has(c)) : catFilter.has(b.dataset.cat);
     b.classList.toggle('on', on);
     b.setAttribute('aria-pressed', on);
   });
+  // Si se eligió solo una parte de un grupo principal, se despliega para que se vea cuál
+  for (const s in GRUPOS){
+    const n = GRUPOS[s].cats.filter(c => catFilter.has(c)).length;
+    if (n && n < GRUPOS[s].cats.length && !legendSup[s]) setLegendSup(s, true);
+  }
   if (selected !== null && !visible(PEOPLE[selected])) closeCard();
   if (selectedGroup !== null && catFilter.size && !catFilter.has(selectedGroup)) closeCard();
   render();
