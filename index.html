@@ -22,7 +22,7 @@
   --c-ante:#7b5ea7; --c-patri:#b5762a; --c-epat:#8f5f4a; --c-israel:#2f7d6d; --c-reyes:#b23a48;
   --c-juda:#b0306f; --c-isr:#56677a;
   --c-profp:#2f6db3; --c-profm:#1689a8; --c-prof:#5a55b8;
-  --c-exilio:#6f7f22; --c-cristo:#c0562b; --c-apost:#3d8c40; --c-gob:#8a6d1f; --c-disc:#a0688f; --c-crono:#5b544a;
+  --c-exilio:#6f7f22; --c-cristo:#c0562b; --c-apost:#3d8c40; --c-gob:#8a6d1f; --c-disc:#a0688f; --c-crono:#5b544a; --c-guerra:#9c3a1e;
   --good:#2e8b57; --bad:#c0392b; --tibio:#a87a00;
   --sheen:rgba(255,255,255,.45); --event:#9a8f7a; --pill:#fffaf0; --shadow:0 6px 24px rgba(40,30,10,.18);
 }
@@ -34,7 +34,7 @@
     --c-juda:#e66fa6; --c-isr:#9aaabd;
     --good:#5cc98a; --bad:#ef6b5e; --tibio:#e8c04a;
     --c-profp:#6aa3e6; --c-profm:#4cc4e0; --c-prof:#9b96ec;
-    --c-exilio:#a8bb4c; --c-cristo:#ee8758; --c-apost:#6cc26f; --c-gob:#d1b04f; --c-disc:#d39bc2; --c-crono:#ada188;
+    --c-exilio:#a8bb4c; --c-cristo:#ee8758; --c-apost:#6cc26f; --c-gob:#d1b04f; --c-disc:#d39bc2; --c-crono:#ada188; --c-guerra:#e0714f;
     --sheen:rgba(255,255,255,.6); --event:#8c836f; --pill:#2a261d; --shadow:0 6px 24px rgba(0,0,0,.5);
   }
 }
@@ -136,7 +136,17 @@ h1{font-size:18px; margin:0; font-weight:700; letter-spacing:.2px}
 .legend button.cat.on{background:var(--surface); border-color:var(--axis); color:var(--text); font-weight:600}
 .legend button.reset{display:none; color:var(--accent); font-weight:600}
 .legend.filtered button.reset{display:inline-flex}
-/* Botón de capa (profecías): casilla que se marca o desmarca, independiente de las categorías */
+/* Fila de capas (Personas, Profecías, Guerras): casillas independientes entre sí */
+.legend .layers{flex-basis:100%; display:flex; flex-wrap:wrap; align-items:center; gap:4px 16px; margin-bottom:2px}
+.legend .layers > b{font-weight:600; color:var(--muted)}
+.legend .layers button.capa{margin:0}
+.legend button.capa i.personas{background:linear-gradient(90deg, var(--c-patri) 0 25%, var(--c-juda) 25% 50%, var(--c-prof) 50% 75%, var(--c-apost) 75%)}
+.legend button.capa i.guerra{background-color:var(--c-guerra)}
+/* Sin la capa Personas se ocultan sus filtros */
+.legend.no-personas button.cat, .legend.no-personas button.reset, .legend.no-personas .reyes-val{display:none !important}
+header.no-personas .mode.view{display:none}
+.person.guerra .lbl{color:var(--text)}
+/* Botón de capa: casilla que se marca o desmarca, independiente de las categorías */
 .legend button.capa{border:1px dashed var(--line); color:var(--text)}
 .legend button.capa:not(.on){opacity:.6}
 .legend button.capa .check{
@@ -288,7 +298,7 @@ body.h .person .mark{top:-4px; bottom:-4px; width:3px; left:calc(var(--a) * 1% -
 body.v .person .mark{left:-4px; right:-4px; height:3px; top:calc(var(--a) * 1% - 1px)}
 /* Destello tenue que recorre las barras de las profecías (y su casilla en la leyenda):
    cruza en ~3 s y descansa ~2 s. En vertical baja de arriba abajo. */
-.person.crono .bar::after, .legend button.capa.on i{
+.person.crono .bar::after, .legend button.capa.on i.crono{
   background-image:linear-gradient(90deg, transparent, var(--sheen), transparent);
   background-repeat:no-repeat; background-size:30% 100%;
   animation:sheen-h 5s ease-in-out var(--delay, 0s) infinite;
@@ -298,12 +308,12 @@ body.v .person.crono .bar::after{
   background-image:linear-gradient(180deg, transparent, var(--sheen), transparent);
   background-size:100% 30%; animation-name:sheen-v;
 }
-.legend button.capa i{background-color:var(--c-crono)}
-.legend button.capa.on i{background-size:60% 100%}
+.legend button.capa i.crono{background-color:var(--c-crono)}
+.legend button.capa.on i.crono{background-size:60% 100%}
 @keyframes sheen-h{0%{background-position:-50% 0} 60%,100%{background-position:150% 0}}
 @keyframes sheen-v{0%{background-position:0 -50%} 60%,100%{background-position:0 150%}}
 @media (prefers-reduced-motion: reduce){
-  .person.crono .bar::after, .legend button.capa.on i{animation:none; background-image:none}
+  .person.crono .bar::after, .legend button.capa.on i.crono{animation:none; background-image:none}
 }
 #card .segs{margin:8px 0; display:grid; gap:5px; font-size:14px}
 #card .segs:empty{display:none}
@@ -344,15 +354,15 @@ body.v .person.crono .bar::after{
     </div>
     <button id="install" class="install" hidden title="Instalar como aplicación en este dispositivo">⬇ Instalar</button>
   </div>
-  <button id="legendToggle" class="legend-toggle" aria-expanded="true" aria-controls="legend" title="Mostrar u ocultar las categorías">
-    Categorías <b class="count" id="legendCount" title="Categorías filtradas"></b><span class="arrow" aria-hidden="true">▼</span>
+  <button id="legendToggle" class="legend-toggle" aria-expanded="true" aria-controls="legend" title="Mostrar u ocultar los filtros: capas y categorías">
+    Filtros <b class="count" id="legendCount" title="Filtros aplicados (capas ocultas y categorías)"></b><span class="arrow" aria-hidden="true">▼</span>
   </button>
   <div class="picks" id="picks" aria-label="Personajes buscados"></div>
   <div class="legend" id="legend"></div>
 </header>
 
 <div id="scroller"><div id="canvas"></div></div>
-<p class="note">Fechas según la cronología bíblica de las publicaciones de los testigos de Jehová (por ejemplo, la creación de Adán en 4026 a.e.c. y el Diluvio en 2370 a.e.c.). Las barras rayadas indican fechas aproximadas. Las profecías cronológicas se muestran arriba, como barras divididas en sus tramos; se pueden mostrar u ocultar desde la leyenda sin cambiar el filtro de categorías. En la vista «Grupos», cada barra representa una categoría y va desde su primer personaje hasta el último. Los acontecimientos con línea de puntos y etiqueta en cursiva tienen una fecha aproximada que la Biblia no precisa. En los reyes de Judá y de Israel, la barra muestra los años de reinado. En todos los reyes, el icono (✓ bueno, ◐ tibio, ✗ malo; más símbolos, mayor grado) resume lo que la Biblia dice de su conducta. Cuando no se conoce el nacimiento o la muerte, la barra muestra el período en que el personaje aparece en el registro bíblico.</p>
+<p class="note">Fechas según la cronología bíblica de las publicaciones de los testigos de Jehová (por ejemplo, la creación de Adán en 4026 a.e.c. y el Diluvio en 2370 a.e.c.). Las barras rayadas indican fechas aproximadas. Las profecías cronológicas se muestran arriba, como barras divididas en sus tramos; las guerras llevan el símbolo ⚔. Personas, profecías y guerras son capas que se muestran u ocultan por separado desde «Filtros». En la vista «Grupos», cada barra representa una categoría y va desde su primer personaje hasta el último. Los acontecimientos con línea de puntos y etiqueta en cursiva tienen una fecha aproximada que la Biblia no precisa. En los reyes de Judá y de Israel, la barra muestra los años de reinado. En todos los reyes, el icono (✓ bueno, ◐ tibio, ✗ malo; más símbolos, mayor grado) resume lo que la Biblia dice de su conducta. Cuando no se conoce el nacimiento o la muerte, la barra muestra el período en que el personaje aparece en el registro bíblico.</p>
 
 <div id="card" role="dialog" aria-live="polite">
   <button class="close" aria-label="Cerrar">×</button>
@@ -401,6 +411,7 @@ const CATS = {
   disc:   {n:'Discípulos y otros', v:'--c-disc', t:'Discípulos y otras personas de los Evangelios y de los primeros años del cristianismo'},
   // capa: no es una categoría de personas; se muestra u oculta con su propio botón y no se agrupa
   crono:  {n:'Profecías cronológicas', v:'--c-crono', t:'Profecías bíblicas que indican un periodo de tiempo y cuyo cumplimiento se puede fechar', capa:true},
+  guerra: {n:'Guerras', v:'--c-guerra', t:'Guerras y conquistas importantes del relato bíblico y de su cumplimiento profético', capa:true},
 };
 
 const PEOPLE = [
@@ -620,6 +631,59 @@ const PEOPLE = [
    mark:[{y:33, n:'A la mitad de la última semana, el Mesías es «cortado»: muere Jesús y su sacrificio pone fin al valor de los sacrificios de la Ley'}],
    d:'Daniel profetizó que pasarían 70 semanas de años desde la orden de reconstruir Jerusalén, dada a Nehemías en el año 20 de Artajerjes (455 a.e.c.), hasta el fin del favor especial de Jehová a los judíos.',
    r:'Daniel 9:24-27; Nehemías 2:1-8; Lucas 3:1, 2, 21-23; Hechos 10:30-48', al:'setenta semanas Daniel Mesias profecia'},
+  {n:'Los siete tiempos', lb:'7 tiempos', q:'siete tiempos', s:-607, e:1914, c:'crono', k:'crono', dt:'2.520 años: siete tiempos proféticos',
+   d:'El árbol del sueño de Nabucodonosor fue cortado y su tocón quedó atado con bandas «hasta que pasen siete tiempos». Tres tiempos y medio equivalen a 1.260 días; siete tiempos, a 2.520 días, y contando un día por un año, a 2.520 años. Empezaron en 607 a.e.c., cuando Babilonia destruyó Jerusalén y dejó de haber un rey de la línea de David en el trono de Jehová, y terminaron en 1914 e.c., cuando Jesús empezó a gobernar como Rey del Reino de Dios. Jesús los llamó «los tiempos señalados de las naciones».',
+   r:'Daniel 4:10-17, 23-25, 32; Lucas 21:24; Ezequiel 21:25-27; Apocalipsis 12:6, 14; Números 14:34; Ezequiel 4:6', al:'7 tiempos naciones gentiles 1914 Nabucodonosor arbol Daniel profecia'},
+
+  // --- Guerras (capa) ---
+  {n:'Guerra de los cuatro reyes', lb:'Cuatro reyes', q:'Quedorlaomer', s:-1935, e:-1935, a:'se', c:'guerra', k:'guerra',
+   dt:'La Biblia no da la fecha: fue entre la llegada de Abrahán a Canaán (1943 a.e.c.) y el nacimiento de Ismael (1932 a.e.c.)',
+   d:'Quedorlaomer, rey de Elam, y otros tres reyes vencieron a los reyes de Sodoma y Gomorra y se llevaron cautivo a Lot. Abrahán los persiguió con 318 hombres y rescató a Lot; al volver, Melquisedec lo bendijo.',
+   r:'Génesis 14:1-24', al:'Quedorlaomer Abrahan Lot Melquisedec guerra'},
+  {n:'Conquista de Canaán', lb:'Conquista', q:'conquista de Canaán', s:-1473, e:-1467, c:'guerra', k:'guerra',
+   dt:'Unos seis años, desde el cruce del Jordán hasta el reparto de la tierra',
+   d:'Bajo el mando de Josué, Israel cruzó el Jordán, tomó Jericó y venció a 31 reyes de Canaán.',
+   r:'Josué 6:1-21; 11:18, 23; 12:7-24; 14:7-10', al:'Josue Jerico Canaan guerra'},
+  {n:'Guerra entre la casa de Saúl y la de David', lb:'Saúl y David', q:'Is-bóset', s:-1077, e:-1070, c:'guerra', k:'guerra',
+   dt:'Siete años y medio, mientras David reinó en Hebrón',
+   d:'Tras la muerte de Saúl, David reinó en Hebrón sobre Judá, e Is-bóset, hijo de Saúl, sobre las demás tribus. La guerra siguió hasta que todo Israel hizo rey a David.',
+   r:'2 Samuel 2:8-11; 3:1; 5:1-5', al:'Saul David Isboset Abner guerra'},
+  {n:'Sisac invade Judá', lb:'Sisac', q:'Sisac', s:-993, e:-993, c:'guerra', k:'guerra',
+   dt:'En el quinto año del reinado de Rehoboam',
+   d:'Como Judá había abandonado la Ley de Jehová, Sisac, rey de Egipto, atacó Jerusalén y se llevó los tesoros del templo y de la casa del rey.',
+   r:'1 Reyes 14:25, 26; 2 Crónicas 12:1-12', al:'Sisac Egipto Rehoboam guerra'},
+  {n:'Asiria sitia Samaria', lb:'Samaria', q:'Samaria', s:-742, e:-740, c:'guerra', k:'guerra',
+   dt:'Un sitio de tres años; Samaria cayó en 740 a.e.c.',
+   d:'Salmanasar V, rey de Asiria, sitió Samaria. Cuando la ciudad cayó, los israelitas del reino de diez tribus fueron llevados al exilio.',
+   r:'2 Reyes 17:3-6; 18:9-12', al:'Asiria Salmanasar Samaria Oseas guerra'},
+  {n:'Senaquerib invade Judá', lb:'Senaquerib', q:'Senaquerib', s:-732, e:-732, c:'guerra', k:'guerra',
+   dt:'En el año 14 del reinado de Ezequías',
+   d:'Senaquerib, rey de Asiria, tomó las ciudades fortificadas de Judá y amenazó Jerusalén. Ezequías confió en Jehová, y en una noche un ángel mató a 185.000 soldados asirios.',
+   r:'2 Reyes 18:13–19:37; Isaías 36, 37', al:'Asiria Senaquerib Ezequias guerra'},
+  {n:'Batalla de Carquemis', lb:'Carquemis', q:'Carquemis', s:-625, e:-625, c:'guerra', k:'guerra',
+   dt:'En el cuarto año del reinado de Jehoiaquim',
+   d:'Nabucodonosor, al frente del ejército de Babilonia, venció al faraón Nekó de Egipto junto al río Éufrates.',
+   r:'Jeremías 46:2; 2 Reyes 24:7', al:'Carquemis Nabucodonosor Neco Egipto Babilonia guerra'},
+  {n:'Babilonia destruye Jerusalén', lb:'Jerusalén', q:'destrucción de Jerusalén', s:-609, e:-607, c:'guerra', k:'guerra',
+   dt:'Un sitio de un año y medio, del año 9 al 11 de Sedequías',
+   d:'Nabucodonosor sitió Jerusalén. Cuando abrieron brecha en la muralla, la ciudad y el templo fueron destruidos y el pueblo fue llevado a Babilonia.',
+   r:'2 Reyes 25:1-10; Jeremías 39:1-8; 52:4-14', al:'Nabucodonosor Sedequias Jerusalen Babilonia guerra'},
+  {n:'Caída de Babilonia', lb:'Babilonia', q:'Babilonia', s:-539, e:-539, c:'guerra', k:'guerra',
+   dt:'En una sola noche de 539 a.e.c.',
+   d:'Los ejércitos de Ciro, rey de Persia, tomaron Babilonia en una sola noche, tal como lo habían profetizado Isaías, Jeremías y Daniel.',
+   r:'Isaías 44:27–45:2; Jeremías 51:30-32; Daniel 5:25-31', al:'Ciro Persia Babilonia Belsasar guerra'},
+  {n:'Guerra judía contra Roma', lb:'Judíos y Roma', q:'destrucción de Jerusalén 70', s:66, e:73, c:'guerra', k:'guerra',
+   dt:'De 66 a 73 e.c.; Jerusalén fue destruida en el año 70',
+   d:'Los judíos se rebelaron contra Roma. En 66 e.c. el ejército de Cestio Galo rodeó Jerusalén y se retiró, lo que permitió a los cristianos huir, como Jesús había indicado. En 70 e.c. los romanos, al mando de Tito, destruyeron la ciudad y el templo; la guerra terminó con la caída de Masada en 73 e.c.',
+   r:'Lucas 19:43, 44; 21:20-24; Mateo 24:15-22', al:'Roma Tito Cestio Jerusalen Masada guerra'},
+  {n:'Primera Guerra Mundial', lb:'1.ª Guerra Mundial', q:'Primera Guerra Mundial', s:1914, e:1918, c:'guerra', k:'guerra',
+   dt:'De 1914 a 1918',
+   d:'Empezó el mismo año en que terminaron los siete tiempos y fue la primera guerra en la que participaron naciones de todo el mundo. Las publicaciones de los testigos de Jehová la relacionan con la señal que dio Jesús: «se levantará nación contra nación».',
+   r:'Mateo 24:3, 7; Lucas 21:10, 11; Apocalipsis 6:4', al:'guerra mundial 1914 primera'},
+  {n:'Segunda Guerra Mundial', lb:'2.ª Guerra Mundial', q:'Segunda Guerra Mundial', s:1939, e:1945, c:'guerra', k:'guerra',
+   dt:'De 1939 a 1945',
+   d:'La guerra más destructiva de la historia. Las publicaciones de los testigos de Jehová la consideran parte del cumplimiento de la señal de los últimos días.',
+   r:'Mateo 24:7; 2 Timoteo 3:1-5; Apocalipsis 6:4', al:'guerra mundial segunda'},
 
   {n:'Timoteo', s:50, e:65, a:'se', c:'disc', k:'registro', d:'Compañero de viaje de Pablo y superintendente cristiano.', r:'Hechos 16:1-3; 1 y 2 Timoteo'},
 ];
@@ -711,12 +775,13 @@ const EVENTS = [
   {y:33,    n:'Muerte de Jesús'},
   {y:36,    n:'Fin de las 70 semanas'},
   {y:70,    n:'Roma destruye Jerusalén'},
+  {y:1914,  n:'Fin de los siete tiempos: Jesús empieza a reinar'},
 ];
 
 /* ===================== UTILIDADES ===================== */
 // Convierte año calendario a recta numérica continua (no existe el año 0).
 const T = y => y < 0 ? y + 1 : y;
-const T0 = T(-4120), T1 = T(120);
+const T0 = T(-4120), T1 = T(1960);   // hasta pasado 1914, fin de los siete tiempos
 const fmtY = y => y < 0 ? `${-y} a.e.c.` : `${y} e.c.`;
 const norm = s => s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
 const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
@@ -763,20 +828,25 @@ const catFilter = new Set();   // categorías visibles (vacío = todas)
 const picked = new Set();      // ids de los personajes buscados
 let soloMode = false;          // true = mostrar solo los buscados; false = atenuar a los demás
 try { soloMode = localStorage.getItem('modoBusqueda') === 'solo'; } catch (e) {}
-// Capa de profecías cronológicas: independiente del filtro de categorías y de la vista
-const isCapa = p => !!CATS[p.c].capa;
-let showCapa = true;
-try { showCapa = localStorage.getItem('profecias') !== '0'; } catch (e) {}
-const catOk = p => isCapa(p) ? showCapa : !catFilter.size || catFilter.has(p.c);
-const visible = p => isCapa(p) ? showCapa
+// Capas independientes: personas (con sus grupos y categorías), profecías cronológicas y guerras
+const LAYERS = {personas:'Personas', crono:'Profecías', guerra:'Guerras'};
+const isCapa = p => !!CATS[p.c].capa;            // profecías o guerras
+const layerOf = p => isCapa(p) ? p.c : 'personas';
+const layers = {personas:true, crono:true, guerra:true};
+try {
+  Object.assign(layers, JSON.parse(localStorage.getItem('capas') || '{}'));
+  if (localStorage.getItem('profecias') === '0') layers.crono = false;   // preferencia anterior
+} catch (e) {}
+const catOk = p => isCapa(p) ? layers[p.c] : layers.personas && (!catFilter.size || catFilter.has(p.c));
+const visible = p => isCapa(p) ? layers[p.c]
                                : catOk(p) && (!soloMode || !picked.size || picked.has(p.id));
 
 // Vista por grupos: una barra por categoría, desde su primer personaje hasta el último
 let groupView = true;   // vista inicial: grupos (salvo que el usuario haya elegido "Personas")
 try { groupView = localStorage.getItem('vista') !== 'personas'; } catch (e) {}
-// Nivel inicial: en "Grupos", 1 (toda la historia) en pantallas anchas y 4 en el celular, para que
-// barras e hitos no queden amontonados; en "Personas" se empieza en 5, para leer los nombres
-zoomLevel = !groupView ? 5 : matchMedia('(min-width: 760px) and (min-aspect-ratio: 1/1)').matches ? 1 : 4;
+// Nivel inicial: en "Grupos" con pantalla ancha, 1 (toda la historia); en el celular, 5, para que
+// barras e hitos no queden amontonados; en "Personas", 5, para leer los nombres
+zoomLevel = groupView && matchMedia('(min-width: 760px) and (min-aspect-ratio: 1/1)').matches ? 1 : 5;
 let selectedGroup = null;
 
 // Escala del nivel 1: hace caber toda la línea de tiempo en la pantalla, dejando sitio al final
@@ -840,12 +910,14 @@ function render(){
   canvas.innerHTML = '';
 
   // --- Asignar carriles (sin que se encimen barras ni nombres) ---
-  // Las profecías van en sus propios carriles, arriba; debajo, los grupos o las personas
   const byDate = (a,b) => a.s - b.s || a.e - b.e;
-  const capa = PEOPLE.filter(p => isCapa(p) && visible(p)).sort(byDate);
-  const rest = (groupView ? Object.keys(CATS).filter(k => !CATS[k].capa).map(groupOf).filter(g => g && groupVisible(g))
-                          : PEOPLE.filter(p => !isCapa(p) && visible(p))).sort(byDate);
-  const items = [...capa, ...rest];
+  // Cada capa en sus propios carriles: profecías arriba, después guerras y debajo personas o grupos
+  const crono = PEOPLE.filter(p => p.c === 'crono' && visible(p)).sort(byDate);
+  const wars = PEOPLE.filter(p => p.c === 'guerra' && visible(p)).sort(byDate);
+  const rest = !layers.personas ? [] :
+    (groupView ? Object.keys(CATS).filter(k => !CATS[k].capa).map(groupOf).filter(g => g && groupVisible(g))
+               : PEOPLE.filter(p => !isCapa(p) && visible(p))).sort(byDate);
+  const items = [...crono, ...wars, ...rest];
   const laneEnd = [];
   const GAP = 10;
   const pack = (list, first) => {
@@ -860,7 +932,8 @@ function render(){
       p.lane = lane; p.px = a;
     }
   };
-  pack(capa, 0);
+  pack(crono, 0);
+  pack(wars, laneEnd.length);
   pack(rest, laneEnd.length);
   const lanes = laneEnd.length;
   // Largo total: la línea de tiempo o el final de la etiqueta más lejana, lo que sea mayor
@@ -871,7 +944,9 @@ function render(){
   const evRowEnd = [];
   for (const ev of evs){
     const size = horizontal ? ev.w : 22;
-    const start = horizontal ? ev.p - 6 : ev.p - 11;
+    // Si la etiqueta no cabe a la derecha del final de la línea de tiempo, se dibuja hacia la izquierda
+    ev.x = horizontal && ev.p - 6 + ev.w > span ? ev.p + 6 - ev.w : ev.p - 6;
+    const start = horizontal ? ev.x : ev.p - 11;
     let r = evRowEnd.findIndex(end => end + 6 <= start);
     if (r === -1){ r = evRowEnd.length; evRowEnd.push(0); }
     evRowEnd[r] = start + size;
@@ -900,7 +975,7 @@ function render(){
     // Eventos
     for (const ev of evs){
       canvas.append(el('div','evline' + (ev.a ? ' aprox' : ''),{left:ev.p+'px', top:(ev.row*22+20)+'px', height:(height - ev.row*22 - 20)+'px'}));
-      canvas.append(evLabel(ev, {left:(ev.p-6)+'px', top:(ev.row*22+3)+'px'}));
+      canvas.append(evLabel(ev, {left:ev.x+'px', top:(ev.row*22+3)+'px'}));
     }
 
     // Personajes
@@ -916,6 +991,7 @@ function render(){
     const left0 = AX_W + 10;
     const width = Math.max(left0 + lanes * COL + 8, scroller.clientWidth);
     Object.assign(canvas.style, {width: width + 'px', height: extent + 'px'});
+    stickEventLabels();
 
     const step = tickStep(scale);
     ticks(step).forEach(y => {
@@ -932,7 +1008,8 @@ function render(){
       canvas.append(el('div','evline' + (ev.a ? ' aprox' : ''),{top:ev.p+'px', left:AX_W+'px', width:(width-AX_W)+'px'}));
       const top = Math.max(ev.p - 10, prevBottom + 3);
       prevBottom = top + 20;
-      canvas.append(evLabel(ev, {top:top+'px', right:'8px'}));
+      // Pegadas al borde derecho de la pantalla aunque la línea de tiempo se desplace hacia los lados
+      canvas.append(evLabel(ev, {top:top+'px', left:'calc(var(--vx, 100%) - 8px)', transform:'translateX(-100%)'}));
     }
 
     for (const p of items){
@@ -958,12 +1035,16 @@ function evLabel(ev, style){
 function ticks(step){
   const out = [];
   for (let y = Math.floor(4100/step)*step; y >= step; y -= step) out.push(-y);
-  for (let y = step; y <= 110; y += step) out.push(y);
+  for (let y = step; y <= T1 - 10; y += step) out.push(y);
   return out;
 }
 
-// Texto junto a la barra: nombre del grupo o de la persona; en vertical, el nombre corto si lo hay
-const barLabel = p => (!horizontal && p.lb) || p.label || p.n;
+// Texto junto a la barra: nombre del grupo o de la persona. El nombre corto (lb) se usa en vertical
+// y, en las guerras, también con poco zoom (están muy juntas en el tiempo)
+const barLabel = p => {
+  const short = p.lb && (!horizontal || (p.c === 'guerra' && zoomLevel <= 3));
+  return (p.c === 'guerra' ? '⚔ ' : '') + (short ? p.lb : p.label || p.n);
+};
 
 function personEl(p){
   const b = el('button', 'person' + (p.approx ? ' aprox' : '') + (selected === p.id ? ' sel' : ''));
@@ -974,6 +1055,7 @@ function personEl(p){
   const lbl = b.querySelector('.lbl');
   lbl.textContent = barLabel(p);
   if (p.val !== undefined) lbl.append(valBadge(p.val));
+  if (p.c === 'guerra') b.classList.add('guerra');
   if (p.k === 'crono'){
     b.classList.add('crono');
     b.style.setProperty('--delay', `${-(p.id % 4) * 1.3}s`);   // desfase: no destellan todas a la vez
@@ -1187,7 +1269,8 @@ function refresh(){
 function addPick(id){
   const p = PEOPLE[id];
   picked.add(id);
-  if (!catOk(p)) isCapa(p) ? setCapa(true) : setCatFilter([]);   // estaba oculto por la leyenda
+  if (!layers[layerOf(p)]) setLayer(layerOf(p), true);              // su capa estaba oculta
+  if (!isCapa(p) && !catOk(p)) setCatFilter([]);                     // estaba oculto por la leyenda
   refresh();
   select(id, true);
 }
@@ -1314,6 +1397,12 @@ document.getElementById('zoomIn').addEventListener('click', () => setZoom(1));
 document.getElementById('zoomOut').addEventListener('click', () => setZoom(-1));
 
 // En vista ancha, la rueda del ratón desplaza la línea de tiempo hacia los lados.
+// En vertical, las etiquetas de los hitos siguen el borde derecho visible al desplazarse de lado
+function stickEventLabels(){
+  if (!horizontal) canvas.style.setProperty('--vx', (scroller.scrollLeft + scroller.clientWidth) + 'px');
+}
+scroller.addEventListener('scroll', stickEventLabels, {passive:true});
+
 scroller.addEventListener('wheel', e => {
   if (!horizontal || e.ctrlKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
   scroller.scrollLeft += e.deltaY;
@@ -1348,27 +1437,45 @@ legend.insertAdjacentHTML('beforeend',
   '<button class="reset" title="Mostrar todas las categorías">✕ Mostrar todos</button>' +
   '<span><i class="aprox"></i>Fecha aproximada</span><span>┆ Acontecimiento</span>' +
   '<span class="ev-aprox" title="La Biblia no da el año exacto; la etiqueta indica la fecha de forma aproximada">⁞ Acontecimiento con fecha aproximada</span>' +
-  '<span title="Valoración de los reyes según la Biblia; más símbolos indican mayor grado">' +
+  '<span class="reyes-val" title="Valoración de los reyes según la Biblia; más símbolos indican mayor grado">' +
   '<span class="val good">✓</span>bueno <span class="val tibio">◐</span>tibio <span class="val bad">✗</span>malo</span>');
 legend.querySelector('.reset').addEventListener('click', () => setCatFilter([]));
 
-// Botón de la capa de profecías: las muestra u oculta sin tocar el filtro de categorías
-const capaBtn = document.createElement('button');
-capaBtn.className = 'capa';
-capaBtn.title = 'Mostrar u ocultar las profecías cronológicas (no cambia el filtro de categorías)';
-capaBtn.innerHTML = `<span class="check" aria-hidden="true"></span><i></i>${CATS.crono.n}`;
-capaBtn.addEventListener('click', () => setCapa(!showCapa));
-legend.querySelector('.reset').before(capaBtn);
-function setCapa(on){
-  showCapa = on;
-  try { localStorage.setItem('profecias', on ? '1' : '0'); } catch (e) {}
-  capaBtn.classList.toggle('on', on);
-  capaBtn.setAttribute('aria-pressed', on);
-  if (!on && selected !== null && isCapa(PEOPLE[selected])) closeCard();
+// Fila de capas: Personas, Profecías y Guerras se muestran u ocultan por separado.
+// Ocultar Personas también oculta sus filtros (categorías) y el selector Personas/Grupos.
+const layersRow = el('div', 'layers');
+layersRow.append(Object.assign(el('b'), {textContent:'Mostrar:'}));
+const layerBtns = {};
+for (const k in LAYERS){
+  const b = el('button', 'capa');
+  b.title = {personas:'Mostrar u ocultar las personas y sus grupos (con sus filtros de categoría)',
+             crono:'Mostrar u ocultar las profecías cronológicas',
+             guerra:'Mostrar u ocultar las guerras'}[k];
+  b.innerHTML = `<span class="check" aria-hidden="true"></span><i class="${k}"></i>${k === 'guerra' ? '⚔ ' : ''}${LAYERS[k]}`;
+  b.addEventListener('click', () => setLayer(k, !layers[k]));
+  layerBtns[k] = b;
+  layersRow.append(b);
+}
+legend.prepend(layersRow);
+function applyLayerUI(){
+  for (const k in LAYERS){
+    layerBtns[k].classList.toggle('on', layers[k]);
+    layerBtns[k].setAttribute('aria-pressed', layers[k]);
+  }
+  legend.classList.toggle('no-personas', !layers.personas);
+  document.getElementById('head').classList.toggle('no-personas', !layers.personas);
+}
+function setLayer(k, on){
+  layers[k] = on;
+  try { localStorage.setItem('capas', JSON.stringify(layers)); } catch (e) {}
+  applyLayerUI();
+  updateBadge();
+  if (selected !== null && !visible(PEOPLE[selected])) closeCard();
+  if (selectedGroup !== null && !layers.personas) closeCard();
+  setHead();
   render();
 }
-capaBtn.classList.toggle('on', showCapa);
-capaBtn.setAttribute('aria-pressed', showCapa);
+applyLayerUI();
 
 // Mostrar u ocultar la leyenda. En pantallas estrechas empieza cerrada; se recuerda la elección.
 const head = document.getElementById('head');
@@ -1384,13 +1491,19 @@ function setLegendOpen(open, save){
   setHead();
 }
 legendToggle.addEventListener('click', () => setLegendOpen(!legendOpen, true));
+// Contador del botón "Filtros": capas ocultas + categorías elegidas (si se ven las personas)
+function updateBadge(){
+  const n = Object.values(layers).filter(on => !on).length + (layers.personas ? catFilter.size : 0);
+  legendCount.textContent = n || '';
+}
+updateBadge();
 setLegendOpen(legendOpen, false);
 
 function setCatFilter(cats){
   catFilter.clear();
   cats.forEach(c => catFilter.add(c));
   legend.classList.toggle('filtered', catFilter.size > 0);
-  legendCount.textContent = catFilter.size || '';
+  updateBadge();
   legend.querySelectorAll('button.cat').forEach(b => {
     const on = catFilter.has(b.dataset.cat);
     b.classList.toggle('on', on);
