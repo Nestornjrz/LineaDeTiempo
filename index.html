@@ -352,6 +352,14 @@ body.v .person.crono .bar::after{
 }
 #card .close:hover{background:var(--grid)}
 .note{font-size:12px; color:var(--muted); padding:10px 16px 90px}
+.note summary{
+  display:inline-block; list-style:none; cursor:pointer; color:var(--muted);
+  text-decoration:underline dotted; text-underline-offset:3px;
+}
+.note summary::-webkit-details-marker{display:none}
+.note summary:hover, .note[open] summary{color:var(--text)}
+.note summary:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:3px}
+.note p{margin:6px 0 0; max-width:900px}
 </style>
 </head>
 <body>
@@ -385,7 +393,11 @@ body.v .person.crono .bar::after{
 </header>
 
 <div id="scroller"><div id="canvas"></div></div>
-<p class="note">Fechas según la cronología bíblica de las publicaciones de los testigos de Jehová (por ejemplo, la creación de Adán en 4026 a.e.c. y el Diluvio en 2370 a.e.c.). Las barras rayadas indican fechas aproximadas. Las profecías cronológicas se muestran arriba, como barras divididas en sus tramos; las guerras llevan el símbolo ⚔. Personas, profecías y guerras son capas que se muestran u ocultan por separado desde «Filtros»; allí también se pueden ocultar las franjas de fondo de los milenios del calendario. Las barras con borde punteado y relleno claro son extrabíblicas: personas y guerras que la Biblia no narra, aunque algunas cumplan profecías bíblicas (por ejemplo, los presidentes de la Watch Tower, la guerra judía contra Roma y las guerras mundiales). La fila «Fuente» de «Filtros» muestra u oculta por separado lo bíblico y lo extrabíblico. En la vista «Grupos», cada barra representa una categoría y va desde su primer personaje hasta el último. Los acontecimientos con línea de puntos y etiqueta en cursiva tienen una fecha aproximada que la Biblia no precisa. En los reyes de Judá y de Israel, la barra muestra los años de reinado. En todos los reyes, el icono (✓ bueno, ◐ tibio, ✗ malo; más símbolos, mayor grado) resume lo que la Biblia dice de su conducta. Cuando no se conoce el nacimiento o la muerte, la barra muestra el período en que el personaje aparece en el registro bíblico.</p>
+<!-- Ayuda: oculta de entrada; se despliega con el enlace -->
+<details class="note">
+  <summary><span aria-hidden="true">ⓘ </span>Cómo leer la línea de tiempo</summary>
+  <p>Fechas según la cronología bíblica de las publicaciones de los testigos de Jehová (por ejemplo, la creación de Adán en 4026 a.e.c. y el Diluvio en 2370 a.e.c.). Las barras rayadas indican fechas aproximadas. Las profecías cronológicas se muestran arriba, como barras divididas en sus tramos; las guerras llevan el símbolo ⚔. Personas, profecías y guerras son capas que se muestran u ocultan por separado desde «Filtros»; allí también se pueden ocultar las franjas de fondo de los milenios del calendario. Las barras con borde punteado y relleno claro son extrabíblicas: personas y guerras que la Biblia no narra, aunque algunas cumplan profecías bíblicas (por ejemplo, los presidentes de la Watch Tower, la guerra judía contra Roma y las guerras mundiales). La fila «Fuente» de «Filtros» muestra u oculta por separado lo bíblico y lo extrabíblico. En la vista «Grupos», cada barra representa una categoría y va desde su primer personaje hasta el último. Los acontecimientos con línea de puntos y etiqueta en cursiva tienen una fecha aproximada que la Biblia no precisa. En los reyes de Judá y de Israel, la barra muestra los años de reinado. En todos los reyes, el icono (✓ bueno, ◐ tibio, ✗ malo; más símbolos, mayor grado) resume lo que la Biblia dice de su conducta. Cuando no se conoce el nacimiento o la muerte, la barra muestra el período en que el personaje aparece en el registro bíblico.</p>
+</details>
 
 <div id="card" role="dialog" aria-live="polite">
   <button class="close" aria-label="Cerrar">×</button>
