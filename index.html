@@ -24,7 +24,7 @@
   --c-profp:#2f6db3; --c-profm:#1689a8; --c-prof:#5a55b8;
   --c-exilio:#6f7f22; --c-cristo:#c0562b; --c-apost:#3d8c40; --c-gob:#8a6d1f; --c-disc:#a0688f; --c-crono:#5b544a; --c-guerra:#9c3a1e;
   --good:#2e8b57; --bad:#c0392b; --tibio:#a87a00;
-  --sheen:rgba(255,255,255,.45); --event:#9a8f7a; --pill:#fffaf0; --shadow:0 6px 24px rgba(40,30,10,.18);
+  --mil:rgba(138,90,31,.17); --mil-line:rgba(138,90,31,.35); --sheen:rgba(255,255,255,.45); --event:#9a8f7a; --pill:#fffaf0; --shadow:0 6px 24px rgba(40,30,10,.18);
 }
 @media (prefers-color-scheme: dark){
   :root{
@@ -35,7 +35,7 @@
     --good:#5cc98a; --bad:#ef6b5e; --tibio:#e8c04a;
     --c-profp:#6aa3e6; --c-profm:#4cc4e0; --c-prof:#9b96ec;
     --c-exilio:#a8bb4c; --c-cristo:#ee8758; --c-apost:#6cc26f; --c-gob:#d1b04f; --c-disc:#d39bc2; --c-crono:#ada188; --c-guerra:#e0714f;
-    --sheen:rgba(255,255,255,.6); --event:#8c836f; --pill:#2a261d; --shadow:0 6px 24px rgba(0,0,0,.5);
+    --mil:rgba(255,236,205,.12); --mil-line:rgba(224,168,90,.3); --sheen:rgba(255,255,255,.6); --event:#8c836f; --pill:#2a261d; --shadow:0 6px 24px rgba(0,0,0,.5);
   }
 }
 *{box-sizing:border-box}
@@ -142,6 +142,17 @@ h1{font-size:18px; margin:0; font-weight:700; letter-spacing:.2px}
 .legend .layers button.capa{margin:0}
 .legend button.capa i.personas{background:linear-gradient(90deg, var(--c-patri) 0 25%, var(--c-juda) 25% 50%, var(--c-prof) 50% 75%, var(--c-apost) 75%)}
 .legend button.capa i.guerra{background-color:var(--c-guerra)}
+/* Franjas de los milenios (fondo) */
+.mil{position:absolute; pointer-events:none}
+.mil.alt{background:var(--mil)}
+body.h .mil{border-left:1px solid var(--mil-line)}
+body.v .mil{border-top:1px solid var(--mil-line)}
+.mil-lbl{
+  position:absolute; pointer-events:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  font-size:10.5px; font-weight:600; letter-spacing:.5px; text-transform:uppercase; color:var(--muted);
+}
+body.v .mil-lbl{writing-mode:vertical-rl}
+.legend button.capa i.mil{background:repeating-linear-gradient(90deg, var(--mil-line) 0 4px, transparent 4px 8px); border:1px solid var(--mil-line)}
 /* Sin la capa Personas se ocultan sus filtros */
 .legend.no-personas button.cat, .legend.no-personas button.reset, .legend.no-personas .reyes-val{display:none !important}
 header.no-personas .mode.view{display:none}
@@ -362,7 +373,7 @@ body.v .person.crono .bar::after{
 </header>
 
 <div id="scroller"><div id="canvas"></div></div>
-<p class="note">Fechas según la cronología bíblica de las publicaciones de los testigos de Jehová (por ejemplo, la creación de Adán en 4026 a.e.c. y el Diluvio en 2370 a.e.c.). Las barras rayadas indican fechas aproximadas. Las profecías cronológicas se muestran arriba, como barras divididas en sus tramos; las guerras llevan el símbolo ⚔. Personas, profecías y guerras son capas que se muestran u ocultan por separado desde «Filtros». En la vista «Grupos», cada barra representa una categoría y va desde su primer personaje hasta el último. Los acontecimientos con línea de puntos y etiqueta en cursiva tienen una fecha aproximada que la Biblia no precisa. En los reyes de Judá y de Israel, la barra muestra los años de reinado. En todos los reyes, el icono (✓ bueno, ◐ tibio, ✗ malo; más símbolos, mayor grado) resume lo que la Biblia dice de su conducta. Cuando no se conoce el nacimiento o la muerte, la barra muestra el período en que el personaje aparece en el registro bíblico.</p>
+<p class="note">Fechas según la cronología bíblica de las publicaciones de los testigos de Jehová (por ejemplo, la creación de Adán en 4026 a.e.c. y el Diluvio en 2370 a.e.c.). Las barras rayadas indican fechas aproximadas. Las profecías cronológicas se muestran arriba, como barras divididas en sus tramos; las guerras llevan el símbolo ⚔. Personas, profecías y guerras son capas que se muestran u ocultan por separado desde «Filtros»; allí también se pueden ocultar las franjas de fondo de los milenios del calendario. En la vista «Grupos», cada barra representa una categoría y va desde su primer personaje hasta el último. Los acontecimientos con línea de puntos y etiqueta en cursiva tienen una fecha aproximada que la Biblia no precisa. En los reyes de Judá y de Israel, la barra muestra los años de reinado. En todos los reyes, el icono (✓ bueno, ◐ tibio, ✗ malo; más símbolos, mayor grado) resume lo que la Biblia dice de su conducta. Cuando no se conoce el nacimiento o la muerte, la barra muestra el período en que el personaje aparece en el registro bíblico.</p>
 
 <div id="card" role="dialog" aria-live="polite">
   <button class="close" aria-label="Cerrar">×</button>
@@ -778,6 +789,15 @@ const EVENTS = [
   {y:1914,  n:'Fin de los siete tiempos: Jesús empieza a reinar'},
 ];
 
+/* ===================== MILENIOS =====================
+   Milenios del calendario (no hay año 0): ... 4000–3001 a.e.c., ..., 1000–1 a.e.c., 1–1000 e.c., 1001–2000 e.c.
+*/
+const ORD = ['', '1.er', '2.º', '3.er', '4.º', '5.º'];
+const MILLENNIA = [
+  ...[5, 4, 3, 2, 1].map(k => ({s:-k * 1000, e:-(k - 1) * 1000 - 1, n:`${ORD[k]} milenio a.e.c.`})),
+  ...[1, 2].map(k => ({s:(k - 1) * 1000 + 1, e:k * 1000, n:`${ORD[k]} milenio e.c.`})),
+];
+
 /* ===================== UTILIDADES ===================== */
 // Convierte año calendario a recta numérica continua (no existe el año 0).
 const T = y => y < 0 ? y + 1 : y;
@@ -837,6 +857,8 @@ try {
   Object.assign(layers, JSON.parse(localStorage.getItem('capas') || '{}'));
   if (localStorage.getItem('profecias') === '0') layers.crono = false;   // preferencia anterior
 } catch (e) {}
+let showMil = true;   // franjas de los milenios
+try { showMil = localStorage.getItem('milenios') !== '0'; } catch (e) {}
 const catOk = p => isCapa(p) ? layers[p.c] : layers.personas && (!catFilter.size || catFilter.has(p.c));
 const visible = p => isCapa(p) ? layers[p.c]
                                : catOk(p) && (!soloMode || !picked.size || picked.has(p.id));
@@ -953,13 +975,33 @@ function render(){
     ev.row = r;
   }
 
+  // --- Milenios: franjas de fondo alternadas (desde el inicio de su primer año hasta el del siguiente) ---
+  const bands = !showMil ? [] : MILLENNIA.map((m, i) => {
+    const a = Math.max(T(m.s), T0), b = Math.min(T(m.e) + 1, T1);
+    return b > a ? {...m, alt: i % 2 === 1, p: PAD + (a - T0) * scale, len: (b - a) * scale} : null;
+  }).filter(Boolean);
+  const milEl = (m, style) => {
+    const d = el('div', 'mil' + (m.alt ? ' alt' : ''), style);
+    d.title = `${m.n}: ${fmtY(m.s)} – ${fmtY(m.e)}`;
+    return d;
+  };
+
   if (horizontal){
     const EV_H = evRowEnd.length * 22 + 6;
     const AX_H = 34;
     const ROW = 36;
-    const top0 = EV_H + AX_H + 10;
+    const top0 = EV_H + AX_H + 10 + (bands.length ? 16 : 0);   // franja para el nombre del milenio
     const height = top0 + lanes * ROW + 10;
     Object.assign(canvas.style, {width: extent + 'px', height: height + 'px'});
+
+    // Milenios (detrás de todo)
+    for (const m of bands){
+      canvas.append(milEl(m, {left:m.p+'px', width:m.len+'px', top:EV_H+'px', height:(height-EV_H)+'px'}));
+      if (m.len < 40) continue;   // franja demasiado estrecha para el nombre
+      const l = el('div', 'mil-lbl', {left:(m.p+6)+'px', top:(EV_H+AX_H+5)+'px', maxWidth:(m.len-12)+'px'});
+      l.textContent = m.n;
+      canvas.append(l);
+    }
 
     // Rejilla y eje
     const step = tickStep(scale);
@@ -988,10 +1030,19 @@ function render(){
   } else {
     const AX_W = 48;
     const COL = groupView ? 32 : 30;
-    const left0 = AX_W + 10;
+    const left0 = AX_W + 10 + (bands.length ? 8 : 0);   // franja para el nombre del milenio
     const width = Math.max(left0 + lanes * COL + 8, scroller.clientWidth);
     Object.assign(canvas.style, {width: width + 'px', height: extent + 'px'});
     stickEventLabels();
+
+    // Milenios (detrás de todo); el nombre va en vertical junto al eje
+    for (const m of bands){
+      canvas.append(milEl(m, {top:m.p+'px', height:m.len+'px', left:'0px', width:width+'px'}));
+      if (m.len < 40) continue;   // franja demasiado corta para el nombre
+      const l = el('div', 'mil-lbl', {left:(AX_W+3)+'px', top:(m.p+6)+'px', maxHeight:(m.len-12)+'px'});
+      l.textContent = m.n;
+      canvas.append(l);
+    }
 
     const step = tickStep(scale);
     ticks(step).forEach(y => {
@@ -1456,8 +1507,21 @@ for (const k in LAYERS){
   layerBtns[k] = b;
   layersRow.append(b);
 }
+// Casilla de los milenios: solo cambia el fondo, no oculta nada
+const milBtn = el('button', 'capa');
+milBtn.title = 'Mostrar u ocultar las franjas de fondo de cada milenio';
+milBtn.innerHTML = '<span class="check" aria-hidden="true"></span><i class="mil"></i>Milenios';
+milBtn.addEventListener('click', () => {
+  showMil = !showMil;
+  try { localStorage.setItem('milenios', showMil ? '1' : '0'); } catch (e) {}
+  applyLayerUI();
+  render();
+});
+layersRow.append(milBtn);
 legend.prepend(layersRow);
 function applyLayerUI(){
+  milBtn.classList.toggle('on', showMil);
+  milBtn.setAttribute('aria-pressed', showMil);
   for (const k in LAYERS){
     layerBtns[k].classList.toggle('on', layers[k]);
     layerBtns[k].setAttribute('aria-pressed', layers[k]);
