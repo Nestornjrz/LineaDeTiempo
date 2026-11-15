@@ -142,6 +142,9 @@ h1{font-size:18px; margin:0; font-weight:700; letter-spacing:.2px}
 .legend .layers button.capa{margin:0}
 .legend button.capa i.personas{background:linear-gradient(90deg, var(--c-patri) 0 25%, var(--c-juda) 25% 50%, var(--c-prof) 50% 75%, var(--c-apost) 75%)}
 .legend button.capa i.guerra{background-color:var(--c-guerra)}
+/* Fila de fuente: muestras de barra bíblica (llena) y extrabíblica (borde punteado) */
+.legend i.biblico{background:var(--muted)}
+.legend i.extra{background:color-mix(in srgb, var(--col, var(--muted)) 28%, transparent); border:1.5px dashed var(--col, var(--muted))}
 /* Franjas de los milenios (fondo) */
 .mil{position:absolute; pointer-events:none}
 .mil.alt{background:var(--mil)}
@@ -241,6 +244,9 @@ body.v .evline{border-top-width:1px; height:0}
 }
 .person .bar{position:absolute; border-radius:5px; background:var(--col)}
 .person.aprox .bar{background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.45) 0 3px,transparent 3px 7px)}
+/* Extrabíblicos (lo que la Biblia no narra): relleno claro y borde punteado.
+   No se usan rayas porque ya indican fecha aproximada. */
+.person.extra .bar{background-color:color-mix(in srgb, var(--col) 28%, transparent); border:1.5px dashed var(--col)}
 .person .lbl{position:absolute; font-size:13px; font-weight:600; white-space:nowrap; line-height:1}
 body.h .person .lbl{top:0; left:0}
 body.h .person .bar{left:0; top:17px; height:10px}
@@ -266,6 +272,12 @@ body.v .person .bar{top:0; left:0; width:10px}
 #card .dur{color:var(--muted); font-size:14px}
 #card p{margin:8px 0 6px}
 #card .refs{font-size:13px; color:var(--muted)}
+#card .origen{margin:8px 0 4px; font-size:13px; color:var(--muted)}
+#card .origen i{
+  display:inline-block; width:14px; height:9px; margin-right:6px; vertical-align:-1px; border-radius:2px;
+  background:color-mix(in srgb, var(--col) 28%, transparent); border:1.5px dashed var(--col);
+}
+#card .origen b{color:var(--text); font-weight:600}
 #card .verdict{margin-top:8px; padding:7px 9px; border-radius:7px; background:var(--grid); font-size:14px}
 #card .verdict .val{margin:0 6px 0 0; font-size:11px}
 #card .verdict b{margin-right:4px}
@@ -365,15 +377,15 @@ body.v .person.crono .bar::after{
     </div>
     <button id="install" class="install" hidden title="Instalar como aplicación en este dispositivo">⬇ Instalar</button>
   </div>
-  <button id="legendToggle" class="legend-toggle" aria-expanded="true" aria-controls="legend" title="Mostrar u ocultar los filtros: capas y categorías">
-    Filtros <b class="count" id="legendCount" title="Filtros aplicados (capas ocultas y categorías)"></b><span class="arrow" aria-hidden="true">▼</span>
+  <button id="legendToggle" class="legend-toggle" aria-expanded="true" aria-controls="legend" title="Mostrar u ocultar los filtros: capas, fuente y categorías">
+    Filtros <b class="count" id="legendCount" title="Filtros aplicados (capas y fuentes ocultas, y categorías)"></b><span class="arrow" aria-hidden="true">▼</span>
   </button>
   <div class="picks" id="picks" aria-label="Personajes buscados"></div>
   <div class="legend" id="legend"></div>
 </header>
 
 <div id="scroller"><div id="canvas"></div></div>
-<p class="note">Fechas según la cronología bíblica de las publicaciones de los testigos de Jehová (por ejemplo, la creación de Adán en 4026 a.e.c. y el Diluvio en 2370 a.e.c.). Las barras rayadas indican fechas aproximadas. Las profecías cronológicas se muestran arriba, como barras divididas en sus tramos; las guerras llevan el símbolo ⚔. Personas, profecías y guerras son capas que se muestran u ocultan por separado desde «Filtros»; allí también se pueden ocultar las franjas de fondo de los milenios del calendario. En la vista «Grupos», cada barra representa una categoría y va desde su primer personaje hasta el último. Los acontecimientos con línea de puntos y etiqueta en cursiva tienen una fecha aproximada que la Biblia no precisa. En los reyes de Judá y de Israel, la barra muestra los años de reinado. En todos los reyes, el icono (✓ bueno, ◐ tibio, ✗ malo; más símbolos, mayor grado) resume lo que la Biblia dice de su conducta. Cuando no se conoce el nacimiento o la muerte, la barra muestra el período en que el personaje aparece en el registro bíblico.</p>
+<p class="note">Fechas según la cronología bíblica de las publicaciones de los testigos de Jehová (por ejemplo, la creación de Adán en 4026 a.e.c. y el Diluvio en 2370 a.e.c.). Las barras rayadas indican fechas aproximadas. Las profecías cronológicas se muestran arriba, como barras divididas en sus tramos; las guerras llevan el símbolo ⚔. Personas, profecías y guerras son capas que se muestran u ocultan por separado desde «Filtros»; allí también se pueden ocultar las franjas de fondo de los milenios del calendario. Las barras con borde punteado y relleno claro son extrabíblicas: personas y guerras que la Biblia no narra, aunque algunas cumplan profecías bíblicas (por ejemplo, los presidentes de la Watch Tower, la guerra judía contra Roma y las guerras mundiales). La fila «Fuente» de «Filtros» muestra u oculta por separado lo bíblico y lo extrabíblico. En la vista «Grupos», cada barra representa una categoría y va desde su primer personaje hasta el último. Los acontecimientos con línea de puntos y etiqueta en cursiva tienen una fecha aproximada que la Biblia no precisa. En los reyes de Judá y de Israel, la barra muestra los años de reinado. En todos los reyes, el icono (✓ bueno, ◐ tibio, ✗ malo; más símbolos, mayor grado) resume lo que la Biblia dice de su conducta. Cuando no se conoce el nacimiento o la muerte, la barra muestra el período en que el personaje aparece en el registro bíblico.</p>
 
 <div id="card" role="dialog" aria-live="polite">
   <button class="close" aria-label="Cerrar">×</button>
@@ -384,6 +396,7 @@ body.v .person.crono .bar::after{
   <div class="verdict"></div>
   <p class="desc"></p>
   <div class="segs"></div>
+  <div class="origen"></div>
   <div class="refs"></div>
   <a class="more" target="_blank" rel="noopener">Más información en jw.org ↗</a>
   <button class="seegroup">Ver estas personas en la línea de tiempo</button>
@@ -404,6 +417,9 @@ body.v .person.crono .bar::after{
    lb: nombre corto para la barra en la vista vertical (celular)
    src: fuente (publicación) cuando no hay textos bíblicos que citar
    q: término de búsqueda en jw.org cuando el nombre lleva aclaración, p. ej. "Ocozías (Judá)"
+   x: true = extrabíblico: la Biblia no lo narra como algo que ocurrió; se conoce por la historia
+      o por las publicaciones, aunque la Biblia lo haya profetizado. En las personas se pone en
+      la categoría (CATS); en las guerras, en cada una.
 */
 const CATS = {
   ante:   {n:'Antes del Diluvio', v:'--c-ante'},
@@ -421,10 +437,10 @@ const CATS = {
   cristo: {n:'Jesús y su familia', v:'--c-cristo', t:'Jesús, sus padres, sus medios hermanos y sus parientes'},
   gob:    {n:'Gobernantes y sacerdotes', v:'--c-gob', t:'Reyes, emperadores, gobernadores y sumos sacerdotes del tiempo de Jesús'},
   disc:   {n:'Discípulos y otros', v:'--c-disc', t:'Discípulos y otras personas de los Evangelios y de los primeros años del cristianismo'},
-  pres:   {n:'Presidentes de la Watch Tower', v:'--c-pres', t:'Presidentes de la Sociedad Watch Tower Bible and Tract Society of Pennsylvania, la entidad legal de los testigos de Jehová'},
+  pres:   {n:'Presidentes de la Watch Tower', v:'--c-pres', t:'Presidentes de la Sociedad Watch Tower Bible and Tract Society of Pennsylvania, la entidad legal de los testigos de Jehová', x:true},
   // capa: no es una categoría de personas; se muestra u oculta con su propio botón y no se agrupa
   crono:  {n:'Profecías cronológicas', v:'--c-crono', t:'Profecías bíblicas que indican un periodo de tiempo y cuyo cumplimiento se puede fechar', capa:true},
-  guerra: {n:'Guerras', v:'--c-guerra', t:'Guerras y conquistas importantes del relato bíblico y de su cumplimiento profético', capa:true},
+  guerra: {n:'Guerras', v:'--c-guerra', t:'Guerras y conquistas importantes del relato bíblico, y guerras posteriores (extrabíblicas) que cumplen profecías bíblicas según las publicaciones', capa:true},
 };
 
 const PEOPLE = [
@@ -685,15 +701,16 @@ const PEOPLE = [
    dt:'En una sola noche de 539 a.e.c.',
    d:'Los ejércitos de Ciro, rey de Persia, tomaron Babilonia en una sola noche, tal como lo habían profetizado Isaías, Jeremías y Daniel.',
    r:'Isaías 44:27–45:2; Jeremías 51:30-32; Daniel 5:25-31', al:'Ciro Persia Babilonia Belsasar guerra'},
-  {n:'Guerra judía contra Roma', lb:'Judíos y Roma', q:'destrucción de Jerusalén 70', s:66, e:73, c:'guerra', k:'guerra',
+  // Extrabíblicas: la Biblia no las narra, aunque las publicaciones las relacionan con profecías bíblicas
+  {n:'Guerra judía contra Roma', lb:'Judíos y Roma', q:'destrucción de Jerusalén 70', s:66, e:73, c:'guerra', k:'guerra', x:true,
    dt:'De 66 a 73 e.c.; Jerusalén fue destruida en el año 70',
    d:'Los judíos se rebelaron contra Roma. En 66 e.c. el ejército de Cestio Galo rodeó Jerusalén y se retiró, lo que permitió a los cristianos huir, como Jesús había indicado. En 70 e.c. los romanos, al mando de Tito, destruyeron la ciudad y el templo; la guerra terminó con la caída de Masada en 73 e.c.',
    r:'Lucas 19:43, 44; 21:20-24; Mateo 24:15-22', al:'Roma Tito Cestio Jerusalen Masada guerra'},
-  {n:'Primera Guerra Mundial', lb:'1.ª Guerra Mundial', q:'Primera Guerra Mundial', s:1914, e:1918, c:'guerra', k:'guerra',
+  {n:'Primera Guerra Mundial', lb:'1.ª Guerra Mundial', q:'Primera Guerra Mundial', s:1914, e:1918, c:'guerra', k:'guerra', x:true,
    dt:'De 1914 a 1918',
    d:'Empezó el mismo año en que terminaron los siete tiempos y fue la primera guerra en la que participaron naciones de todo el mundo. Las publicaciones de los testigos de Jehová la relacionan con la señal que dio Jesús: «se levantará nación contra nación».',
    r:'Mateo 24:3, 7; Lucas 21:10, 11; Apocalipsis 6:4', al:'guerra mundial 1914 primera'},
-  {n:'Segunda Guerra Mundial', lb:'2.ª Guerra Mundial', q:'Segunda Guerra Mundial', s:1939, e:1945, c:'guerra', k:'guerra',
+  {n:'Segunda Guerra Mundial', lb:'2.ª Guerra Mundial', q:'Segunda Guerra Mundial', s:1939, e:1945, c:'guerra', k:'guerra', x:true,
    dt:'De 1939 a 1945',
    d:'La guerra más destructiva de la historia. Las publicaciones de los testigos de Jehová la consideran parte del cumplimiento de la señal de los últimos días.',
    r:'Mateo 24:7; 2 Timoteo 3:1-5; Apocalipsis 6:4', al:'guerra mundial segunda'},
@@ -883,8 +900,16 @@ try {
 } catch (e) {}
 let showMil = true;   // franjas de los milenios
 try { showMil = localStorage.getItem('milenios') !== '0'; } catch (e) {}
-const catOk = p => isCapa(p) ? layers[p.c] : layers.personas && (!catFilter.size || catFilter.has(p.c));
-const visible = p => isCapa(p) ? layers[p.c]
+// Fuente: bíblico (lo narra la Biblia) o extrabíblico (campo x). Se aplica a personas y guerras;
+// las profecías cronológicas son siempre bíblicas y no dependen de este filtro.
+const FUENTES = {biblico:'Bíblicos', extra:'Extrabíblicos'};
+const isExtra = p => !!(p.x || CATS[p.c].x);
+const fuenteOf = p => isExtra(p) ? 'extra' : 'biblico';
+const fuentes = {biblico:true, extra:true};
+try { Object.assign(fuentes, JSON.parse(localStorage.getItem('fuentes') || '{}')); } catch (e) {}
+const srcOk = p => p.c === 'crono' || fuentes[fuenteOf(p)];
+const catOk = p => srcOk(p) && (isCapa(p) ? layers[p.c] : layers.personas && (!catFilter.size || catFilter.has(p.c)));
+const visible = p => isCapa(p) ? catOk(p)
                                : catOk(p) && (!soloMode || !picked.size || picked.has(p.id));
 
 // Vista por grupos: una barra por categoría, desde su primer personaje hasta el último
@@ -921,9 +946,10 @@ function groupOf(k){
   const sA = people.filter(p => p.s === s).every(p => p.approx.includes('s'));
   const eA = people.filter(p => p.e === e).every(p => p.approx.includes('e'));
   return {k, c:k, n:CATS[k].n, s, e, approx:(sA ? 's' : '') + (eA ? 'e' : ''), people,
+          x:people.every(isExtra),   // grupo extrabíblico: todos sus personajes lo son
           label:`${CATS[k].n} (${people.length})`, lb:CATS[k].n};   // en vertical, sin el número
 }
-const groupVisible = g => (!catFilter.size || catFilter.has(g.k)) &&
+const groupVisible = g => g.people.some(srcOk) && (!catFilter.size || catFilter.has(g.k)) &&
   (!soloMode || !picked.size || g.people.some(p => picked.has(p.id)));
 
 const wideQuery = matchMedia('(min-width: 760px) and (min-aspect-ratio: 1/1)');
@@ -1122,10 +1148,11 @@ const barLabel = p => {
 };
 
 function personEl(p){
-  const b = el('button', 'person' + (p.approx ? ' aprox' : '') + (selected === p.id ? ' sel' : ''));
+  const b = el('button', 'person' + (p.approx ? ' aprox' : '') + (isExtra(p) ? ' extra' : '') + (selected === p.id ? ' sel' : ''));
   b.dataset.id = p.id;
   b.style.setProperty('--col', `var(${CATS[p.c].v})`);
-  b.title = `${p.n}: ${dateRange(p)}` + (p.val !== undefined ? `\n${valTxt(p.val)} ${LEVELS[p.val]}` : '');
+  b.title = `${p.n}: ${dateRange(p)}` + (isExtra(p) ? ' · Extrabíblico' : '') +
+            (p.val !== undefined ? `\n${valTxt(p.val)} ${LEVELS[p.val]}` : '');
   b.innerHTML = `<span class="bar"></span><span class="lbl"></span>`;
   const lbl = b.querySelector('.lbl');
   lbl.textContent = barLabel(p);
@@ -1182,10 +1209,10 @@ function fillSegs(p){
 }
 
 function groupEl(g){
-  const b = el('button', 'person group' + (g.approx ? ' aprox' : '') + (selectedGroup === g.k ? ' sel' : ''));
+  const b = el('button', 'person group' + (g.approx ? ' aprox' : '') + (g.x ? ' extra' : '') + (selectedGroup === g.k ? ' sel' : ''));
   b.dataset.cat = g.k;
   b.style.setProperty('--col', `var(${CATS[g.k].v})`);
-  b.title = `${g.n}: ${dateRange(g)} · ${g.people.length} personajes`;
+  b.title = `${g.n}: ${dateRange(g)} · ${g.people.length} personajes` + (g.x ? ' · Extrabíblicos' : '');
   b.innerHTML = `<span class="bar"></span><span class="lbl"></span>`;
   b.querySelector('.lbl').textContent = barLabel(g);
   b.addEventListener('click', () => selectGroup(g.k));
@@ -1241,8 +1268,19 @@ function select(id, scroll){
   }
   card.querySelector('.desc').textContent = p.d;
   fillSegs(p);
-  card.querySelector('.refs').textContent = p.src ? 'Fuente: ' + p.src : 'Textos: ' + p.r;
+  // Lo extrabíblico lleva su fuente en la línea "Extrabíblico"; sus textos son los relacionados
+  // (por ejemplo, la profecía que cumple), no un relato bíblico del hecho
+  const extra = isExtra(p);
+  setOrigen(extra, p.src ? 'Fuente: ' + p.src : 'La Biblia no narra este hecho; se conoce por la historia');
+  card.querySelector('.refs').textContent =
+    p.r ? (extra ? 'Textos relacionados: ' : 'Textos: ') + p.r : p.src && !extra ? 'Fuente: ' + p.src : '';
   card.classList.add('open');
+}
+// Línea "Extrabíblico · …" de la ficha (oculta en lo bíblico)
+function setOrigen(show, txt){
+  const o = card.querySelector('.origen');
+  o.style.display = show ? '' : 'none';
+  if (show) o.replaceChildren(el('i'), Object.assign(el('b'), {textContent:'Extrabíblico'}), ' · ' + txt);
 }
 // Ficha de un grupo (vista "Grupos")
 function selectGroup(k){
@@ -1265,6 +1303,7 @@ function selectGroup(k){
     [...g.people].sort((a,b) => b.e - a.e)[0].n;
   card.querySelector('.verdict').style.display = 'none';
   card.querySelector('.desc').textContent = CATS[k].t || '';
+  setOrigen(g.x, 'La Biblia no menciona a estos personajes');
   fillSegs(null);
   card.querySelector('.refs').textContent = 'Personajes: ' + g.people.map(p => p.n).join(', ') + '.';
   card.classList.add('open');
@@ -1344,6 +1383,7 @@ function refresh(){
 function addPick(id){
   const p = PEOPLE[id];
   picked.add(id);
+  if (!srcOk(p)) setFuente(fuenteOf(p), true);                       // su fuente estaba oculta
   if (!layers[layerOf(p)]) setLayer(layerOf(p), true);              // su capa estaba oculta
   if (!isCapa(p) && !catOk(p)) setCatFilter([]);                     // estaba oculto por la leyenda
   refresh();
@@ -1493,7 +1533,8 @@ for (const k in CATS){
   b.dataset.cat = k;
   b.title = (CATS[k].t ? CATS[k].t + '\n' : '') + `Mostrar solo: ${CATS[k].n} (Ctrl+clic para combinar categorías)`;
   b.setAttribute('aria-pressed', 'false');
-  b.innerHTML = `<i style="background:var(${CATS[k].v})"></i>${CATS[k].n}`;
+  b.innerHTML = CATS[k].x ? `<i class="extra" style="--col:var(${CATS[k].v})"></i>${CATS[k].n}`   // extrabíblica
+                          : `<i style="background:var(${CATS[k].v})"></i>${CATS[k].n}`;
   b.addEventListener('click', e => {
     const multi = e.ctrlKey || e.metaKey || e.shiftKey;
     const next = new Set(catFilter);
@@ -1543,12 +1584,30 @@ milBtn.addEventListener('click', () => {
 });
 layersRow.append(milBtn);
 legend.prepend(layersRow);
+// Fila de fuente: personas y guerras bíblicas o extrabíblicas, por separado de las capas
+const fuenteRow = el('div', 'layers');
+fuenteRow.append(Object.assign(el('b'), {textContent:'Fuente:'}));
+const fuenteBtns = {};
+for (const k in FUENTES){
+  const b = el('button', 'capa');
+  b.title = {biblico:'Mostrar u ocultar las personas y guerras que narra la Biblia',
+             extra:'Mostrar u ocultar las personas y guerras que la Biblia no narra, aunque algunas cumplan profecías bíblicas (barras con borde punteado)'}[k];
+  b.innerHTML = `<span class="check" aria-hidden="true"></span><i class="${k}"></i>${FUENTES[k]}`;
+  b.addEventListener('click', () => setFuente(k, !fuentes[k]));
+  fuenteBtns[k] = b;
+  fuenteRow.append(b);
+}
+layersRow.after(fuenteRow);
 function applyLayerUI(){
   milBtn.classList.toggle('on', showMil);
   milBtn.setAttribute('aria-pressed', showMil);
   for (const k in LAYERS){
     layerBtns[k].classList.toggle('on', layers[k]);
     layerBtns[k].setAttribute('aria-pressed', layers[k]);
+  }
+  for (const k in FUENTES){
+    fuenteBtns[k].classList.toggle('on', fuentes[k]);
+    fuenteBtns[k].setAttribute('aria-pressed', fuentes[k]);
   }
   legend.classList.toggle('no-personas', !layers.personas);
   document.getElementById('head').classList.toggle('no-personas', !layers.personas);
@@ -1561,6 +1620,15 @@ function setLayer(k, on){
   if (selected !== null && !visible(PEOPLE[selected])) closeCard();
   if (selectedGroup !== null && !layers.personas) closeCard();
   setHead();
+  render();
+}
+function setFuente(k, on){
+  fuentes[k] = on;
+  try { localStorage.setItem('fuentes', JSON.stringify(fuentes)); } catch (e) {}
+  applyLayerUI();
+  updateBadge();
+  if (selected !== null && !visible(PEOPLE[selected])) closeCard();
+  if (selectedGroup !== null && !groupVisible(groupOf(selectedGroup))) closeCard();
   render();
 }
 applyLayerUI();
@@ -1579,9 +1647,10 @@ function setLegendOpen(open, save){
   setHead();
 }
 legendToggle.addEventListener('click', () => setLegendOpen(!legendOpen, true));
-// Contador del botón "Filtros": capas ocultas + categorías elegidas (si se ven las personas)
+// Contador del botón "Filtros": capas y fuentes ocultas + categorías elegidas (si se ven las personas)
 function updateBadge(){
-  const n = Object.values(layers).filter(on => !on).length + (layers.personas ? catFilter.size : 0);
+  const n = Object.values(layers).filter(on => !on).length + Object.values(fuentes).filter(on => !on).length +
+            (layers.personas ? catFilter.size : 0);
   legendCount.textContent = n || '';
 }
 updateBadge();
