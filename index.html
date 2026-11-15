@@ -78,6 +78,12 @@ h1{font-size:18px; margin:0; font-weight:700; letter-spacing:.2px}
   background:var(--surface); border:1px solid var(--line); border-radius:8px;
 }
 .zoom button:hover{border-color:var(--axis)}
+.zoom button:disabled{opacity:.4; cursor:default; border-color:var(--line)}
+.zlevel{
+  min-width:64px; height:34px; display:inline-flex; align-items:center; justify-content:center; gap:4px;
+  font-size:13px; color:var(--muted); white-space:nowrap; font-variant-numeric:tabular-nums; cursor:help;
+}
+.zlevel b{color:var(--text); font-size:15px}
 .install{
   height:34px; padding:0 12px; font:inherit; font-size:13px; font-weight:600; white-space:nowrap; cursor:pointer;
   color:var(--bg); background:var(--accent); border:0; border-radius:8px;
@@ -333,6 +339,7 @@ body.v .person.crono .bar::after{
     </div>
     <div class="zoom">
       <button id="zoomOut" title="Alejar" aria-label="Alejar">−</button>
+      <span id="zoomLevel" class="zlevel" aria-live="polite" title="Nivel de zoom: 1 = toda la historia en la pantalla; cada nivel acerca 1,5 veces más">Zoom <b>1</b></span>
       <button id="zoomIn" title="Acercar" aria-label="Acercar">+</button>
     </div>
     <button id="install" class="install" hidden title="Instalar como aplicación en este dispositivo">⬇ Instalar</button>
@@ -373,6 +380,7 @@ body.v .person.crono .bar::after{
       'reinado' = años de reinado (rn: duración tal como la indica la Biblia)
    dt: texto propio para la duración (se usa en lugar del texto automático)
    seg: tramos de una profecía [{n, s, e, d}]; mark: momentos destacados dentro de ella [{y, n}]
+   lb: nombre corto para la barra en la vista vertical (celular)
    q: término de búsqueda en jw.org cuando el nombre lleva aclaración, p. ej. "Ocozías (Judá)"
 */
 const CATS = {
@@ -594,18 +602,18 @@ const PEOPLE = [
   {n:'Esteban', s:33, e:34, a:'se', c:'disc', k:'registro', d:'Discípulo lleno de fe. Fue el primer mártir cristiano.', r:'Hechos 6:5–7:60'},
   {n:'Pablo', s:34, e:65, a:'se', c:'apost', k:'registro', d:'Antes perseguidor (Saulo). Apóstol a las naciones; escribió 14 cartas.', r:'Hechos 7:58; 9:1-19; 2 Timoteo 4:6-8', al:'Saulo'},
   // --- Profecías cronológicas (fechas según las publicaciones de los testigos de Jehová) ---
-  {n:'Los 430 años', q:'430 años', s:-1943, e:-1513, c:'crono', k:'crono', dt:'430 años: desde el pacto con Abrahán hasta el Éxodo',
+  {n:'Los 430 años', lb:'430 años', q:'430 años', s:-1943, e:-1513, c:'crono', k:'crono', dt:'430 años: desde el pacto con Abrahán hasta el Éxodo',
    seg:[{n:'En Canaán', s:-1943, e:-1728, d:'Abrahán, Isaac y Jacob viven como extranjeros en Canaán'},
         {n:'En Egipto', s:-1728, e:-1513, d:'Desde que Jacob y su familia se van a Egipto hasta el Éxodo'}],
    d:'La Biblia dice que los israelitas estuvieron 430 años como residentes extranjeros. Se cuentan desde que entró en vigor el pacto con Abrahán, cuando cruzó el Éufrates rumbo a Canaán (1943 a.e.c.), hasta que Israel salió de Egipto (1513 a.e.c.). La Ley se dio 430 años después del pacto.',
    r:'Génesis 12:4-7; Éxodo 12:40-42; Gálatas 3:16, 17', al:'cuatrocientos treinta Abrahan pacto Exodo profecia'},
-  {n:'Los 400 años de aflicción', q:'400 años', s:-1913, e:-1513, c:'crono', k:'crono', dt:'400 años: desde el destete de Isaac hasta el Éxodo',
+  {n:'Los 400 años de aflicción', lb:'400 años', q:'400 años', s:-1913, e:-1513, c:'crono', k:'crono', dt:'400 años: desde el destete de Isaac hasta el Éxodo',
    d:'Jehová le dijo a Abrahán que su descendencia sería afligida durante 400 años. Empezaron cuando Ismael se burló de Isaac el día de su destete (1913 a.e.c.) y terminaron cuando Jehová liberó a Israel de Egipto (1513 a.e.c.).',
    r:'Génesis 15:13, 14; 21:8, 9; Gálatas 4:29; Hechos 7:6', al:'cuatrocientos aflicción aflicion Isaac Ismael Egipto profecia'},
-  {n:'Los 70 años de desolación', q:'70 años', s:-607, e:-537, c:'crono', k:'crono', dt:'70 años: desde la destrucción de Jerusalén hasta el regreso del exilio',
+  {n:'Los 70 años de desolación', lb:'70 años', q:'70 años', s:-607, e:-537, c:'crono', k:'crono', dt:'70 años: desde la destrucción de Jerusalén hasta el regreso del exilio',
    d:'Jeremías profetizó que Judá quedaría desolada y que los judíos servirían a Babilonia 70 años. Empezaron cuando Babilonia destruyó Jerusalén (607 a.e.c.) y terminaron cuando los judíos regresaron a su tierra (537 a.e.c.).',
    r:'Jeremías 25:11, 12; 29:10; 2 Crónicas 36:20, 21; Daniel 9:2', al:'setenta desolación desolacion Babilonia exilio profecia'},
-  {n:'Las 70 semanas', q:'setenta semanas', s:-455, e:36, c:'crono', k:'crono', dt:'490 años: 70 semanas de años',
+  {n:'Las 70 semanas', lb:'70 semanas', q:'setenta semanas', s:-455, e:36, c:'crono', k:'crono', dt:'490 años: 70 semanas de años',
    seg:[{n:'7 semanas (49 años)', s:-455, e:-406, d:'Se reconstruye Jerusalén en tiempos difíciles'},
         {n:'62 semanas (434 años)', s:-406, e:29, d:'Al terminar las 69 semanas aparece el Mesías: Jesús es bautizado y ungido'},
         {n:'1 semana (7 años)', s:29, e:36, d:'El Mesías y sus discípulos predican a los judíos; en 36 e.c. Cornelio es el primer gentil que se hace cristiano'}],
@@ -744,9 +752,11 @@ const measureCtx = document.createElement('canvas').getContext('2d');
 const textW = (t, f='600 13px system-ui, sans-serif') => { measureCtx.font = f; return measureCtx.measureText(t).width; };
 
 let horizontal = true;
-// Zoom (píxeles por año), compartido por las dos vistas para que al cambiar de vista se vea
-// la misma zona. Con fit, se ajusta a la pantalla hasta que se usan los botones de zoom.
-const zoom = {h:1.6, v:1.1, fit:{h:false, v:false}};
+// Zoom por niveles, compartido por las dos vistas: nivel 1 = toda la historia en la pantalla;
+// cada nivel acerca 1,5 veces más.
+const ZOOM_MAX = 12, ZOOM_STEP = 1.5;
+let zoomLevel = 1;
+let curScale = 1;   // píxeles por año del último dibujo
 let selected = null;
 let query = '';
 const catFilter = new Set();   // categorías visibles (vacío = todas)
@@ -764,16 +774,27 @@ const visible = p => isCapa(p) ? showCapa
 // Vista por grupos: una barra por categoría, desde su primer personaje hasta el último
 let groupView = true;   // vista inicial: grupos (salvo que el usuario haya elegido "Personas")
 try { groupView = localStorage.getItem('vista') !== 'personas'; } catch (e) {}
-if (groupView) zoom.fit = {h:true, v:true};   // la vista inicial por grupos muestra toda la historia
+// Nivel inicial: en "Grupos", 1 (toda la historia) en pantallas anchas y 4 en el celular, para que
+// barras e hitos no queden amontonados; en "Personas" se empieza en 5, para leer los nombres
+zoomLevel = !groupView ? 5 : matchMedia('(min-width: 760px) and (min-aspect-ratio: 1/1)').matches ? 1 : 4;
 let selectedGroup = null;
 
-// Zoom que hace caber toda la línea de tiempo en la pantalla, dejando sitio al final
+// Escala del nivel 1: hace caber toda la línea de tiempo en la pantalla, dejando sitio al final
 // para la etiqueta más larga (las de los últimos grupos se dibujan más allá de su barra)
 function fitScale(){
   const longest = Math.max(...Object.keys(CATS).map(k => textW(`${CATS[k].n} (00)`))) + 12;
-  const avail = (horizontal ? scroller.clientWidth
+  const avail = (horizontal ? document.documentElement.clientWidth
                             : innerHeight - document.getElementById('head').offsetHeight) - 48 - longest;
   return Math.max(0.1, avail / (T1 - T0));
+}
+// Se recalcula solo si cambia el ancho o la orientación (no cuando el celular muestra u oculta
+// la barra de direcciones, para que la línea de tiempo no salte al desplazarse)
+const base = {key:'', val:1};
+const baseKey = () => (wideQuery.matches ? 'h' : 'v') + document.documentElement.clientWidth;
+function baseScale(){
+  const key = baseKey();
+  if (key !== base.key){ base.key = key; base.val = fitScale(); }
+  return base.val;
 }
 function groupOf(k){
   const people = PEOPLE.filter(p => p.c === k).sort((a,b) => a.s - b.s || a.e - b.e);
@@ -784,7 +805,7 @@ function groupOf(k){
   const sA = people.filter(p => p.s === s).every(p => p.approx.includes('s'));
   const eA = people.filter(p => p.e === e).every(p => p.approx.includes('e'));
   return {k, c:k, n:CATS[k].n, s, e, approx:(sA ? 's' : '') + (eA ? 'e' : ''), people,
-          label:`${CATS[k].n} (${people.length})`};
+          label:`${CATS[k].n} (${people.length})`, lb:CATS[k].n};   // en vertical, sin el número
 }
 const groupVisible = g => (!catFilter.size || catFilter.has(g.k)) &&
   (!soloMode || !picked.size || g.people.some(p => picked.has(p.id)));
@@ -811,9 +832,8 @@ function render(){
   document.body.classList.toggle('v', !horizontal);
   document.documentElement.style.setProperty('--head', document.getElementById('head').offsetHeight + 'px');
 
-  const zkey = horizontal ? 'h' : 'v';
-  if (zoom.fit?.[zkey]) zoom[zkey] = fitScale();
-  const scale = zoom[zkey];
+  const scale = curScale = baseScale() * ZOOM_STEP ** (zoomLevel - 1);
+  updateZoomUI();
   const PAD = 24;
   const pos = y => PAD + (T(y) - T0) * scale;
   const span = PAD*2 + (T1 - T0) * scale;
@@ -832,7 +852,7 @@ function render(){
     for (const p of list){
       const a = pos(p.s);
       p.len = Math.max(pos(p.e) - a, 4);
-      p.lw = textW(p.label || p.n) + 6 + (p.val !== undefined ? textW(valTxt(p.val), '700 10px system-ui, sans-serif') + 16 : 0);
+      p.lw = textW(barLabel(p)) + 6 + (p.val !== undefined ? textW(valTxt(p.val), '700 10px system-ui, sans-serif') + 16 : 0);
       const occ = a + Math.max(p.len, p.lw);
       let lane = laneEnd.findIndex((end, i) => i >= first && end + GAP <= a);
       if (lane === -1){ lane = laneEnd.length; laneEnd.push(0); }
@@ -892,7 +912,7 @@ function render(){
     }
   } else {
     const AX_W = 48;
-    const COL = groupView ? 34 : 30;
+    const COL = groupView ? 32 : 30;
     const left0 = AX_W + 10;
     const width = Math.max(left0 + lanes * COL + 8, scroller.clientWidth);
     Object.assign(canvas.style, {width: width + 'px', height: extent + 'px'});
@@ -942,6 +962,9 @@ function ticks(step){
   return out;
 }
 
+// Texto junto a la barra: nombre del grupo o de la persona; en vertical, el nombre corto si lo hay
+const barLabel = p => (!horizontal && p.lb) || p.label || p.n;
+
 function personEl(p){
   const b = el('button', 'person' + (p.approx ? ' aprox' : '') + (selected === p.id ? ' sel' : ''));
   b.dataset.id = p.id;
@@ -949,7 +972,7 @@ function personEl(p){
   b.title = `${p.n}: ${dateRange(p)}` + (p.val !== undefined ? `\n${valTxt(p.val)} ${LEVELS[p.val]}` : '');
   b.innerHTML = `<span class="bar"></span><span class="lbl"></span>`;
   const lbl = b.querySelector('.lbl');
-  lbl.textContent = p.n;
+  lbl.textContent = barLabel(p);
   if (p.val !== undefined) lbl.append(valBadge(p.val));
   if (p.k === 'crono'){
     b.classList.add('crono');
@@ -1007,7 +1030,7 @@ function groupEl(g){
   b.style.setProperty('--col', `var(${CATS[g.k].v})`);
   b.title = `${g.n}: ${dateRange(g)} · ${g.people.length} personajes`;
   b.innerHTML = `<span class="bar"></span><span class="lbl"></span>`;
-  b.querySelector('.lbl').textContent = g.label;
+  b.querySelector('.lbl').textContent = barLabel(g);
   b.addEventListener('click', () => selectGroup(g.k));
   return b;
 }
@@ -1263,27 +1286,32 @@ document.addEventListener('keydown', e => {
 
 /* ===================== ZOOM ===================== */
 function centerYear(){
-  const scale = horizontal ? zoom.h : zoom.v;
   const mid = horizontal ? scroller.scrollLeft + scroller.clientWidth/2
                          : window.scrollY - scroller.offsetTop + innerHeight/2;
-  return (mid - 24) / scale + T0;
+  return (mid - 24) / curScale + T0;
 }
-function setZoom(f){
+// Cambia el nivel de zoom (+1 acerca, -1 aleja) manteniendo el mismo año en el centro
+function setZoom(delta){
+  const level = Math.min(ZOOM_MAX, Math.max(1, zoomLevel + delta));
+  if (level === zoomLevel) return;
   const t = centerYear();
-  const key = horizontal ? 'h' : 'v';
-  zoom[key] = Math.min(24, Math.max(0.1, zoom[key] * f));
-  zoom.fit[key] = false;   // el usuario eligió su propio zoom
+  zoomLevel = level;
   render();
   scrollToYear(t);
 }
 // Desplaza la línea de tiempo para que el año t quede en el centro de la pantalla
 function scrollToYear(t){
-  const px = 24 + (t - T0) * (horizontal ? zoom.h : zoom.v);
+  const px = 24 + (t - T0) * curScale;
   if (horizontal) scroller.scrollLeft = px - scroller.clientWidth/2;
   else window.scrollTo(0, px + scroller.offsetTop - innerHeight/2);
 }
-document.getElementById('zoomIn').addEventListener('click', () => setZoom(1.5));
-document.getElementById('zoomOut').addEventListener('click', () => setZoom(1/1.5));
+function updateZoomUI(){
+  document.getElementById('zoomLevel').innerHTML = `Zoom <b>${zoomLevel}</b>`;
+  document.getElementById('zoomOut').disabled = zoomLevel === 1;
+  document.getElementById('zoomIn').disabled = zoomLevel === ZOOM_MAX;
+}
+document.getElementById('zoomIn').addEventListener('click', () => setZoom(1));
+document.getElementById('zoomOut').addEventListener('click', () => setZoom(-1));
 
 // En vista ancha, la rueda del ratón desplaza la línea de tiempo hacia los lados.
 scroller.addEventListener('wheel', e => {
@@ -1387,7 +1415,7 @@ let lastMode = null;
 function onResize(){
   const mode = wideQuery.matches;
   if (mode !== lastMode){ lastMode = mode; render(); if (selected !== null) select(selected, true); }
-  else if (zoom.fit?.[horizontal ? 'h' : 'v']) render();   // reajustar al nuevo tamaño de pantalla
+  else if (baseKey() !== base.key){ const t = centerYear(); render(); scrollToYear(t); }   // cambió el ancho
   else document.documentElement.style.setProperty('--head', document.getElementById('head').offsetHeight + 'px');
 }
 addEventListener('resize', onResize);
