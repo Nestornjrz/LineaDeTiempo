@@ -19,7 +19,7 @@
 :root{
   --bg:#f7f5f0; --surface:#ffffff; --text:#1f1d1a; --muted:#6b665e;
   --line:#e6e1d6; --grid:#ece7dc; --axis:#bdb5a5; --accent:#8a5a1f;
-  --c-ante:#7b5ea7; --c-patri:#b5762a; --c-israel:#2f7d6d; --c-reyes:#b23a48;
+  --c-ante:#7b5ea7; --c-patri:#b5762a; --c-epat:#8f5f4a; --c-israel:#2f7d6d; --c-reyes:#b23a48;
   --c-juda:#b0306f; --c-isr:#56677a;
   --c-profp:#2f6db3; --c-profm:#1689a8; --c-prof:#5a55b8;
   --c-exilio:#6f7f22; --c-cristo:#c0562b;
@@ -30,7 +30,7 @@
   :root{
     --bg:#16140f; --surface:#211e17; --text:#ece6da; --muted:#a39b8b;
     --line:#332e24; --grid:#2a261e; --axis:#5c5446; --accent:#e0a85a;
-    --c-ante:#a98ad6; --c-patri:#e0a24f; --c-israel:#4fb8a2; --c-reyes:#e06474;
+    --c-ante:#a98ad6; --c-patri:#e0a24f; --c-epat:#c9937c; --c-israel:#4fb8a2; --c-reyes:#e06474;
     --c-juda:#e66fa6; --c-isr:#9aaabd;
     --good:#5cc98a; --bad:#ef6b5e; --tibio:#e8c04a;
     --c-profp:#6aa3e6; --c-profm:#4cc4e0; --c-prof:#9b96ec;
@@ -256,12 +256,17 @@ body.v .person .bar{top:0; left:0; width:10px}
    a: qué fechas son aproximadas ('s' inicio, 'e' fin, 'se' ambas)
    k: 'vida' = nacimiento-muerte; 'registro' = aparición-desaparición en el relato;
       'profecia' = periodo en que profetizó (pt: texto propio para la duración);
+      'juez' = periodo como juez (jt: lo que dice la Biblia sobre los años). Las fechas de
+      cada juez son aproximadas: jw.org solo fecha el periodo completo (c. 1450–1117 a.e.c.)
+      y Jueces 11:26 sitúa a Jefté unos 300 años después de la conquista (c. 1173 a.e.c.);
       'reinado' = años de reinado (rn: duración tal como la indica la Biblia)
+   dt: texto propio para la duración (se usa en lugar del texto automático)
    q: término de búsqueda en jw.org cuando el nombre lleva aclaración, p. ej. "Ocozías (Judá)"
 */
 const CATS = {
   ante:   {n:'Antes del Diluvio', v:'--c-ante'},
-  patri:  {n:'Patriarcas',        v:'--c-patri'},
+  patri:  {n:'Patriarcas',        v:'--c-patri', t:'Abrahán, Isaac, Jacob y los 12 hijos de Jacob, entre otros (Hechos 7:8, 9)'},
+  epat:   {n:'Época patriarcal',  v:'--c-epat',  t:'Esposas, hijos y otros personajes del tiempo de los patriarcas'},
   israel: {n:'Israel y jueces',   v:'--c-israel'},
   reyes:  {n:'Reino unido',       v:'--c-reyes', t:'Reyes de las 12 tribus antes de la división del reino'},
   juda:   {n:'Reyes de Judá',     v:'--c-juda',  t:'Reino de dos tribus (Judá y Benjamín), capital Jerusalén'},
@@ -287,14 +292,59 @@ const PEOPLE = [
   {n:'Sem', s:-2468, e:-1868, c:'patri', k:'vida', d:'Hijo de Noé y antepasado de Abrahán.', r:'Génesis 11:10, 11'},
   {n:'Taré', s:-2148, e:-1943, c:'patri', k:'vida', d:'Padre de Abrahán. Murió en Harán.', r:'Génesis 11:24-32', al:'Tare Terah'},
   {n:'Abrahán', s:-2018, e:-1843, c:'patri', k:'vida', d:'Amigo de Jehová y padre de la nación de Israel. Jehová hizo un pacto con él.', r:'Génesis 11:26–25:10; Santiago 2:23', al:'Abraham Abram'},
-  {n:'Sara', s:-2008, e:-1881, c:'patri', k:'vida', d:'Esposa de Abrahán y madre de Isaac.', r:'Génesis 17:17; 23:1, 2', al:'Sarai'},
-  {n:'Ismael', s:-1932, e:-1795, c:'patri', k:'vida', d:'Hijo de Abrahán y Agar.', r:'Génesis 16:16; 25:17'},
+  {n:'Sara', s:-2008, e:-1881, c:'epat', k:'vida', d:'Esposa de Abrahán y madre de Isaac.', r:'Génesis 17:17; 23:1, 2', al:'Sarai'},
+  {n:'Ismael', s:-1932, e:-1795, c:'epat', k:'vida', d:'Hijo de Abrahán y Agar.', r:'Génesis 16:16; 25:17'},
   {n:'Isaac', s:-1918, e:-1738, c:'patri', k:'vida', d:'Hijo prometido de Abrahán y Sara.', r:'Génesis 21:5; 35:28, 29'},
   {n:'Jacob', s:-1858, e:-1711, c:'patri', k:'vida', d:'Hijo de Isaac. Jehová le cambió el nombre a Israel; sus 12 hijos dieron origen a las tribus.', r:'Génesis 25:26; 47:28', al:'Israel'},
   {n:'José', s:-1767, e:-1657, c:'patri', k:'vida', d:'Hijo de Jacob. Vendido como esclavo, llegó a ser administrador de Egipto.', r:'Génesis 30:24; 41:46; 50:26', al:'Jose'},
+  // --- Hijos de Jacob (nacimientos aproximados; Jacob se casó c. 1774 a.e.c. y José nació en 1767) ---
+  {n:'Rubén', s:-1773, e:-1711, a:'se', c:'patri', k:'registro', dt:'Nació c. 1773 a.e.c. La Biblia no dice cuándo murió; la barra llega hasta la muerte de Jacob (1711 a.e.c.), cuando aún vivía', d:'Primogénito de Jacob y Lea. Intentó salvar a José, pero perdió la primogenitura por acostarse con Bilhá, la concubina de su padre.', r:'Génesis 29:32; 35:22; 37:21, 22; 49:3, 4; 1 Crónicas 5:1', al:'Ruben'},
+  {n:'Simeón', s:-1772, e:-1711, a:'se', c:'patri', k:'registro', dt:'Nació c. 1772 a.e.c. La Biblia no dice cuándo murió; la barra llega hasta la muerte de Jacob (1711 a.e.c.), cuando aún vivía', d:'Segundo hijo de Lea. Junto con Leví, mató a los hombres de Siquem para vengar a Dina. José lo retuvo en Egipto.', r:'Génesis 29:33; 34:25; 42:24; 49:5-7', al:'Simeon'},
+  {n:'Leví', s:-1771, e:-1634, a:'se', c:'patri', k:'vida', age:'137 años', d:'Tercer hijo de Lea. De su descendencia vinieron Moisés, Aarón y los sacerdotes.', r:'Génesis 29:34; Éxodo 6:16-20; Números 3:6-10', al:'Levi'},
+  {n:'Judá', s:-1770, e:-1711, a:'se', c:'patri', k:'registro', dt:'Nació c. 1770 a.e.c. La Biblia no dice cuándo murió; la barra llega hasta la muerte de Jacob (1711 a.e.c.), cuando aún vivía', d:'Cuarto hijo de Lea. Se ofreció como esclavo en lugar de Benjamín. Jacob profetizó que de su tribu vendría el gobernante; fue antepasado de David y de Jesús.', r:'Génesis 29:35; 44:18-34; 49:8-10; Mateo 1:2, 3', al:'Juda'},
+  {n:'Dan', s:-1770, e:-1711, a:'se', c:'patri', k:'registro', dt:'Nació c. 1770 a.e.c. La Biblia no dice cuándo murió; la barra llega hasta la muerte de Jacob (1711 a.e.c.), cuando aún vivía', d:'Primer hijo de Bilhá, la sierva de Raquel.', r:'Génesis 30:4-6; 49:16-18'},
+  {n:'Neftalí', s:-1769, e:-1711, a:'se', c:'patri', k:'registro', dt:'Nació c. 1769 a.e.c. La Biblia no dice cuándo murió; la barra llega hasta la muerte de Jacob (1711 a.e.c.), cuando aún vivía', d:'Segundo hijo de Bilhá, la sierva de Raquel.', r:'Génesis 30:7, 8; 49:21', al:'Neftali'},
+  {n:'Gad (hijo de Jacob)', q:'Gad', s:-1769, e:-1711, a:'se', c:'patri', k:'registro', dt:'Nació c. 1769 a.e.c. La Biblia no dice cuándo murió; la barra llega hasta la muerte de Jacob (1711 a.e.c.), cuando aún vivía', d:'Primer hijo de Zilpá, la sierva de Lea.', r:'Génesis 30:9-11; 49:19'},
+  {n:'Aser', s:-1768, e:-1711, a:'se', c:'patri', k:'registro', dt:'Nació c. 1768 a.e.c. La Biblia no dice cuándo murió; la barra llega hasta la muerte de Jacob (1711 a.e.c.), cuando aún vivía', d:'Segundo hijo de Zilpá, la sierva de Lea.', r:'Génesis 30:12, 13; 49:20'},
+  {n:'Isacar', s:-1768, e:-1711, a:'se', c:'patri', k:'registro', dt:'Nació c. 1768 a.e.c. La Biblia no dice cuándo murió; la barra llega hasta la muerte de Jacob (1711 a.e.c.), cuando aún vivía', d:'Quinto hijo de Lea.', r:'Génesis 30:17, 18; 49:14, 15'},
+  {n:'Zabulón', s:-1767, e:-1711, a:'se', c:'patri', k:'registro', dt:'Nació c. 1767 a.e.c. La Biblia no dice cuándo murió; la barra llega hasta la muerte de Jacob (1711 a.e.c.), cuando aún vivía', d:'Sexto hijo de Lea.', r:'Génesis 30:19, 20; 49:13', al:'Zabulon'},
+  {n:'Benjamín', s:-1758, e:-1711, a:'se', c:'patri', k:'registro', dt:'Nació c. 1758 a.e.c. La Biblia no dice cuándo murió; la barra llega hasta la muerte de Jacob (1711 a.e.c.), cuando aún vivía', d:'Hijo menor de Jacob y Raquel; ella murió al darlo a luz. José lo quería mucho.', r:'Génesis 35:16-19; 43:29, 30; 45:14; 49:27', al:'Benjamin Benoni'},
+  // --- Época patriarcal (personajes que no son patriarcas) ---
+  {n:'Lot', s:-1943, e:-1919, a:'e', c:'epat', k:'registro', d:'Sobrino de Abrahán. Se fue a vivir cerca de Sodoma, y Jehová lo rescató antes de destruir la ciudad.', r:'Génesis 12:4, 5; 13:10-13; 19:15-29; 2 Pedro 2:7, 8'},
+  {n:'Melquisedec', s:-1935, e:-1935, a:'se', c:'epat', k:'registro', dt:'Aparece una sola vez en el relato, cuando bendijo a Abrahán', d:'Rey de Salem y sacerdote del Dios Altísimo. Bendijo a Abrahán, quien le dio la décima parte de todo. Prefiguró a Jesús como rey y sacerdote.', r:'Génesis 14:18-20; Salmo 110:4; Hebreos 7:1-3'},
+  {n:'Agar', s:-1933, e:-1913, a:'e', c:'epat', k:'registro', d:'Sierva egipcia de Sara y madre de Ismael. Sara se la dio a Abrahán como concubina.', r:'Génesis 16:1-16; 21:9-21; Gálatas 4:22-25'},
+  {n:'Rebeca', s:-1878, e:-1781, a:'e', c:'epat', k:'registro', d:'Esposa de Isaac y madre de Esaú y Jacob. Fue sepultada en la cueva de Macpelá.', r:'Génesis 24:15-67; 25:21-26; 27:42-46; 49:31'},
+  {n:'Labán', s:-1878, e:-1761, a:'se', c:'epat', k:'registro', d:'Hermano de Rebeca y padre de Lea y Raquel. Engañó a Jacob y le cambió el salario muchas veces.', r:'Génesis 24:29; 29:15-30; 31:7, 41-55', al:'Laban'},
+  {n:'Esaú', s:-1858, e:-1738, c:'epat', k:'registro', dt:'Nació en 1858 a.e.c., gemelo de Jacob. La Biblia no dice cuándo murió; la barra llega hasta el entierro de Isaac (1738 a.e.c.)', d:'Hijo de Isaac y hermano gemelo de Jacob. Despreció la primogenitura y la vendió por un plato de guisado. Antepasado de los edomitas.', r:'Génesis 25:25-34; 33:1-4; 35:29; Hebreos 12:16', al:'Esau Edom'},
+  {n:'Lea', s:-1781, e:-1728, a:'e', c:'epat', k:'registro', d:'Hija mayor de Labán y primera esposa de Jacob. Madre de seis tribus de Israel y de Dina; fue sepultada en Macpelá.', r:'Génesis 29:16-35; 30:17-21; 49:31'},
+  {n:'Raquel', s:-1781, e:-1758, a:'e', c:'epat', k:'registro', d:'Hija menor de Labán y la esposa a quien Jacob amaba. Madre de José y Benjamín; murió al dar a luz a Benjamín.', r:'Génesis 29:9-30; 30:22-24; 35:16-20'},
+  {n:'Bilhá', s:-1774, e:-1758, a:'se', c:'epat', k:'registro', d:'Sierva de Raquel y concubina de Jacob. Madre de Dan y Neftalí.', r:'Génesis 29:29; 30:3-8; 35:22', al:'Bilha'},
+  {n:'Zilpá', s:-1774, e:-1768, a:'se', c:'epat', k:'registro', d:'Sierva de Lea y concubina de Jacob. Madre de Gad y Aser.', r:'Génesis 29:24; 30:9-13', al:'Zilpa'},
+  {n:'Dina', s:-1766, e:-1728, a:'se', c:'epat', k:'registro', dt:'Nació c. 1766 a.e.c. La Biblia no dice cuándo murió; aparece por última vez cuando la familia se fue a Egipto (1728 a.e.c.)', d:'Hija de Jacob y Lea. Siquem la violó, y sus hermanos Simeón y Leví se vengaron matando a los hombres de la ciudad.', r:'Génesis 30:21; 34:1-31; 46:15'},
+  {n:'Manasés (hijo de José)', q:'Manasés', s:-1736, e:-1711, a:'se', c:'epat', k:'registro', dt:'Nació c. 1736 a.e.c., durante los años de abundancia en Egipto. La barra llega hasta la bendición de Jacob (1711 a.e.c.)', d:'Primogénito de José y Asenat. Jacob lo adoptó como hijo, y su descendencia llegó a ser una tribu de Israel.', r:'Génesis 41:50-52; 48:5, 13-20', al:'Manases'},
+  {n:'Efraín', s:-1734, e:-1711, a:'se', c:'epat', k:'registro', dt:'Nació c. 1734 a.e.c., durante los años de abundancia en Egipto. La barra llega hasta la bendición de Jacob (1711 a.e.c.)', d:'Segundo hijo de José. Jacob lo bendijo por encima de su hermano mayor, y su tribu llegó a ser la más importante del reino de diez tribus.', r:'Génesis 41:52; 48:13-20', al:'Efrain'},
+  {n:'Eliezer', s:-1935, e:-1878, a:'se', c:'epat', k:'registro', dt:'Aparece antes del nacimiento de Ismael; probablemente es el siervo que buscó esposa para Isaac (1878 a.e.c.)', d:'Siervo de confianza de Abrahán, de Damasco. Es probable que fuera él a quien Abrahán envió a buscar esposa para Isaac.', r:'Génesis 15:2, 3; 24:2-4, 10-67'},
+  {n:'Keturá', s:-1881, e:-1843, a:'se', c:'epat', k:'registro', d:'Esposa (concubina) de Abrahán después de la muerte de Sara. Le dio seis hijos, entre ellos Madián.', r:'Génesis 25:1-6; 1 Crónicas 1:32, 33', al:'Ketura Cetura'},
+  {n:'Tamar', s:-1745, e:-1740, a:'se', c:'epat', k:'registro', d:'Nuera de Judá. Por medio de él tuvo a los gemelos Pérez y Zérah, y llegó a ser antepasada de David y de Jesús.', r:'Génesis 38:6-30; Rut 4:12; Mateo 1:3'},
+  {n:'Asenat', s:-1737, e:-1730, a:'e', c:'epat', k:'registro', d:'Hija de Potifera, sacerdote de On. El faraón se la dio a José como esposa; fue madre de Manasés y Efraín.', r:'Génesis 41:45, 50-52; 46:20'},
+  {n:'Job', s:-1657, e:-1473, a:'se', c:'epat', k:'registro', dt:'El libro de Job abarca más de 140 años entre 1657 y 1473 a.e.c. Después de su prueba vivió 140 años', d:'Hombre íntegro de la tierra de Uz. Satanás le quitó sus bienes, sus hijos y la salud, pero él se mantuvo fiel a Jehová, y Jehová lo bendijo.', r:'Job 1:1, 8-22; 2:7-10; 42:10-17; Santiago 5:11'},
   {n:'Aarón', s:-1596, e:-1473, c:'israel', k:'vida', d:'Hermano de Moisés y primer sumo sacerdote de Israel.', r:'Éxodo 7:7; Números 33:39', al:'Aaron'},
   {n:'Moisés', s:-1593, e:-1473, c:'israel', k:'vida', d:'Sacó a Israel de Egipto y fue el mediador del pacto de la Ley.', r:'Éxodo 2:1-10; 7:7; Deuteronomio 34:7', al:'Moises'},
   {n:'Josué', s:-1560, e:-1450, a:'se', c:'israel', k:'vida', d:'Sucesor de Moisés. Dirigió la conquista de Canaán.', r:'Josué 1:1, 2; 24:29', al:'Josue'},
+  // --- Jueces (fechas aproximadas, encadenadas según el orden del libro de Jueces) ---
+  {n:'Otniel', s:-1440, e:-1400, a:'se', c:'israel', k:'juez', jt:'Después de su victoria, el país tuvo reposo 40 años', d:'Primer juez después de Josué. Pariente de Caleb, libró a Israel de Cusán-risataim, rey de Mesopotamia.', r:'Jueces 3:7-11; Josué 15:16, 17', al:'Otoniel'},
+  {n:'Ehúd', s:-1385, e:-1305, a:'se', c:'israel', k:'juez', jt:'Después de su victoria, el país tuvo reposo 80 años', d:'Benjaminita zurdo. Mató a Eglón, rey de Moab, y libró a Israel de la opresión moabita.', r:'Jueces 3:12-30', al:'Ehud Aod'},
+  {n:'Samgar', s:-1305, e:-1305, a:'se', c:'israel', k:'juez', jt:'La Biblia no dice cuántos años juzgó', d:'Hijo de Anat. Salvó a Israel matando a 600 filisteos con una aguijada para el ganado.', r:'Jueces 3:31; 5:6'},
+  {n:'Débora', s:-1298, e:-1258, a:'se', c:'israel', k:'juez', jt:'Después de la victoria, el país tuvo reposo 40 años', d:'Profetisa y jueza. Animó a Barac a pelear contra Sísara, el jefe del ejército de Jabín, y Jehová les dio la victoria.', r:'Jueces 4:4-16; 5:1, 31', al:'Debora Barac'},
+  {n:'Gedeón', s:-1258, e:-1218, a:'se', c:'israel', k:'juez', jt:'Durante su vida, el país tuvo reposo 40 años', d:'Con solo 300 hombres, Jehová lo usó para derrotar a los madianitas. Rechazó que lo hicieran rey.', r:'Jueces 6:11-16; 7:7, 19-22; 8:22, 23, 28', al:'Gedeon Jerubaal'},
+  {n:'Tolá', s:-1215, e:-1192, a:'se', c:'israel', k:'juez', jt:'Juzgó a Israel 23 años', d:'De la tribu de Isacar. Salvó a Israel después de la muerte de Abimélec.', r:'Jueces 10:1, 2', al:'Tola'},
+  {n:'Jaír', s:-1195, e:-1173, a:'se', c:'israel', k:'juez', jt:'Juzgó a Israel 22 años', d:'Galaadita. Tenía 30 hijos que montaban 30 burros y gobernaban 30 ciudades.', r:'Jueces 10:3-5', al:'Jair'},
+  {n:'Jefté', s:-1173, e:-1167, a:'se', c:'israel', k:'juez', jt:'Juzgó a Israel 6 años', d:'Galaadita que, con la ayuda de Jehová, venció a los ammonitas. Cumplió su voto dedicando a su hija al servicio de Jehová.', r:'Jueces 11:1-11, 26, 29-40; 12:7; Hebreos 11:32', al:'Jefte'},
+  {n:'Ibzán', s:-1167, e:-1160, a:'se', c:'israel', k:'juez', jt:'Juzgó a Israel 7 años', d:'De Belén. Tuvo 30 hijos y 30 hijas.', r:'Jueces 12:8-10', al:'Ibzan'},
+  {n:'Elón', s:-1160, e:-1150, a:'se', c:'israel', k:'juez', jt:'Juzgó a Israel 10 años', d:'De la tribu de Zabulón.', r:'Jueces 12:11, 12', al:'Elon'},
+  {n:'Abdón', s:-1150, e:-1142, a:'se', c:'israel', k:'juez', jt:'Juzgó a Israel 8 años', d:'Hijo de Hilel, de Piratón. Tuvo 40 hijos y 30 nietos.', r:'Jueces 12:13-15', al:'Abdon'},
+  {n:'Sansón', s:-1140, e:-1120, a:'se', c:'israel', k:'juez', jt:'Juzgó a Israel 20 años, en tiempos de los filisteos', d:'Nazareo desde su nacimiento. Jehová le dio una fuerza extraordinaria para luchar contra los filisteos.', r:'Jueces 13:2-5, 24; 15:20; 16:28-31', al:'Sanson'},
+  {n:'Elí', s:-1180, e:-1140, a:'se', c:'israel', k:'juez', jt:'Juzgó a Israel 40 años', d:'Sumo sacerdote y juez en Siló. No corrigió a sus malvados hijos y murió al saber que el Arca había sido capturada.', r:'1 Samuel 2:12, 22-25; 4:15-18', al:'Eli'},
   {n:'Samuel', s:-1180, e:-1080, a:'se', c:'israel', k:'vida', d:'Profeta y último juez de Israel. Ungió a Saúl y a David.', r:'1 Samuel 1–25'},
   {n:'Saúl', s:-1117, e:-1078, c:'reyes', k:'registro', d:'Primer rey de Israel. Reinó 40 años.', r:'1 Samuel 10:1; 31:4-6; Hechos 13:21', al:'Saul'},
   {n:'David', s:-1107, e:-1037, c:'reyes', k:'vida', d:'Pastor, salmista y rey de Israel. Jehová hizo con él un pacto para un reino.', r:'2 Samuel 5:4, 5; 1 Reyes 2:10, 11'},
@@ -304,7 +354,7 @@ const PEOPLE = [
   {n:'Isaías', s:-778, e:-732, a:'se', c:'profp', k:'profecia', d:'Profetizó en Judá durante los reinados de Uzías, Jotán, Acaz y Ezequías.', r:'Isaías 1:1; 6:1', al:'Isaias'},
   {n:'Jeremías', s:-647, e:-580, a:'e', c:'profp', k:'profecia', d:'Profetizó la destrucción de Jerusalén y la vio cumplirse.', r:'Jeremías 1:1-3; 52', al:'Jeremias'},
   {n:'Natán', s:-1070, e:-1037, a:'se', c:'prof', k:'registro', d:'Profeta en tiempos de David. Le comunicó el pacto del Reino, lo reprendió por su pecado con Bat-Seba y ayudó a que Salomón fuera rey.', r:'2 Samuel 7:1-17; 12:1-14; 1 Reyes 1:32-34', al:'Natan'},
-  {n:'Gad', s:-1100, e:-1037, a:'se', c:'prof', k:'registro', d:'Profeta y visionario de David. Le aconsejó cuando huía de Saúl y le comunicó el castigo por el censo.', r:'1 Samuel 22:5; 2 Samuel 24:11-19; 1 Crónicas 29:29'},
+  {n:'Gad (profeta)', q:'Gad', s:-1100, e:-1037, a:'se', c:'prof', k:'registro', d:'Profeta y visionario de David. Le aconsejó cuando huía de Saúl y le comunicó el castigo por el censo.', r:'1 Samuel 22:5; 2 Samuel 24:11-19; 1 Crónicas 29:29'},
   {n:'Ahíyá', s:-1000, e:-980, a:'se', c:'prof', k:'registro', d:'Profeta de Siló. Le anunció a Jeroboam que gobernaría diez tribus y luego predijo el fin de su casa.', r:'1 Reyes 11:29-39; 14:1-18', al:'Ahiya Ahías Ahias'},
   {n:'Micaías', s:-920, e:-920, a:'se', c:'prof', k:'profecia', pt:'Profetizó contra Acab poco antes de su muerte', d:'Mientras 400 profetas falsos anunciaban la victoria, predijo la derrota y muerte del rey Acab.', r:'1 Reyes 22:8-28; 2 Crónicas 18', al:'Micaias'},
   {n:'Hulda', s:-642, e:-642, a:'se', c:'prof', k:'profecia', pt:'Profetizó en el año 18 del reinado de Josías', d:'Profetisa en días del rey Josías. Cuando se halló el libro de la Ley, confirmó el juicio de Jehová contra Judá.', r:'2 Reyes 22:14-20; 2 Crónicas 34:22-28'},
@@ -669,11 +719,13 @@ function dateRange(p){
 }
 
 function duration(p){
+  if (p.dt) return p.dt;
   const years = T(p.e) - T(p.s);
   const aprox = p.approx ? 'unos ' : '';
   if (p.k === 'vida') return `Vivió ${p.age || aprox + years + ' años'}`;
   if (p.k === 'reinado') return `Reinó ${p.rn || aprox + years + ' años'}`;
   if (p.k === 'profecia') return p.pt || `Profetizó durante ${aprox}${years} años`;
+  if (p.k === 'juez') return `${p.jt || 'Juez de Israel'} (fechas aproximadas)`;
   return `Aparece en el registro bíblico durante ${aprox}${years} años (no se conocen sus fechas de nacimiento y muerte)`;
 }
 
