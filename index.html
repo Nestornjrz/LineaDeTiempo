@@ -22,9 +22,9 @@
   --c-ante:#7b5ea7; --c-patri:#b5762a; --c-epat:#8f5f4a; --c-israel:#2f7d6d; --c-reyes:#b23a48;
   --c-juda:#b0306f; --c-isr:#56677a;
   --c-profp:#2f6db3; --c-profm:#1689a8; --c-prof:#5a55b8;
-  --c-exilio:#6f7f22; --c-cristo:#c0562b; --c-apost:#3d8c40; --c-gob:#8a6d1f; --c-disc:#a0688f;
+  --c-exilio:#6f7f22; --c-cristo:#c0562b; --c-apost:#3d8c40; --c-gob:#8a6d1f; --c-disc:#a0688f; --c-crono:#5b544a;
   --good:#2e8b57; --bad:#c0392b; --tibio:#a87a00;
-  --event:#9a8f7a; --pill:#fffaf0; --shadow:0 6px 24px rgba(40,30,10,.18);
+  --sheen:rgba(255,255,255,.45); --event:#9a8f7a; --pill:#fffaf0; --shadow:0 6px 24px rgba(40,30,10,.18);
 }
 @media (prefers-color-scheme: dark){
   :root{
@@ -34,8 +34,8 @@
     --c-juda:#e66fa6; --c-isr:#9aaabd;
     --good:#5cc98a; --bad:#ef6b5e; --tibio:#e8c04a;
     --c-profp:#6aa3e6; --c-profm:#4cc4e0; --c-prof:#9b96ec;
-    --c-exilio:#a8bb4c; --c-cristo:#ee8758; --c-apost:#6cc26f; --c-gob:#d1b04f; --c-disc:#d39bc2;
-    --event:#8c836f; --pill:#2a261d; --shadow:0 6px 24px rgba(0,0,0,.5);
+    --c-exilio:#a8bb4c; --c-cristo:#ee8758; --c-apost:#6cc26f; --c-gob:#d1b04f; --c-disc:#d39bc2; --c-crono:#ada188;
+    --sheen:rgba(255,255,255,.6); --event:#8c836f; --pill:#2a261d; --shadow:0 6px 24px rgba(0,0,0,.5);
   }
 }
 *{box-sizing:border-box}
@@ -130,6 +130,15 @@ h1{font-size:18px; margin:0; font-weight:700; letter-spacing:.2px}
 .legend button.cat.on{background:var(--surface); border-color:var(--axis); color:var(--text); font-weight:600}
 .legend button.reset{display:none; color:var(--accent); font-weight:600}
 .legend.filtered button.reset{display:inline-flex}
+/* Botón de capa (profecías): casilla que se marca o desmarca, independiente de las categorías */
+.legend button.capa{border:1px dashed var(--line); color:var(--text)}
+.legend button.capa:not(.on){opacity:.6}
+.legend button.capa .check{
+  width:13px; height:13px; border:1.5px solid var(--muted); border-radius:3px;
+  display:inline-grid; place-items:center; font-size:10px; font-weight:700; line-height:1;
+}
+.legend button.capa.on .check{background:var(--accent); border-color:var(--accent)}
+.legend button.capa.on .check::after{content:'✓'; color:var(--bg)}
 
 /* ---------- Botón para mostrar u ocultar la leyenda ---------- */
 .legend-toggle{
@@ -254,6 +263,50 @@ body.v .person .bar{top:0; left:0; width:10px}
 body.h .person.group .bar{top:16px}
 body.v .person.group .bar{width:14px}
 body.v .person.group .lbl{left:18px}
+
+/* ---------- Profecías cronológicas: barra dividida en tramos ---------- */
+.person.crono .bar{height:14px}
+body.h .person.crono .bar{top:16px}
+body.v .person.crono .bar{width:14px}
+body.v .person.crono .lbl{left:18px}
+.person.crono.segs .bar{background:none}
+.person .seg{position:absolute; background:var(--col); box-shadow:inset 0 0 0 1px var(--col)}
+.person .seg:nth-child(even){opacity:.55}
+body.h .person .seg{top:0; bottom:0; left:calc(var(--a) * 1%); width:calc(var(--w) * 1%); border-right:2px solid var(--bg)}
+body.v .person .seg{left:0; right:0; top:calc(var(--a) * 1%); height:calc(var(--w) * 1%); border-bottom:2px solid var(--bg)}
+.person .seg:first-child{border-radius:5px 0 0 5px}
+body.v .person .seg:first-child{border-radius:5px 5px 0 0}
+.person .seg.end{border-right:0; border-bottom:0}
+.person .mark{position:absolute; background:var(--accent); border-radius:1px}
+body.h .person .mark{top:-4px; bottom:-4px; width:3px; left:calc(var(--a) * 1% - 1px)}
+body.v .person .mark{left:-4px; right:-4px; height:3px; top:calc(var(--a) * 1% - 1px)}
+/* Destello tenue que recorre las barras de las profecías (y su casilla en la leyenda):
+   cruza en ~3 s y descansa ~2 s. En vertical baja de arriba abajo. */
+.person.crono .bar::after, .legend button.capa.on i{
+  background-image:linear-gradient(90deg, transparent, var(--sheen), transparent);
+  background-repeat:no-repeat; background-size:30% 100%;
+  animation:sheen-h 5s ease-in-out var(--delay, 0s) infinite;
+}
+.person.crono .bar::after{content:''; position:absolute; inset:0; border-radius:5px; pointer-events:none}
+body.v .person.crono .bar::after{
+  background-image:linear-gradient(180deg, transparent, var(--sheen), transparent);
+  background-size:100% 30%; animation-name:sheen-v;
+}
+.legend button.capa i{background-color:var(--c-crono)}
+.legend button.capa.on i{background-size:60% 100%}
+@keyframes sheen-h{0%{background-position:-50% 0} 60%,100%{background-position:150% 0}}
+@keyframes sheen-v{0%{background-position:0 -50%} 60%,100%{background-position:0 150%}}
+@media (prefers-reduced-motion: reduce){
+  .person.crono .bar::after, .legend button.capa.on i{animation:none; background-image:none}
+}
+#card .segs{margin:8px 0; display:grid; gap:5px; font-size:14px}
+#card .segs:empty{display:none}
+#card .segs div{display:grid; grid-template-columns:14px 1fr; gap:8px; align-items:baseline}
+#card .segs i{width:14px; height:9px; border-radius:2px; background:var(--col)}
+#card .segs div:nth-child(even) i{opacity:.55}
+#card .segs div i.mk{width:4px; justify-self:center; background:var(--accent); opacity:1}
+#card .segs b{font-weight:600}
+#card .segs small{color:var(--muted); font-size:13px}
 #card .close{
   position:absolute; top:8px; right:8px; width:30px; height:30px; border:0; border-radius:6px;
   background:none; color:var(--muted); font-size:20px; cursor:pointer;
@@ -292,7 +345,7 @@ body.v .person.group .lbl{left:18px}
 </header>
 
 <div id="scroller"><div id="canvas"></div></div>
-<p class="note">Fechas según la cronología bíblica de las publicaciones de los testigos de Jehová (por ejemplo, la creación de Adán en 4026 a.e.c. y el Diluvio en 2370 a.e.c.). Las barras rayadas indican fechas aproximadas. En la vista «Grupos», cada barra representa una categoría y va desde su primer personaje hasta el último. Los acontecimientos con línea de puntos y etiqueta en cursiva tienen una fecha aproximada que la Biblia no precisa. En los reyes de Judá y de Israel, la barra muestra los años de reinado. En todos los reyes, el icono (✓ bueno, ◐ tibio, ✗ malo; más símbolos, mayor grado) resume lo que la Biblia dice de su conducta. Cuando no se conoce el nacimiento o la muerte, la barra muestra el período en que el personaje aparece en el registro bíblico.</p>
+<p class="note">Fechas según la cronología bíblica de las publicaciones de los testigos de Jehová (por ejemplo, la creación de Adán en 4026 a.e.c. y el Diluvio en 2370 a.e.c.). Las barras rayadas indican fechas aproximadas. Las profecías cronológicas se muestran arriba, como barras divididas en sus tramos; se pueden mostrar u ocultar desde la leyenda sin cambiar el filtro de categorías. En la vista «Grupos», cada barra representa una categoría y va desde su primer personaje hasta el último. Los acontecimientos con línea de puntos y etiqueta en cursiva tienen una fecha aproximada que la Biblia no precisa. En los reyes de Judá y de Israel, la barra muestra los años de reinado. En todos los reyes, el icono (✓ bueno, ◐ tibio, ✗ malo; más símbolos, mayor grado) resume lo que la Biblia dice de su conducta. Cuando no se conoce el nacimiento o la muerte, la barra muestra el período en que el personaje aparece en el registro bíblico.</p>
 
 <div id="card" role="dialog" aria-live="polite">
   <button class="close" aria-label="Cerrar">×</button>
@@ -302,6 +355,7 @@ body.v .person.group .lbl{left:18px}
   <div class="dur"></div>
   <div class="verdict"></div>
   <p class="desc"></p>
+  <div class="segs"></div>
   <div class="refs"></div>
   <a class="more" target="_blank" rel="noopener">Más información en jw.org ↗</a>
   <button class="seegroup">Ver estas personas en la línea de tiempo</button>
@@ -318,6 +372,7 @@ body.v .person.group .lbl{left:18px}
       y Jueces 11:26 sitúa a Jefté unos 300 años después de la conquista (c. 1173 a.e.c.);
       'reinado' = años de reinado (rn: duración tal como la indica la Biblia)
    dt: texto propio para la duración (se usa en lugar del texto automático)
+   seg: tramos de una profecía [{n, s, e, d}]; mark: momentos destacados dentro de ella [{y, n}]
    q: término de búsqueda en jw.org cuando el nombre lleva aclaración, p. ej. "Ocozías (Judá)"
 */
 const CATS = {
@@ -336,6 +391,8 @@ const CATS = {
   cristo: {n:'Jesús y su familia', v:'--c-cristo', t:'Jesús, sus padres, sus medios hermanos y sus parientes'},
   gob:    {n:'Gobernantes y sacerdotes', v:'--c-gob', t:'Reyes, emperadores, gobernadores y sumos sacerdotes del tiempo de Jesús'},
   disc:   {n:'Discípulos y otros', v:'--c-disc', t:'Discípulos y otras personas de los Evangelios y de los primeros años del cristianismo'},
+  // capa: no es una categoría de personas; se muestra u oculta con su propio botón y no se agrupa
+  crono:  {n:'Profecías cronológicas', v:'--c-crono', t:'Profecías bíblicas que indican un periodo de tiempo y cuyo cumplimiento se puede fechar', capa:true},
 };
 
 const PEOPLE = [
@@ -536,6 +593,26 @@ const PEOPLE = [
   {n:'Lucas', s:50, e:65, a:'se', c:'disc', k:'registro', d:'«El médico amado» y compañero de viaje de Pablo. Escribió el Evangelio de Lucas y el libro de Hechos.', r:'Hechos 16:10; Colosenses 4:14; 2 Timoteo 4:11'},
   {n:'Esteban', s:33, e:34, a:'se', c:'disc', k:'registro', d:'Discípulo lleno de fe. Fue el primer mártir cristiano.', r:'Hechos 6:5–7:60'},
   {n:'Pablo', s:34, e:65, a:'se', c:'apost', k:'registro', d:'Antes perseguidor (Saulo). Apóstol a las naciones; escribió 14 cartas.', r:'Hechos 7:58; 9:1-19; 2 Timoteo 4:6-8', al:'Saulo'},
+  // --- Profecías cronológicas (fechas según las publicaciones de los testigos de Jehová) ---
+  {n:'Los 430 años', q:'430 años', s:-1943, e:-1513, c:'crono', k:'crono', dt:'430 años: desde el pacto con Abrahán hasta el Éxodo',
+   seg:[{n:'En Canaán', s:-1943, e:-1728, d:'Abrahán, Isaac y Jacob viven como extranjeros en Canaán'},
+        {n:'En Egipto', s:-1728, e:-1513, d:'Desde que Jacob y su familia se van a Egipto hasta el Éxodo'}],
+   d:'La Biblia dice que los israelitas estuvieron 430 años como residentes extranjeros. Se cuentan desde que entró en vigor el pacto con Abrahán, cuando cruzó el Éufrates rumbo a Canaán (1943 a.e.c.), hasta que Israel salió de Egipto (1513 a.e.c.). La Ley se dio 430 años después del pacto.',
+   r:'Génesis 12:4-7; Éxodo 12:40-42; Gálatas 3:16, 17', al:'cuatrocientos treinta Abrahan pacto Exodo profecia'},
+  {n:'Los 400 años de aflicción', q:'400 años', s:-1913, e:-1513, c:'crono', k:'crono', dt:'400 años: desde el destete de Isaac hasta el Éxodo',
+   d:'Jehová le dijo a Abrahán que su descendencia sería afligida durante 400 años. Empezaron cuando Ismael se burló de Isaac el día de su destete (1913 a.e.c.) y terminaron cuando Jehová liberó a Israel de Egipto (1513 a.e.c.).',
+   r:'Génesis 15:13, 14; 21:8, 9; Gálatas 4:29; Hechos 7:6', al:'cuatrocientos aflicción aflicion Isaac Ismael Egipto profecia'},
+  {n:'Los 70 años de desolación', q:'70 años', s:-607, e:-537, c:'crono', k:'crono', dt:'70 años: desde la destrucción de Jerusalén hasta el regreso del exilio',
+   d:'Jeremías profetizó que Judá quedaría desolada y que los judíos servirían a Babilonia 70 años. Empezaron cuando Babilonia destruyó Jerusalén (607 a.e.c.) y terminaron cuando los judíos regresaron a su tierra (537 a.e.c.).',
+   r:'Jeremías 25:11, 12; 29:10; 2 Crónicas 36:20, 21; Daniel 9:2', al:'setenta desolación desolacion Babilonia exilio profecia'},
+  {n:'Las 70 semanas', q:'setenta semanas', s:-455, e:36, c:'crono', k:'crono', dt:'490 años: 70 semanas de años',
+   seg:[{n:'7 semanas (49 años)', s:-455, e:-406, d:'Se reconstruye Jerusalén en tiempos difíciles'},
+        {n:'62 semanas (434 años)', s:-406, e:29, d:'Al terminar las 69 semanas aparece el Mesías: Jesús es bautizado y ungido'},
+        {n:'1 semana (7 años)', s:29, e:36, d:'El Mesías y sus discípulos predican a los judíos; en 36 e.c. Cornelio es el primer gentil que se hace cristiano'}],
+   mark:[{y:33, n:'A la mitad de la última semana, el Mesías es «cortado»: muere Jesús y su sacrificio pone fin al valor de los sacrificios de la Ley'}],
+   d:'Daniel profetizó que pasarían 70 semanas de años desde la orden de reconstruir Jerusalén, dada a Nehemías en el año 20 de Artajerjes (455 a.e.c.), hasta el fin del favor especial de Jehová a los judíos.',
+   r:'Daniel 9:24-27; Nehemías 2:1-8; Lucas 3:1, 2, 21-23; Hechos 10:30-48', al:'setenta semanas Daniel Mesias profecia'},
+
   {n:'Timoteo', s:50, e:65, a:'se', c:'disc', k:'registro', d:'Compañero de viaje de Pablo y superintendente cristiano.', r:'Hechos 16:1-3; 1 y 2 Timoteo'},
 ];
 
@@ -621,8 +698,10 @@ const EVENTS = [
   {y:-740,  n:'Caída de Samaria'},
   {y:-607,  n:'Destrucción de Jerusalén'},
   {y:-537,  n:'Regreso del exilio'},
+  {y:-455,  n:'Orden de reconstruir Jerusalén'},
   {y:29,    n:'Bautismo de Jesús'},
   {y:33,    n:'Muerte de Jesús'},
+  {y:36,    n:'Fin de las 70 semanas'},
   {y:70,    n:'Roma destruye Jerusalén'},
 ];
 
@@ -674,8 +753,13 @@ const catFilter = new Set();   // categorías visibles (vacío = todas)
 const picked = new Set();      // ids de los personajes buscados
 let soloMode = false;          // true = mostrar solo los buscados; false = atenuar a los demás
 try { soloMode = localStorage.getItem('modoBusqueda') === 'solo'; } catch (e) {}
-const catOk = p => !catFilter.size || catFilter.has(p.c);
-const visible = p => catOk(p) && (!soloMode || !picked.size || picked.has(p.id));
+// Capa de profecías cronológicas: independiente del filtro de categorías y de la vista
+const isCapa = p => !!CATS[p.c].capa;
+let showCapa = true;
+try { showCapa = localStorage.getItem('profecias') !== '0'; } catch (e) {}
+const catOk = p => isCapa(p) ? showCapa : !catFilter.size || catFilter.has(p.c);
+const visible = p => isCapa(p) ? showCapa
+                               : catOk(p) && (!soloMode || !picked.size || picked.has(p.id));
 
 // Vista por grupos: una barra por categoría, desde su primer personaje hasta el último
 let groupView = true;   // vista inicial: grupos (salvo que el usuario haya elegido "Personas")
@@ -736,20 +820,28 @@ function render(){
   canvas.innerHTML = '';
 
   // --- Asignar carriles (sin que se encimen barras ni nombres) ---
-  const items = (groupView ? Object.keys(CATS).map(groupOf).filter(g => g && groupVisible(g))
-                           : PEOPLE.filter(visible)).sort((a,b) => a.s - b.s || a.e - b.e);
+  // Las profecías van en sus propios carriles, arriba; debajo, los grupos o las personas
+  const byDate = (a,b) => a.s - b.s || a.e - b.e;
+  const capa = PEOPLE.filter(p => isCapa(p) && visible(p)).sort(byDate);
+  const rest = (groupView ? Object.keys(CATS).filter(k => !CATS[k].capa).map(groupOf).filter(g => g && groupVisible(g))
+                          : PEOPLE.filter(p => !isCapa(p) && visible(p))).sort(byDate);
+  const items = [...capa, ...rest];
   const laneEnd = [];
   const GAP = 10;
-  for (const p of items){
-    const a = pos(p.s);
-    p.len = Math.max(pos(p.e) - a, 4);
-    p.lw = textW(p.label || p.n) + 6 + (p.val !== undefined ? textW(valTxt(p.val), '700 10px system-ui, sans-serif') + 16 : 0);
-    const occ = a + Math.max(p.len, p.lw);
-    let lane = laneEnd.findIndex(end => end + GAP <= a);
-    if (lane === -1){ lane = laneEnd.length; laneEnd.push(0); }
-    laneEnd[lane] = occ;
-    p.lane = lane; p.px = a;
-  }
+  const pack = (list, first) => {
+    for (const p of list){
+      const a = pos(p.s);
+      p.len = Math.max(pos(p.e) - a, 4);
+      p.lw = textW(p.label || p.n) + 6 + (p.val !== undefined ? textW(valTxt(p.val), '700 10px system-ui, sans-serif') + 16 : 0);
+      const occ = a + Math.max(p.len, p.lw);
+      let lane = laneEnd.findIndex((end, i) => i >= first && end + GAP <= a);
+      if (lane === -1){ lane = laneEnd.length; laneEnd.push(0); }
+      laneEnd[lane] = occ;
+      p.lane = lane; p.px = a;
+    }
+  };
+  pack(capa, 0);
+  pack(rest, laneEnd.length);
   const lanes = laneEnd.length;
   // Largo total: la línea de tiempo o el final de la etiqueta más lejana, lo que sea mayor
   const extent = Math.max(span, ...laneEnd.map(end => end + PAD));
@@ -793,7 +885,7 @@ function render(){
 
     // Personajes
     for (const p of items){
-      const b = groupView ? groupEl(p) : personEl(p);
+      const b = p.people ? groupEl(p) : personEl(p);
       Object.assign(b.style, {left:p.px+'px', top:(top0 + p.lane*ROW)+'px', width:Math.max(p.len,p.lw)+'px', height:'30px'});
       b.querySelector('.bar').style.width = p.len + 'px';
       canvas.append(b);
@@ -824,7 +916,7 @@ function render(){
     }
 
     for (const p of items){
-      const b = groupView ? groupEl(p) : personEl(p);
+      const b = p.people ? groupEl(p) : personEl(p);
       Object.assign(b.style, {top:p.px+'px', left:(left0 + p.lane*COL)+'px', height:Math.max(p.len,p.lw)+'px', width:'28px'});
       b.querySelector('.bar').style.height = p.len + 'px';
       canvas.append(b);
@@ -859,8 +951,54 @@ function personEl(p){
   const lbl = b.querySelector('.lbl');
   lbl.textContent = p.n;
   if (p.val !== undefined) lbl.append(valBadge(p.val));
+  if (p.k === 'crono'){
+    b.classList.add('crono');
+    b.style.setProperty('--delay', `${-(p.id % 4) * 1.3}s`);   // desfase: no destellan todas a la vez
+  }
+  if (p.seg || p.mark) addSegments(b, p);
   b.addEventListener('click', () => select(p.id, false));
   return b;
+}
+
+// Tramos y marcas de una profecía, en porcentaje del largo de su barra
+function addSegments(b, p){
+  const bar = b.querySelector('.bar');
+  const pct = y => (T(y) - T(p.s)) / (T(p.e) - T(p.s)) * 100;
+  (p.seg || []).forEach((sg, i, all) => {
+    const s = el('span', 'seg' + (i === all.length - 1 ? ' end' : ''));
+    s.style.setProperty('--a', pct(sg.s));
+    s.style.setProperty('--w', pct(sg.e) - pct(sg.s));
+    bar.append(s);
+  });
+  if (p.seg) b.classList.add('segs');
+  (p.mark || []).forEach(m => {
+    const k = el('span', 'mark');
+    k.style.setProperty('--a', pct(m.y));
+    bar.append(k);
+  });
+  b.title += (p.seg || []).map(sg => `\n${sg.n}: ${fmtY(sg.s)} – ${fmtY(sg.e)}`).join('') +
+             (p.mark || []).map(m => `\n${fmtY(m.y)}: ${m.n}`).join('');
+}
+
+// Lista de tramos y marcas en la ficha
+function fillSegs(p){
+  const box = card.querySelector('.segs');
+  box.replaceChildren();
+  if (!p) return;
+  const rows = [
+    ...(p.seg || []).map(sg => ({y:sg.s, mk:false, t:`${sg.n}: ${fmtY(sg.s)} – ${fmtY(sg.e)}`, d:sg.d})),
+    ...(p.mark || []).map(m => ({y:m.y, mk:true, t:fmtY(m.y), d:m.n})),
+  ].sort((a,b) => a.y - b.y || a.mk - b.mk);
+  for (const r of rows){
+    const row = el('div');
+    const i = el('i', r.mk ? 'mk' : '');
+    const txt = el('span');
+    const t = el('b'); t.textContent = r.t;
+    const d = el('small'); d.textContent = ' · ' + r.d;
+    txt.append(t, d);
+    row.append(i, txt);
+    box.append(row);
+  }
 }
 
 function groupEl(g){
@@ -922,6 +1060,7 @@ function select(id, scroll){
     verdict.append(valBadge(p.val), b, p.why);
   }
   card.querySelector('.desc').textContent = p.d;
+  fillSegs(p);
   card.querySelector('.refs').textContent = 'Textos: ' + p.r;
   card.classList.add('open');
 }
@@ -946,6 +1085,7 @@ function selectGroup(k){
     [...g.people].sort((a,b) => b.e - a.e)[0].n;
   card.querySelector('.verdict').style.display = 'none';
   card.querySelector('.desc').textContent = CATS[k].t || '';
+  fillSegs(null);
   card.querySelector('.refs').textContent = 'Personajes: ' + g.people.map(p => p.n).join(', ') + '.';
   card.classList.add('open');
 }
@@ -1024,7 +1164,7 @@ function refresh(){
 function addPick(id){
   const p = PEOPLE[id];
   picked.add(id);
-  if (!catOk(p)) setCatFilter([]);   // estaba oculto por la leyenda
+  if (!catOk(p)) isCapa(p) ? setCapa(true) : setCatFilter([]);   // estaba oculto por la leyenda
   refresh();
   select(id, true);
 }
@@ -1155,6 +1295,7 @@ scroller.addEventListener('wheel', e => {
 /* ===================== LEYENDA E INICIO ===================== */
 const legend = document.getElementById('legend');
 for (const k in CATS){
+  if (CATS[k].capa) continue;   // las capas tienen su propio botón (ver abajo)
   const b = document.createElement('button');
   b.className = 'cat';
   b.dataset.cat = k;
@@ -1182,6 +1323,24 @@ legend.insertAdjacentHTML('beforeend',
   '<span title="Valoración de los reyes según la Biblia; más símbolos indican mayor grado">' +
   '<span class="val good">✓</span>bueno <span class="val tibio">◐</span>tibio <span class="val bad">✗</span>malo</span>');
 legend.querySelector('.reset').addEventListener('click', () => setCatFilter([]));
+
+// Botón de la capa de profecías: las muestra u oculta sin tocar el filtro de categorías
+const capaBtn = document.createElement('button');
+capaBtn.className = 'capa';
+capaBtn.title = 'Mostrar u ocultar las profecías cronológicas (no cambia el filtro de categorías)';
+capaBtn.innerHTML = `<span class="check" aria-hidden="true"></span><i></i>${CATS.crono.n}`;
+capaBtn.addEventListener('click', () => setCapa(!showCapa));
+legend.querySelector('.reset').before(capaBtn);
+function setCapa(on){
+  showCapa = on;
+  try { localStorage.setItem('profecias', on ? '1' : '0'); } catch (e) {}
+  capaBtn.classList.toggle('on', on);
+  capaBtn.setAttribute('aria-pressed', on);
+  if (!on && selected !== null && isCapa(PEOPLE[selected])) closeCard();
+  render();
+}
+capaBtn.classList.toggle('on', showCapa);
+capaBtn.setAttribute('aria-pressed', showCapa);
 
 // Mostrar u ocultar la leyenda. En pantallas estrechas empieza cerrada; se recuerda la elección.
 const head = document.getElementById('head');
@@ -1214,7 +1373,7 @@ function setCatFilter(cats){
   render();
   // Llevar la vista al primer personaje (o grupo) de las categorías elegidas
   if (catFilter.size){
-    const first = PEOPLE.filter(visible).sort((a,b) => a.s - b.s)[0];
+    const first = PEOPLE.filter(p => !isCapa(p) && visible(p)).sort((a,b) => a.s - b.s)[0];
     const node = groupView ? canvas.querySelector('.person.group')   // los grupos se dibujan en orden cronológico
                            : first && canvas.querySelector(`.person[data-id="${first.id}"]`);
     if (node){
