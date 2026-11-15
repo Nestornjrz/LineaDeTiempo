@@ -386,7 +386,7 @@ body.v .person.crono .bar::after{
     <button id="install" class="install" hidden title="Instalar como aplicación en este dispositivo">⬇ Instalar</button>
   </div>
   <button id="legendToggle" class="legend-toggle" aria-expanded="true" aria-controls="legend" title="Mostrar u ocultar los filtros: capas, fuente y categorías">
-    Filtros <b class="count" id="legendCount" title="Filtros aplicados (capas y fuentes ocultas, y categorías)"></b><span class="arrow" aria-hidden="true">▼</span>
+    Filtros <b class="count" id="legendCount" title="Filtros cambiados (capas ocultas, fuente y categorías)"></b><span class="arrow" aria-hidden="true">▼</span>
   </button>
   <div class="picks" id="picks" aria-label="Personajes buscados"></div>
   <div class="legend" id="legend"></div>
@@ -396,7 +396,7 @@ body.v .person.crono .bar::after{
 <!-- Ayuda: oculta de entrada; se despliega con el enlace -->
 <details class="note">
   <summary><span aria-hidden="true">ⓘ </span>Cómo leer la línea de tiempo</summary>
-  <p>Fechas según la cronología bíblica de las publicaciones de los testigos de Jehová (por ejemplo, la creación de Adán en 4026 a.e.c. y el Diluvio en 2370 a.e.c.). Las barras rayadas indican fechas aproximadas. Las profecías cronológicas se muestran arriba, como barras divididas en sus tramos; las guerras llevan el símbolo ⚔. Personas, profecías y guerras son capas que se muestran u ocultan por separado desde «Filtros»; allí también se pueden ocultar las franjas de fondo de los milenios del calendario. Las barras con borde punteado y relleno claro son extrabíblicas: personas y guerras que la Biblia no narra, aunque algunas cumplan profecías bíblicas (por ejemplo, los presidentes de la Watch Tower, la guerra judía contra Roma y las guerras mundiales). La fila «Fuente» de «Filtros» muestra u oculta por separado lo bíblico y lo extrabíblico. En la vista «Grupos», cada barra representa una categoría y va desde su primer personaje hasta el último. Los acontecimientos con línea de puntos y etiqueta en cursiva tienen una fecha aproximada que la Biblia no precisa. En los reyes de Judá y de Israel, la barra muestra los años de reinado. En todos los reyes, el icono (✓ bueno, ◐ tibio, ✗ malo; más símbolos, mayor grado) resume lo que la Biblia dice de su conducta. Cuando no se conoce el nacimiento o la muerte, la barra muestra el período en que el personaje aparece en el registro bíblico.</p>
+  <p>Fechas según la cronología bíblica de las publicaciones de los testigos de Jehová (por ejemplo, la creación de Adán en 4026 a.e.c. y el Diluvio en 2370 a.e.c.). Las barras rayadas indican fechas aproximadas. Las profecías cronológicas se muestran arriba, como barras divididas en sus tramos; las guerras llevan el símbolo ⚔. Personas, profecías y guerras son capas que se muestran u ocultan por separado desde «Filtros»; allí también se pueden ocultar las franjas de fondo de los milenios del calendario. Las barras con borde punteado y relleno claro son extrabíblicas: personas y guerras que la Biblia no narra, aunque algunas cumplan profecías bíblicas (por ejemplo, los presidentes de la Watch Tower, la guerra judía contra Roma y las guerras mundiales). De entrada solo se muestra lo bíblico; la fila «Fuente» de «Filtros» muestra u oculta por separado lo bíblico y lo extrabíblico. En la vista «Grupos», cada barra representa una categoría y va desde su primer personaje hasta el último. Los acontecimientos con línea de puntos y etiqueta en cursiva tienen una fecha aproximada que la Biblia no precisa. En los reyes de Judá y de Israel, la barra muestra los años de reinado. En todos los reyes, el icono (✓ bueno, ◐ tibio, ✗ malo; más símbolos, mayor grado) resume lo que la Biblia dice de su conducta. Cuando no se conoce el nacimiento o la muerte, la barra muestra el período en que el personaje aparece en el registro bíblico.</p>
 </details>
 
 <div id="card" role="dialog" aria-live="polite">
@@ -917,7 +917,9 @@ try { showMil = localStorage.getItem('milenios') !== '0'; } catch (e) {}
 const FUENTES = {biblico:'Bíblicos', extra:'Extrabíblicos'};
 const isExtra = p => !!(p.x || CATS[p.c].x);
 const fuenteOf = p => isExtra(p) ? 'extra' : 'biblico';
-const fuentes = {biblico:true, extra:true};
+// De entrada solo se ve lo bíblico; lo extrabíblico se activa desde «Filtros»
+const FUENTES_INI = {biblico:true, extra:false};
+const fuentes = {...FUENTES_INI};
 try { Object.assign(fuentes, JSON.parse(localStorage.getItem('fuentes') || '{}')); } catch (e) {}
 const srcOk = p => p.c === 'crono' || fuentes[fuenteOf(p)];
 const catOk = p => srcOk(p) && (isCapa(p) ? layers[p.c] : layers.personas && (!catFilter.size || catFilter.has(p.c)));
@@ -1659,9 +1661,11 @@ function setLegendOpen(open, save){
   setHead();
 }
 legendToggle.addEventListener('click', () => setLegendOpen(!legendOpen, true));
-// Contador del botón "Filtros": capas y fuentes ocultas + categorías elegidas (si se ven las personas)
+// Contador del botón "Filtros": capas ocultas + fuentes distintas de las iniciales
+// + categorías elegidas (si se ven las personas)
 function updateBadge(){
-  const n = Object.values(layers).filter(on => !on).length + Object.values(fuentes).filter(on => !on).length +
+  const n = Object.values(layers).filter(on => !on).length +
+            Object.keys(FUENTES).filter(k => fuentes[k] !== FUENTES_INI[k]).length +
             (layers.personas ? catFilter.size : 0);
   legendCount.textContent = n || '';
 }
