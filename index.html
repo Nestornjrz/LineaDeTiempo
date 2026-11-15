@@ -22,7 +22,7 @@
   --c-ante:#7b5ea7; --c-patri:#b5762a; --c-epat:#8f5f4a; --c-israel:#2f7d6d; --c-reyes:#b23a48;
   --c-juda:#b0306f; --c-isr:#56677a;
   --c-profp:#2f6db3; --c-profm:#1689a8; --c-prof:#5a55b8;
-  --c-exilio:#6f7f22; --c-cristo:#c0562b;
+  --c-exilio:#6f7f22; --c-cristo:#c0562b; --c-apost:#3d8c40; --c-gob:#8a6d1f; --c-disc:#a0688f;
   --good:#2e8b57; --bad:#c0392b; --tibio:#a87a00;
   --event:#9a8f7a; --pill:#fffaf0; --shadow:0 6px 24px rgba(40,30,10,.18);
 }
@@ -34,7 +34,7 @@
     --c-juda:#e66fa6; --c-isr:#9aaabd;
     --good:#5cc98a; --bad:#ef6b5e; --tibio:#e8c04a;
     --c-profp:#6aa3e6; --c-profm:#4cc4e0; --c-prof:#9b96ec;
-    --c-exilio:#a8bb4c; --c-cristo:#ee8758;
+    --c-exilio:#a8bb4c; --c-cristo:#ee8758; --c-apost:#6cc26f; --c-gob:#d1b04f; --c-disc:#d39bc2;
     --event:#8c836f; --pill:#2a261d; --shadow:0 6px 24px rgba(0,0,0,.5);
   }
 }
@@ -275,7 +275,10 @@ const CATS = {
   profm:  {n:'Profetas menores',  v:'--c-profm', t:'Los 12 libros proféticos más breves, de Oseas a Malaquías'},
   prof:   {n:'Otros profetas',    v:'--c-prof',  t:'Profetas que no tienen un libro de la Biblia con su nombre'},
   exilio: {n:'Exilio y regreso',  v:'--c-exilio'},
-  cristo: {n:'Era cristiana',     v:'--c-cristo'},
+  apost:  {n:'Apóstoles',         v:'--c-apost', t:'Los 12 apóstoles de Jesús, Matías y Pablo'},
+  cristo: {n:'Jesús y su familia', v:'--c-cristo', t:'Jesús, sus padres, sus medios hermanos y sus parientes'},
+  gob:    {n:'Gobernantes y sacerdotes', v:'--c-gob', t:'Reyes, emperadores, gobernadores y sumos sacerdotes del tiempo de Jesús'},
+  disc:   {n:'Discípulos y otros', v:'--c-disc', t:'Discípulos y otras personas de los Evangelios y de los primeros años del cristianismo'},
 };
 
 const PEOPLE = [
@@ -425,11 +428,55 @@ const PEOPLE = [
   {n:'María', s:-3, e:33, a:'s', c:'cristo', k:'registro', d:'Madre de Jesús. Estaba entre los discípulos en el año 33.', r:'Lucas 1:26-38; Hechos 1:14', al:'Maria'},
   {n:'Juan el Bautista', s:-2, e:32, a:'e', c:'cristo', k:'vida', d:'Precursor del Mesías. Bautizó a Jesús.', r:'Lucas 1:36, 57-63; Mateo 3:13-17; 14:10', al:'Bautista'},
   {n:'Jesús', s:-2, e:33, c:'cristo', k:'vida', age:'unos 33 años y medio', d:'El Mesías, Hijo de Dios. Fue bautizado en el año 29 y murió en el 33.', r:'Lucas 2:1-7; 3:23; Juan 19', al:'Jesus Cristo Mesías Mesias'},
-  {n:'Pedro', s:29, e:64, a:'e', c:'cristo', k:'registro', d:'Apóstol de Jesús. Escribió dos cartas bíblicas.', r:'Juan 1:40-42; Hechos 2; 1 y 2 Pedro', al:'Simón Simon Cefas'},
-  {n:'Juan (apóstol)', s:29, e:98, a:'e', c:'cristo', k:'registro', d:'Apóstol de Jesús. Escribió un Evangelio, tres cartas y el libro de Apocalipsis.', r:'Juan 1:35-40; Apocalipsis 1:9', al:'Juan apostol'},
-  {n:'Esteban', s:33, e:34, a:'se', c:'cristo', k:'registro', d:'Discípulo lleno de fe. Fue el primer mártir cristiano.', r:'Hechos 6:5–7:60'},
-  {n:'Pablo', s:34, e:65, a:'se', c:'cristo', k:'registro', d:'Antes perseguidor (Saulo). Apóstol a las naciones; escribió 14 cartas.', r:'Hechos 7:58; 9:1-19; 2 Timoteo 4:6-8', al:'Saulo'},
-  {n:'Timoteo', s:50, e:65, a:'se', c:'cristo', k:'registro', d:'Compañero de viaje de Pablo y superintendente cristiano.', r:'Hechos 16:1-3; 1 y 2 Timoteo'},
+  {n:'Pedro', s:29, e:64, a:'e', c:'apost', k:'registro', d:'Apóstol de Jesús. Escribió dos cartas bíblicas.', r:'Juan 1:40-42; Hechos 2; 1 y 2 Pedro', al:'Simón Simon Cefas'},
+  {n:'Juan (apóstol)', s:29, e:98, a:'e', c:'apost', k:'registro', d:'Apóstol de Jesús. Escribió un Evangelio, tres cartas y el libro de Apocalipsis.', r:'Juan 1:35-40; Apocalipsis 1:9', al:'Juan apostol'},
+  // --- Apóstoles ---
+  {n:'Andrés', s:29, e:33, c:'apost', k:'registro', d:'Hermano de Pedro y pescador de Betsaida. Era discípulo de Juan el Bautista y llevó a su hermano a conocer a Jesús.', r:'Juan 1:35-42; Mateo 4:18-20; Hechos 1:13', al:'Andres'},
+  {n:'Felipe (apóstol)', q:'Felipe', s:29, e:33, c:'apost', k:'registro', d:'De Betsaida, como Andrés y Pedro. Llevó a Natanael a conocer a Jesús.', r:'Juan 1:43-46; 6:5-7; 14:8, 9; Hechos 1:13', al:'Felipe'},
+  {n:'Bartolomé', s:29, e:33, c:'apost', k:'registro', d:'Probablemente es el mismo Natanael, de quien Jesús dijo que era un israelita sin engaño.', r:'Juan 1:45-51; 21:2; Mateo 10:3; Hechos 1:13', al:'Bartolome Natanael'},
+  {n:'Santiago (hijo de Zebedeo)', q:'Santiago', s:30, e:44, a:'se', c:'apost', k:'registro', d:'Hermano del apóstol Juan; Jesús los llamó «Hijos del Trueno». Fue el primer apóstol en morir como mártir: Herodes Agripa I lo mandó ejecutar.', r:'Marcos 1:19, 20; 3:17; Hechos 12:1, 2', al:'Santiago Jacobo Zebedeo'},
+  {n:'Mateo', s:31, e:33, a:'s', c:'apost', k:'registro', d:'También llamado Leví. Era recaudador de impuestos cuando Jesús lo llamó. Escribió el primer Evangelio.', r:'Mateo 9:9; Marcos 2:14; Lucas 5:27-29; Hechos 1:13', al:'Levi'},
+  {n:'Tomás', s:31, e:33, c:'apost', k:'registro', d:'Llamado Dídimo. Dudó de la resurrección de Jesús hasta verlo, y entonces exclamó: «¡Mi Señor y mi Dios!».', r:'Mateo 10:3; Juan 11:16; 20:24-29; Hechos 1:13', al:'Tomas Didimo'},
+  {n:'Santiago (hijo de Alfeo)', q:'Santiago', s:31, e:33, c:'apost', k:'registro', d:'Apóstol de quien se sabe poco. Probablemente es el llamado «Santiago el Menor».', r:'Mateo 10:3; Marcos 15:40; Hechos 1:13', al:'Santiago Jacobo Alfeo Menor'},
+  {n:'Tadeo', s:31, e:33, c:'apost', k:'registro', d:'También llamado Judas, hijo de Santiago (no el Iscariote). En la última cena le hizo una pregunta a Jesús.', r:'Mateo 10:3; Lucas 6:16; Juan 14:22; Hechos 1:13', al:'Judas Lebeo'},
+  {n:'Simón el Celoso', s:31, e:33, c:'apost', k:'registro', d:'Apóstol al que llamaban «el Celoso» y «el cananeo». La Biblia dice poco de él.', r:'Mateo 10:4; Lucas 6:15; Hechos 1:13', al:'Simon cananeo cananita zelote'},
+  {n:'Judas Iscariote', s:31, e:33, c:'apost', k:'registro', d:'Era ladrón y traicionó a Jesús por 30 piezas de plata. Después se ahorcó.', r:'Mateo 26:14-16; 27:3-5; Juan 12:4-6; Hechos 1:16-18', al:'Iscariote'},
+  {n:'Matías', s:29, e:33, c:'apost', k:'registro', dt:'Siguió a Jesús desde su bautismo (29 e.c.) y fue elegido apóstol en el 33 e.c.', d:'Discípulo que acompañó a Jesús durante su ministerio. Fue elegido para reemplazar a Judas Iscariote.', r:'Hechos 1:21-26', al:'Matias'},
+
+  // --- Tiempo de Jesús: familia, gobernantes y sacerdotes, discípulos y otros ---
+  {n:'Herodes el Grande', s:-37, e:-1, c:'gob', k:'reinado', dt:'Fue rey de Judea desde 37 a.e.c. hasta su muerte, en 1 a.e.c.', d:'Rey de Judea bajo el dominio de Roma. Mandó matar a los niños de Belén para eliminar a Jesús.', r:'Mateo 2:1-22; Lucas 1:5', al:'Herodes'},
+  {n:'César Augusto', s:-27, e:14, c:'gob', k:'reinado', dt:'Fue emperador de Roma desde 27 a.e.c. hasta 14 e.c.', d:'Emperador romano. Su decreto de inscripción llevó a José y María a Belén, donde nació Jesús.', r:'Lucas 2:1-7', al:'Augusto Cesar Octavio'},
+  {n:'Zacarías (padre de Juan)', q:'Zacarías', s:-3, e:-2, c:'cristo', k:'registro', d:'Sacerdote y padre de Juan el Bautista. Se quedó mudo por no creer el mensaje del ángel Gabriel.', r:'Lucas 1:5-23, 57-79', al:'Zacarias'},
+  {n:'Elisabet', s:-3, e:-2, c:'cristo', k:'registro', d:'Esposa de Zacarías y madre de Juan el Bautista. Era pariente de María.', r:'Lucas 1:5-7, 24, 36-45, 57', al:'Isabel Elisabeth'},
+  {n:'José (esposo de María)', q:'José', s:-3, e:11, a:'e', c:'cristo', k:'registro', dt:'Aparece en el relato desde poco antes del nacimiento de Jesús hasta que Jesús tenía 12 años', d:'Carpintero descendiente de David y padre adoptivo de Jesús. Obedeció a Jehová y protegió a su familia huyendo a Egipto.', r:'Mateo 1:18-25; 2:13-15; Lucas 2:41-51; 13:55', al:'Jose carpintero'},
+  {n:'Simeón (del templo)', q:'Simeón', s:-2, e:-2, c:'disc', k:'registro', dt:'Aparece una sola vez, cuando el niño Jesús fue presentado en el templo', d:'Hombre justo de Jerusalén. Tomó en brazos al niño Jesús en el templo y alabó a Dios.', r:'Lucas 2:25-35', al:'Simeon'},
+  {n:'Ana (profetisa)', q:'Ana', s:-2, e:-2, c:'disc', k:'registro', dt:'Aparece una sola vez, cuando el niño Jesús fue presentado en el templo', d:'Viuda anciana de la tribu de Aser que servía en el templo día y noche. Habló del niño a todos los que esperaban la liberación.', r:'Lucas 2:36-38'},
+  {n:'Herodes Antipas', s:-1, e:39, a:'s', c:'gob', k:'reinado', dt:'Gobernó Galilea y Perea como tetrarca desde la muerte de su padre hasta 39 e.c.', d:'Hijo de Herodes el Grande. Mandó decapitar a Juan el Bautista, y Jesús lo llamó «ese zorro».', r:'Mateo 14:1-12; Lucas 3:1; 13:31, 32; 23:7-12', al:'Herodes Antipas'},
+  {n:'Anás', s:6, e:33, a:'s', c:'gob', k:'registro', dt:'Fue sumo sacerdote desde c. 6 hasta c. 15 e.c., pero en el 33 seguía teniendo mucha influencia', d:'Suegro de Caifás. La noche en que arrestaron a Jesús, lo llevaron primero ante él.', r:'Lucas 3:2; Juan 18:13, 24; Hechos 4:6', al:'Anas'},
+  {n:'Tiberio', s:14, e:37, c:'gob', k:'reinado', dt:'Fue emperador de Roma desde 14 hasta 37 e.c.', d:'Emperador romano durante el ministerio de Jesús. En el año 15 de su reinado, Juan el Bautista empezó a predicar.', r:'Lucas 3:1-3'},
+  {n:'Caifás', s:18, e:36, a:'se', c:'gob', k:'registro', dt:'Fue sumo sacerdote desde c. 18 hasta c. 36 e.c.', d:'Sumo sacerdote que dirigió el complot para matar a Jesús y presidió el juicio contra él.', r:'Juan 11:49-53; Mateo 26:57-66; Hechos 4:6', al:'Caifas'},
+  {n:'Poncio Pilato', s:26, e:36, c:'gob', k:'registro', dt:'Fue gobernador de Judea desde 26 hasta 36 e.c.', d:'Gobernador romano. Aunque no halló culpa en Jesús, lo entregó para que lo ejecutaran.', r:'Lucas 3:1; 23:1-25; Juan 19:1-16', al:'Pilato'},
+  {n:'Nicodemo', s:30, e:33, c:'disc', k:'registro', d:'Fariseo y gobernante de los judíos. Visitó a Jesús de noche y después ayudó a sepultarlo.', r:'Juan 3:1-21; 7:50, 51; 19:39, 40'},
+  {n:'María Magdalena', s:31, e:33, a:'s', c:'disc', k:'registro', d:'Jesús expulsó de ella siete demonios. Fue la primera persona que vio a Jesús resucitado.', r:'Lucas 8:2; Juan 19:25; 20:1-18', al:'Maria Magdalena'},
+  {n:'Juana', s:31, e:33, a:'s', c:'disc', k:'registro', d:'Esposa de Cuza, el administrador de Herodes. Servía a Jesús con sus bienes y fue a la tumba vacía.', r:'Lucas 8:3; 24:10'},
+  {n:'Susana', s:31, e:31, a:'se', c:'disc', k:'registro', dt:'Aparece una sola vez en el relato', d:'Una de las mujeres que servían a Jesús y a sus apóstoles con sus bienes.', r:'Lucas 8:3'},
+  {n:'Jairo', s:31, e:31, a:'se', c:'disc', k:'registro', dt:'Aparece una sola vez en el relato', d:'Presidente de una sinagoga. Jesús resucitó a su hija de 12 años.', r:'Marcos 5:22-24, 35-43; Lucas 8:41, 42, 49-56'},
+  {n:'Santiago (medio hermano de Jesús)', q:'Santiago', s:31, e:62, a:'se', c:'cristo', k:'registro', dt:'Aparece desde el ministerio de Jesús; escribió su carta antes de 62 e.c.', d:'Medio hermano de Jesús. Al principio no creía en él, pero llegó a ser anciano en Jerusalén y escribió la carta de Santiago.', r:'Mateo 13:55; Juan 7:5; Hechos 15:13-21; Gálatas 1:19; Santiago 1:1', al:'Jacobo'},
+  {n:'Judas (medio hermano de Jesús)', q:'Judas', s:31, e:65, a:'se', c:'cristo', k:'registro', dt:'Aparece desde el ministerio de Jesús; escribió su carta c. 65 e.c.', d:'Medio hermano de Jesús y hermano de Santiago. Escribió la carta de Judas.', r:'Mateo 13:55; Juan 7:5; Judas 1'},
+  {n:'Marta', s:32, e:33, a:'s', c:'disc', k:'registro', d:'Hermana de María y Lázaro, de Betania. Jesús la quería mucho; expresó su fe en la resurrección.', r:'Lucas 10:38-42; Juan 11:5, 20-27; 12:2'},
+  {n:'María (hermana de Marta)', q:'María', s:32, e:33, a:'s', c:'disc', k:'registro', d:'Escuchaba con atención a Jesús. Poco antes de su muerte, derramó sobre él un aceite perfumado muy costoso.', r:'Lucas 10:39, 42; Juan 11:1, 2; 12:3-8', al:'Maria Betania'},
+  {n:'Lázaro', s:32, e:33, a:'s', c:'disc', k:'registro', d:'Amigo de Jesús y hermano de Marta y María. Jesús lo resucitó cuatro días después de su muerte.', r:'Juan 11:1-44; 12:1, 2, 9-11', al:'Lazaro'},
+  {n:'Zaqueo', s:33, e:33, c:'disc', k:'registro', dt:'Aparece una sola vez en el relato, poco antes de la muerte de Jesús', d:'Jefe de los recaudadores de impuestos en Jericó. Se subió a un árbol para ver a Jesús y cambió su forma de vivir.', r:'Lucas 19:1-10'},
+  {n:'Bartimeo', s:33, e:33, c:'disc', k:'registro', dt:'Aparece una sola vez en el relato, poco antes de la muerte de Jesús', d:'Mendigo ciego de Jericó. Jesús le devolvió la vista.', r:'Marcos 10:46-52'},
+  {n:'Barrabás', s:33, e:33, c:'disc', k:'registro', dt:'Aparece en el relato del juicio de Jesús', d:'Ladrón y asesino. La multitud pidió que lo soltaran a él en lugar de a Jesús.', r:'Mateo 27:15-26; Juan 18:40; Hechos 3:14', al:'Barrabas'},
+  {n:'Simón de Cirene', s:33, e:33, c:'disc', k:'registro', dt:'Aparece en el relato de la muerte de Jesús', d:'Los soldados lo obligaron a cargar el madero de tormento de Jesús.', r:'Mateo 27:32; Marcos 15:21', al:'Simon Cirene cireneo'},
+  {n:'José de Arimatea', s:33, e:33, c:'disc', k:'registro', dt:'Aparece en el relato de la muerte de Jesús', d:'Miembro del Sanedrín y discípulo de Jesús en secreto. Pidió el cuerpo de Jesús y lo puso en su propia tumba.', r:'Mateo 27:57-60; Juan 19:38', al:'Jose Arimatea'},
+  {n:'Cleofás', s:33, e:33, c:'disc', k:'registro', dt:'Aparece el día de la resurrección de Jesús', d:'Uno de los dos discípulos a los que Jesús resucitado se les apareció en el camino a Emaús.', r:'Lucas 24:13-35', al:'Cleofas'},
+  {n:'Marcos', s:44, e:65, a:'se', c:'disc', k:'registro', d:'También llamado Juan Marcos. Acompañó a Pablo y a Bernabé y escribió uno de los Evangelios.', r:'Hechos 12:12, 25; 15:37-39; 2 Timoteo 4:11', al:'Juan Marcos'},
+  {n:'Lucas', s:50, e:65, a:'se', c:'disc', k:'registro', d:'«El médico amado» y compañero de viaje de Pablo. Escribió el Evangelio de Lucas y el libro de Hechos.', r:'Hechos 16:10; Colosenses 4:14; 2 Timoteo 4:11'},
+  {n:'Esteban', s:33, e:34, a:'se', c:'disc', k:'registro', d:'Discípulo lleno de fe. Fue el primer mártir cristiano.', r:'Hechos 6:5–7:60'},
+  {n:'Pablo', s:34, e:65, a:'se', c:'apost', k:'registro', d:'Antes perseguidor (Saulo). Apóstol a las naciones; escribió 14 cartas.', r:'Hechos 7:58; 9:1-19; 2 Timoteo 4:6-8', al:'Saulo'},
+  {n:'Timoteo', s:50, e:65, a:'se', c:'disc', k:'registro', d:'Compañero de viaje de Pablo y superintendente cristiano.', r:'Hechos 16:1-3; 1 y 2 Timoteo'},
 ];
 
 /* ===================== VALORACIÓN DE LOS REYES =====================
@@ -535,7 +582,7 @@ const JW = {
   'Ezequías':'1200002011', 'Josías':'1200002525', 'Jeremías':'1200002421', 'Nabucodonosor':'1200003200',
   'Daniel':'1200001117', 'Ezequiel':'1200001469', 'Ciro':'1200001102', 'Ester':'1200001430',
   'Esdras':'1200001475', 'Nehemías':'1200003212', 'María':'1200002918', 'Juan el Bautista':'1200002489',
-  'Jesús':'1200002451', 'Pedro':'1200003451', 'Juan (apóstol)':'1200002489', 'Esteban':'1200004230',
+  'Jesús':'1200002451', 'Pedro':'1200003451', 'Esteban':'1200004230',
   'Pablo':'1200003406', 'Timoteo':'1200004416',
 };
 const jwUrl = p => JW[p.n] ? `https://wol.jw.org/es/wol/d/r4/lp-s/${JW[p.n]}`
