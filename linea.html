@@ -193,6 +193,7 @@ header.legend-closed .legend{display:none}
 header > .tools{order:1}
 header > .legend-toggle{order:2}
 header > .picks{order:3}
+header > .linbar{order:3}
 header > .legend{order:4}
 @media (max-width: 759px){
   /* En el celular, el botón va junto al título y las herramientas pasan a la fila siguiente */
@@ -311,6 +312,23 @@ body.v .person .bar{top:0; left:0; width:10px}
 }
 #card .tree:hover{background:var(--grid)}
 #card .tree[hidden]{display:none}
+#card button.tree{font-family:inherit; background:none; cursor:pointer}
+
+/* ---------- Modo «Linaje» ---------- */
+.linbar{width:100%; display:flex; flex-wrap:wrap; gap:6px 10px; align-items:center; font-size:13px; color:var(--muted)}
+.linbar[hidden]{display:none}
+.linbar > b{color:var(--text); font-size:14px}
+.linbar button{
+  height:28px; padding:0 10px; font:inherit; font-size:13px; cursor:pointer; white-space:nowrap;
+  color:var(--text); background:var(--surface); border:1px solid var(--line); border-radius:14px;
+}
+.linbar button:hover{border-color:var(--axis)}
+.linbar button[aria-pressed="true"]{background:var(--accent); border-color:var(--accent); color:var(--bg); font-weight:600}
+.linbar button.salir{color:var(--accent); font-weight:600; border-color:var(--accent)}
+.linbar small{font-size:12px}
+.lin-svg{position:absolute; left:0; top:0; z-index:2; pointer-events:none; overflow:visible}
+.lin-svg path{fill:none; stroke:var(--accent); stroke-width:1.5; opacity:.8}
+.lin-svg path.gap{stroke-dasharray:4 4}
 #card.group .more, #card.group .tree, #card:not(.group) .seegroup{display:none}
 #card.group .refs{max-height:7.5em; overflow-y:auto}
 #card.group h2 a{text-decoration:none; pointer-events:none}
@@ -432,6 +450,7 @@ body.v .person.crono .bar::after{
     Filtros <b class="count" id="legendCount" title="Filtros cambiados (capas ocultas, fuente y categorías)"></b><span class="arrow" aria-hidden="true">▼</span>
   </button>
   <div class="picks" id="picks" aria-label="Personajes buscados"></div>
+  <div class="linbar" id="linBar" aria-label="Linaje" hidden></div>
   <div class="legend" id="legend"></div>
 </header>
 
@@ -439,7 +458,7 @@ body.v .person.crono .bar::after{
 <!-- Ayuda: oculta de entrada; se despliega con el enlace -->
 <details class="note">
   <summary><span aria-hidden="true">ⓘ </span>Cómo leer la línea de tiempo</summary>
-  <p>Fechas según la cronología bíblica de las publicaciones de los testigos de Jehová (por ejemplo, la creación de Adán en 4026 a.e.c. y el Diluvio en 2370 a.e.c.). Las barras rayadas indican fechas aproximadas. Las profecías cronológicas se muestran arriba, como barras divididas en sus tramos; las guerras llevan el símbolo ⚔. Personas, profecías y guerras son capas que se muestran u ocultan por separado desde «Filtros»; allí también se pueden ocultar las franjas de fondo de los milenios del calendario. Las barras con borde punteado y relleno claro son extrabíblicas: personas y guerras que la Biblia no narra, aunque algunas cumplan profecías bíblicas (por ejemplo, los presidentes de la Watch Tower, la guerra judía contra Roma y las guerras mundiales). De entrada solo se muestra lo bíblico; la fila «Fuente» de «Filtros» muestra u oculta por separado lo bíblico y lo extrabíblico. En la vista «Grupos», cada barra representa una categoría y va desde su primer personaje hasta el último. Algunas categorías se juntan en un grupo principal (Época patriarcal, Reyes, Profetas y Tiempo de Jesús y los apóstoles), que lleva una flecha y una franja de color por subgrupo: al tocarlo se separa en sus subgrupos, y al tocarlo otra vez se vuelven a juntar. En «Filtros», la flecha junto a cada grupo principal muestra sus subgrupos para elegirlos por separado. Los acontecimientos con línea de puntos y etiqueta en cursiva tienen una fecha aproximada que la Biblia no precisa. En los reyes de Judá y de Israel, la barra muestra los años de reinado. En todos los reyes, el icono (✓ bueno, ◐ tibio, ✗ malo; más símbolos, mayor grado) resume lo que la Biblia dice de su conducta. Cuando no se conoce el nacimiento o la muerte, la barra muestra el período en que el personaje aparece en el registro bíblico.</p>
+  <p>Fechas según la cronología bíblica de las publicaciones de los testigos de Jehová (por ejemplo, la creación de Adán en 4026 a.e.c. y el Diluvio en 2370 a.e.c.). Las barras rayadas indican fechas aproximadas. Las profecías cronológicas se muestran arriba, como barras divididas en sus tramos; las guerras llevan el símbolo ⚔. Personas, profecías y guerras son capas que se muestran u ocultan por separado desde «Filtros»; allí también se pueden ocultar las franjas de fondo de los milenios del calendario. Las barras con borde punteado y relleno claro son extrabíblicas: personas y guerras que la Biblia no narra, aunque algunas cumplan profecías bíblicas (por ejemplo, los presidentes de la Watch Tower, la guerra judía contra Roma y las guerras mundiales). De entrada solo se muestra lo bíblico; la fila «Fuente» de «Filtros» muestra u oculta por separado lo bíblico y lo extrabíblico. En la vista «Grupos», cada barra representa una categoría y va desde su primer personaje hasta el último. Algunas categorías se juntan en un grupo principal (Época patriarcal, Reyes, Profetas y Tiempo de Jesús y los apóstoles), que lleva una flecha y una franja de color por subgrupo: al tocarlo se separa en sus subgrupos, y al tocarlo otra vez se vuelven a juntar. En «Filtros», la flecha junto a cada grupo principal muestra sus subgrupos para elegirlos por separado. Los acontecimientos con línea de puntos y etiqueta en cursiva tienen una fecha aproximada que la Biblia no precisa. En los reyes de Judá y de Israel, la barra muestra los años de reinado. En todos los reyes, el icono (✓ bueno, ◐ tibio, ✗ malo; más símbolos, mayor grado) resume lo que la Biblia dice de su conducta. Cuando no se conoce el nacimiento o la muerte, la barra muestra el período en que el personaje aparece en el registro bíblico. Con «Ver su linaje», en la ficha de una persona, la línea de tiempo muestra solo a esa persona y a sus antepasados con fechas, uno debajo de otro y unidos por líneas desde el año en que nace cada hijo; los antepasados sin fechas no tienen barra y se cuentan en la etiqueta del siguiente («+11 generaciones»), con una línea discontinua, que también indica un padre legal o adoptivo. Es la misma línea de antepasados del árbol genealógico; cuando hay más de una (por ejemplo, Jesús: por José o por María), arriba se elige cuál ver.</p>
 </details>
 
 <div id="card" role="dialog" aria-live="polite">
@@ -455,6 +474,7 @@ body.v .person.crono .bar::after{
   <div class="refs"></div>
   <a class="more" target="_blank" rel="noopener">Más información en jw.org ↗</a>
   <a class="tree">Ver en el árbol genealógico</a>
+  <button class="tree lin-btn" type="button">Ver su linaje</button>
   <button class="seegroup">Ver estas personas en la línea de tiempo</button>
 </div>
 
@@ -533,7 +553,9 @@ const fuentes = {...FUENTES_INI};
 try { Object.assign(fuentes, JSON.parse(localStorage.getItem('fuentes') || '{}')); } catch (e) {}
 const srcOk = p => p.c === 'crono' || fuentes[fuenteOf(p)];
 const catOk = p => srcOk(p) && (isCapa(p) ? layers[p.c] : layers.personas && (!catFilter.size || catFilter.has(p.c)));
-const visible = p => isCapa(p) ? catOk(p)
+// Modo «Linaje»: solo una persona y sus antepasados con fechas (ver verLinaje). null = desactivado
+let lin = null;
+const visible = p => lin ? lin.ids.has(p.id) : isCapa(p) ? catOk(p)
                                : catOk(p) && (!soloMode || !picked.size || picked.has(p.ix));
 
 // Vista por grupos: una barra por categoría, desde su primer personaje hasta el último
@@ -662,9 +684,10 @@ function render(){
   // --- Asignar carriles (sin que se encimen barras ni nombres) ---
   const byDate = (a,b) => a.s - b.s || a.e - b.e;
   // Cada capa en sus propios carriles: profecías arriba, después guerras y debajo personas o grupos
-  const crono = PEOPLE.filter(p => p.c === 'crono' && visible(p)).sort(byDate);
-  const wars = PEOPLE.filter(p => p.c === 'guerra' && visible(p)).sort(byDate);
-  const rest = !layers.personas ? [] :
+  // En el modo «Linaje» no hay profecías ni guerras, y las personas van en el orden de su línea
+  const crono = lin ? [] : PEOPLE.filter(p => p.c === 'crono' && visible(p)).sort(byDate);
+  const wars = lin ? [] : PEOPLE.filter(p => p.c === 'guerra' && visible(p)).sort(byDate);
+  const rest = lin ? lin.filas.map(f => f.p) : !layers.personas ? [] :
     (groupView ? groupItems() : PEOPLE.filter(p => !isCapa(p) && visible(p))).sort(byDate);
   // Lo que se dibuja: cada elemento y, tras un grupo principal abierto, sus subgrupos
   const items = [...crono, ...wars, ...rest].flatMap(p => p.kids ? [p, ...p.kids] : [p]);
@@ -704,7 +727,8 @@ function render(){
   };
   pack(crono, 0);
   pack(wars, laneEnd.length);
-  pack(rest, laneEnd.length);
+  if (lin) rest.forEach((p, i) => { measure(p); p.lane = i; laneEnd[i] = p.occ; });   // una fila por generación
+  else pack(rest, laneEnd.length);
   const lanes = laneEnd.length;
   // Largo total: la línea de tiempo o el final de la etiqueta más lejana, lo que sea mayor
   const extent = Math.max(span, ...laneEnd.map(end => end + PAD));
@@ -775,6 +799,13 @@ function render(){
       b.querySelector('.bar').style.width = p.len + 'px';
       canvas.append(b);
     }
+    // Linaje: de la barra de cada antepasado baja una línea hasta el comienzo de la barra de su hijo
+    if (lin) conectores(extent, height, (P, C) => {
+      const yP = top0 + P.lane*ROW + 22, yC = top0 + C.lane*ROW + 22, x = C.px - 4;
+      if (x >= P.px && x <= P.px + P.len) return `M${x} ${yP + 5}V${yC}H${C.px}`;
+      const x0 = x > P.px + P.len ? P.px + P.len : P.px;   // el hijo empieza fuera de la barra del padre
+      return `M${x0} ${yP}H${x}V${yC}H${C.px}`;
+    });
   } else {
     const AX_W = 48;
     const COL = groupView ? 32 : 30;
@@ -817,8 +848,34 @@ function render(){
       b.querySelector('.bar').style.height = p.len + 'px';
       canvas.append(b);
     }
+    // Linaje: de la barra de cada antepasado sale una línea hasta el comienzo de la barra de su hijo
+    if (lin) conectores(width, extent, (P, C) => {
+      const xP = left0 + P.lane*COL + 5, xC = left0 + C.lane*COL + 5, y = C.px - 4;
+      if (y >= P.px && y <= P.px + P.len) return `M${xP + 5} ${y}H${xC}V${C.px}`;
+      const y0 = y > P.px + P.len ? P.px + P.len : P.px;   // el hijo empieza fuera de la barra del padre
+      return `M${xP} ${y0}V${y}H${xC}V${C.px}`;
+    });
   }
   applyFilter();
+}
+
+// Conectores del modo «Linaje», en una capa SVG detrás de las barras. ruta(P, C) da el trazo de
+// cada antepasado P a su hijo C en la línea. Es discontinuo cuando entre ellos hay generaciones sin
+// fechas o el vínculo es legal (padre legal o adoptivo, suegro).
+function conectores(w, h, ruta){
+  const NS = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(NS, 'svg');
+  svg.setAttribute('class', 'lin-svg');
+  svg.setAttribute('width', w);
+  svg.setAttribute('height', h);
+  lin.filas.forEach((f, i) => {
+    if (!i) return;
+    const path = document.createElementNS(NS, 'path');
+    path.setAttribute('d', ruta(lin.filas[i - 1].p, f.p));
+    path.setAttribute('class', f.sinFecha.length || f.rel === 'pl' || f.rel === 'su' ? 'gap' : '');
+    svg.append(path);
+  });
+  canvas.append(svg);
 }
 
 // Fecha que muestra la etiqueta de un acontecimiento: el año, o un texto si es aproximada
@@ -842,8 +899,16 @@ function ticks(step){
 // y, en las guerras, también con poco zoom (están muy juntas en el tiempo)
 const barLabel = p => {
   const short = p.lb && (!horizontal || (p.c === 'guerra' && zoomLevel <= 3));
+  // En el modo «Linaje», el nombre breve (la línea ya aclara quién es) y cuántas generaciones sin
+  // fechas hay entre esta persona y su antepasado anterior
+  if (lin){
+    const gap = lin.huecos.get(p.id);
+    return nombreBreve(p) + (gap ? ` (+${gap} ${gap === 1 ? 'generación' : 'generaciones'})` : '');
+  }
   return (p.c === 'guerra' ? '⚔ ' : '') + (short ? p.lb : p.label || p.n);
 };
+// Nombre sin la aclaración entre paréntesis: «Jehoram (Judá)» → «Jehoram»
+const nombreBreve = p => p.lb || p.n.replace(/\s*\(.*\)$/, '');
 
 function personEl(p){
   const b = el('button', 'person' + (p.approx ? ' aprox' : '') + (isExtra(p) ? ' extra' : '') + (selected === p.ix ? ' sel' : ''));
@@ -998,6 +1063,9 @@ function select(id, scroll){
   const tree = card.querySelector('.tree');
   tree.hidden = !EN_ARBOL.has(p.id);
   tree.href = 'arbol.html#p=' + p.id;
+  const linBtn = card.querySelector('.lin-btn');
+  linBtn.hidden = isCapa(p) || !tieneAntepasados(p.id) || (lin && lin.id === p.id);
+  linBtn.onclick = () => verLinaje(p.id);
   card.classList.add('open');
 }
 // Línea "Extrabíblico · …" de la ficha (oculta en lo bíblico)
@@ -1053,6 +1121,7 @@ let matches = [];
 let active = 0;
 
 function applyFilter(){
+  if (lin){ canvas.classList.remove('filtering'); return; }   // en el linaje no se atenúa a nadie
   // Resaltados: los buscados + lo que se está escribiendo ahora mismo
   const ids = new Set(picked);
   if (query) matches.forEach(p => ids.add(p.ix));
@@ -1106,6 +1175,7 @@ function refresh(){
 }
 
 function addPick(id){
+  if (lin) salirLinaje(false);   // buscar a alguien vuelve a la línea de tiempo completa
   const p = PEOPLE[id];
   picked.add(id);
   if (!srcOk(p)) setFuente(fuenteOf(p), true);                       // su fuente estaba oculta
@@ -1136,6 +1206,7 @@ function setMode(solo){
   else if (picked.size) select([...picked].map(id => PEOPLE[id]).filter(visible).sort((a,b) => a.s - b.s)[0]?.ix ?? [...picked][0], true);
 }
 function setView(groups){
+  if (lin) salirLinaje(false);
   const t = centerYear();   // mantener a la vista el mismo año y el mismo zoom
   groupView = groups;
   try { localStorage.setItem('vista', groups ? 'grupos' : 'personas'); } catch (e) {}
@@ -1467,8 +1538,103 @@ onResize();
 
 // Enlace directo a una persona (p. ej., desde el árbol genealógico): linea.html#p=abrahan.
 // Se muestra en la vista «Personas» (sin cambiar la vista guardada) y se selecciona.
+/* ===================== MODO «LINAJE» =====================
+   Muestra solo a una persona y a sus antepasados con fechas, uno por fila (en vertical, uno por
+   columna), del más antiguo al más reciente, unidos por conectores. La línea de antepasados es la
+   misma del árbol genealógico (linaje() en datos.js). Los antepasados sin fechas no tienen barra:
+   se cuentan en la etiqueta del siguiente («+11 generaciones») y su conector es discontinuo. */
+const linBar = document.getElementById('linBar');
+function verLinaje(id, line){
+  const p = PEOPLE.find(x => x.id === id);
+  if (!p) return;
+  if (line && !fam(id)[line]) line = null;
+  const pasos = linaje(id, line);
+  const cadena = [...pasos.map(s => s.id), id];
+  // Cada persona con fechas, con las generaciones sin fechas que hay antes de ella
+  const filas = [];
+  let sinFecha = [];
+  cadena.forEach((x, i) => {
+    const q = PEOPLE.find(pp => pp.id === x);
+    if (q && !isCapa(q)){ filas.push({p:q, sinFecha, rel:i ? pasos[i - 1].rel : null}); sinFecha = []; }
+    else sinFecha.push(x);
+  });
+  const prev = lin ? lin.prev : {groupView, zoomLevel};
+  lin = {id, line:line || null, filas, prev, total:cadena.length,
+         ids:new Set(filas.map(f => f.p.id)),
+         huecos:new Map(filas.filter(f => f.sinFecha.length).map(f => [f.p.id, f.sinFecha.length]))};
+  // Vista «Personas» (sin cambiar la guardada) y un zoom en el que quepa toda la línea
+  groupView = false;
+  document.getElementById('viewPeople').setAttribute('aria-pressed', true);
+  document.getElementById('viewGroups').setAttribute('aria-pressed', false);
+  // En la PC, el mayor zoom en el que cabe todo el linaje a lo ancho; en el celular, el zoom
+  // normal de la vista «Personas» (para leer los nombres), y se desplaza hacia abajo
+  horizontal = wideQuery.matches;
+  const s0 = Math.min(...filas.map(f => f.p.s)), e0 = Math.max(...filas.map(f => f.p.e));
+  if (horizontal){
+    zoomLevel = 1;
+    while (zoomLevel < ZOOM_MAX && (T(e0) - T(s0)) * baseScale() * ZOOM_STEP ** zoomLevel <= scroller.clientWidth - 220) zoomLevel++;
+  } else zoomLevel = 5;
+  closeCard();
+  renderLinBar();
+  render();
+  // Se muestra a la persona (la última fila), con sus antepasados más cercanos
+  scrollToYear((T(s0) + T(e0)) / 2);
+  const node = canvas.querySelector(`.person[data-id="${p.ix}"]`);
+  if (node){
+    if (horizontal) scroller.scrollTop = node.offsetTop - scroller.clientHeight + 90;
+    else {
+      scroller.scrollLeft = node.offsetLeft - scroller.clientWidth + 90;
+      window.scrollTo(0, scroller.offsetTop + node.offsetTop - innerHeight / 2);
+    }
+  }
+}
+function salirLinaje(dibujar = true){
+  if (!lin) return;
+  ({groupView, zoomLevel} = lin.prev);
+  lin = null;
+  document.getElementById('viewPeople').setAttribute('aria-pressed', !groupView);
+  document.getElementById('viewGroups').setAttribute('aria-pressed', groupView);
+  if (location.hash.includes('linaje=')) history.replaceState(null, '', location.pathname + location.search);
+  renderLinBar();
+  if (dibujar){ closeCard(); render(); }
+}
+// Barra del modo «Linaje», debajo de las herramientas: nombre, líneas posibles y «Salir»
+function renderLinBar(){
+  linBar.hidden = !lin;
+  linBar.replaceChildren();
+  if (!lin) return;
+  const p = PEOPLE.find(x => x.id === lin.id);
+  const b = el('b');
+  b.textContent = `Linaje de ${p.n}`;
+  const info = el('small');
+  info.textContent = `${lin.filas.length - 1} de sus ${lin.total - 1} antepasados tienen fechas`;
+  info.title = 'Los antepasados sin fechas no tienen barra: se cuentan en la etiqueta del siguiente (+N generaciones). ' +
+               'La línea discontinua indica generaciones sin fechas o un padre legal o adoptivo.';
+  linBar.append(b, info);
+  const ops = opcionesLinaje(lin.id);
+  if (ops.length > 1){
+    const actual = linaje(lin.id, lin.line).pop()?.rel;
+    linBar.append(Object.assign(el('span'), {textContent:'Antepasados por:'}));
+    for (const o of ops){
+      const btn = el('button');
+      const q = PEOPLE.find(x => x.id === o.id) || fam(o.id);
+      btn.textContent = `${nombreBreve(q)} (${vinculo(o.k, lin.id)})`;
+      btn.setAttribute('aria-pressed', o.k === actual);
+      btn.addEventListener('click', () => verLinaje(lin.id, o.k));
+      linBar.append(btn);
+    }
+  }
+  const salir = el('button', 'salir');
+  salir.textContent = '✕ Salir del linaje';
+  salir.addEventListener('click', () => salirLinaje());
+  linBar.append(salir);
+}
+
 function abrirDesdeHash(){
-  const id = new URLSearchParams(location.hash.slice(1)).get('p');
+  const h = new URLSearchParams(location.hash.slice(1));
+  // Linaje directo (desde el árbol): linea.html#linaje=jesus&l=ma
+  if (h.get('linaje')){ verLinaje(h.get('linaje'), h.get('l')); return; }
+  const id = h.get('p');
   const p = id && PEOPLE.find(x => x.id === id);
   if (!p) return;
   if (groupView && !isCapa(p)){

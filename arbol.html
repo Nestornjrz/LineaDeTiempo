@@ -268,6 +268,7 @@ body.h #scroller.dragging{cursor:grabbing; user-select:none}
   <div class="acts">
     <a class="more" target="_blank" rel="noopener">Más información en jw.org ↗</a>
     <a class="tl alt">Ver en la línea de tiempo</a>
+    <a class="lin alt">Ver su linaje en la línea de tiempo</a>
     <button class="relcard alt" type="button">¿Qué parentesco tiene con…?</button>
   </div>
 </div>
@@ -316,18 +317,6 @@ const MESIAS = new Set();
   for (const k of ['pa', 'ma', 'pl', 'su']) if (p[k] && !MESIAS.has(p[k])){ MESIAS.add(p[k]); subir(p[k]); }
 })('jesus');
 
-// Línea de María (Lucas 3): sus antepasados hasta Natán, hijo de David. En ella, Sealtiel sube por
-// su suegro Nerí, porque Lucas lo llama «hijo de Nerí»; en las demás líneas, por su padre.
-function cadena(desde, orden){
-  const out = [];
-  for (let id = desde; id && out.length < 300; ){ out.push(id); const p = get(id) || {}; id = p[orden.find(k => p[k])]; }
-  return out;
-}
-const LUCAS_SOLO = (() => {
-  const mateo = new Set(cadena('jose-maria', ['pl', 'pa']));
-  return new Set(cadena('maria', ['su', 'pl', 'pa']).filter(id => !mateo.has(id)));
-})();
-
 /* ===================== UTILIDADES ===================== */
 const norm = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 const fmtY = y => y < 0 ? `${-y} a.e.c.` : `${y} e.c.`;
@@ -357,38 +346,15 @@ function sub(p){
 const color = p => p.c ? `var(${CATS[p.c].v})` : 'var(--c-gen)';
 
 /* ===================== VISTA CENTRADA EN UNA PERSONA =====================
-   spine: línea de antepasados, del más antiguo al padre (o la madre) de la persona. Cada bloque
-          es el antepasado (id), el otro progenitor del siguiente (partner) y cómo se une al
-          siguiente (rel: pa, pl, ma o su).
+   spine: línea de antepasados, del más antiguo al padre (o la madre) de la persona. Se calcula con
+          linaje() de datos.js (la misma que usa la línea de tiempo). Cada bloque es el antepasado
+          (id), el otro progenitor del siguiente (partner) y cómo se une al siguiente (rel).
    fam:   la generación de la persona: ella y sus hermanos, agrupados por el otro progenitor.
-   kids:  sus hijos (y yernos), agrupados por el otro progenitor. */
-const ORDEN = ['pl', 'pa', 'ma'];
-const LINEA = {pa:'padre', pl:'padre legal', ma:'madre', su:'suegro'};
-// Tipo de padre legal (pt en los datos): «adoptivo» (José para Jesús, Mardoqueo para Ester) o «legal»
-const tipoPl = p => p.pt || (p.pa ? 'legal' : 'adoptivo');
-// Nombre del vínculo de un antepasado con su hijo (k: pa, pl, ma o su)
-const vinculo = (k, hijo) => k === 'pl' ? 'padre ' + tipoPl(get(hijo)) : LINEA[k];
-// Líneas posibles para subir desde una persona (se elige con los botones de arriba)
-function opciones(id){
-  const p = get(id), tiene = x => { const q = get(x); return q && (q.pa || q.ma || q.pl || q.su); };
-  return ['pl', 'pa', 'ma', 'su'].filter(k => p[k] && (k === 'pl' || k === 'pa' || tiene(p[k]) || !p.pa && !p.pl))
-                                  .map(k => ({k, id:p[k]}));
-}
+   kids:  sus hijos (y yernos), agrupados por el otro progenitor.
+   Los nombres de los vínculos (vinculo, tipoPl) y las líneas posibles (opcionesLinaje) también
+   están en datos.js. */
 function vista(focus, primera){
-  const spine = [];
-  const lucas = LUCAS_SOLO.has(focus) || (primera && LUCAS_SOLO.has(get(focus)[primera]));
-  const orden = lucas ? ['su', ...ORDEN] : [...ORDEN, 'su'];
-  const vistos = new Set([focus]);
-  for (let cur = focus, k = primera; ; k = null){
-    const p = get(cur);
-    k = k && p[k] ? k : orden.find(x => p[x]);
-    if (!k || vistos.has(p[k])) break;
-    const up = p[k];
-    vistos.add(up);
-    const partner = k === 'su' ? null : k === 'ma' ? (p.pl || p.pa || null) : (p.ma || null);
-    spine.unshift({id:up, partner, rel:k, child:cur});
-    cur = up;
-  }
+  const spine = linaje(focus, primera);
   // Generación de la persona
   const last = spine[spine.length - 1];
   let fam;
@@ -422,7 +388,7 @@ function agrupar(ids, otro, quien){
 function tagDe(id, padre){
   const p = get(id);
   if (p.pl !== padre || p.pa === padre) return '';
-  const t = tipoPl(p);
+  const t = tipoPl(id);
   return p.mu ? 'hija ' + (t === 'adoptivo' ? 'adoptiva' : 'legal') : 'hijo ' + t;
 }
 
@@ -700,7 +666,7 @@ addEventListener('hashchange', () => {
 // Botones para elegir por qué línea subir, cuando hay más de una
 function renderLines(v){
   const box = document.getElementById('lines');
-  const ops = opciones(v.focus);
+  const ops = opcionesLinaje(v.focus);
   box.replaceChildren();
   box.hidden = ops.length < 2;
   if (box.hidden) return;
@@ -776,7 +742,7 @@ function fillCard(id){
     fam.append(el('dt', '', titulo), dd);
   };
   fila('Padre', [p.pa]);
-  fila('Padre ' + tipoPl(p), [p.pl]);
+  fila('Padre ' + tipoPl(id), [p.pl]);
   fila('Madre', [p.ma]);
   fila('Suegro', [p.su]);
   const cy = CONYUGES.get(id) || [];
@@ -795,6 +761,10 @@ function fillCard(id){
   const tl = card.querySelector('.tl');
   tl.hidden = p.s === undefined;
   tl.href = 'linea.html#p=' + id;
+  // Su linaje en la línea de tiempo, por la misma línea que se ve en el árbol
+  const ln = card.querySelector('.lin');
+  ln.hidden = p.s === undefined || !tieneAntepasados(id);
+  ln.href = 'linea.html#linaje=' + id + (id === state.focus && state.line ? '&l=' + state.line : '');
   card.classList.add('open');
 }
 card.querySelector('.close').addEventListener('click', () => card.classList.remove('open'));
@@ -960,7 +930,7 @@ function parentesco(a, b){
   // Hermanos cuyos padres no nombra la Biblia
   if ((HERMANOS.get(a) || []).includes(b)) frases.push(`${N(a)} es ${gen(a, ['hermano', 'hermana'])} de ${N(b)}.`);
   // Padre legal o adoptivo
-  if (B.pl === a) frases.push(`${N(a)} es padre ${tipoPl(B)} de ${N(b)}.`);
+  if (B.pl === a) frases.push(`${N(a)} es padre ${tipoPl(b)} de ${N(b)}.`);
   if (A.pl === b) frases.push(`${N(a)} es ${tagDe(a, b)} de ${N(b)}.`);
   // Matrimonio
   if ((CONYUGES.get(a) || []).includes(b)) frases.push(`${N(a)} es ${gen(a, ['esposo', 'esposa'])} de ${N(b)}.`);

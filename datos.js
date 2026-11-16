@@ -957,3 +957,54 @@ for (const f of FAMILIA){
   const rel = [f.pa, f.ma, f.pl, f.su, ...(f.cy || []), ...(f.hm || [])].filter(Boolean);
   if (rel.length){ EN_ARBOL.add(f.id); rel.forEach(id => EN_ARBOL.add(id)); }
 }
+
+/* ===================== LINAJE =====================
+   Línea de antepasados de una persona: la misma en el árbol genealógico y en la línea de tiempo.
+   Sube por el padre legal o adoptivo (pl), si no por el padre (pa) y si no por la madre (ma). En la
+   línea de María (Lucas 3), Sealtiel sube por su suegro Nerí (su), porque Lucas lo llama «hijo de
+   Nerí»; en las demás líneas, por su padre. */
+const FAM = new Map(FAMILIA.map(f => [f.id, f]));
+const fam = id => FAM.get(id) || {};
+const tieneAntepasados = id => { const f = fam(id); return !!(f.pa || f.ma || f.pl || f.su); };
+// Cadena de antepasados siguiendo, en cada persona, la primera clave de «orden» que tenga
+function cadenaFam(desde, orden){
+  const out = [];
+  for (let id = desde; id && out.length < 300; ){ out.push(id); const f = fam(id); id = f[orden.find(k => f[k])]; }
+  return out;
+}
+// Personas que solo están en la línea de María (de María a Natán, hijo de David)
+const LUCAS_SOLO = (() => {
+  const mateo = new Set(cadenaFam('jose-maria', ['pl', 'pa']));
+  return new Set(cadenaFam('maria', ['su', 'pl', 'pa']).filter(id => !mateo.has(id)));
+})();
+// Tipo de padre legal (pt): «adoptivo» (José para Jesús, Mardoqueo para Ester) o «legal»
+const tipoPl = id => fam(id).pt || (fam(id).pa ? 'legal' : 'adoptivo');
+// Nombre del vínculo de un antepasado con su hijo en la línea (k: pa, pl, ma o su)
+const vinculo = (k, hijo) => ({pa:'padre', pl:'padre ' + tipoPl(hijo), ma:'madre', su:'suegro'})[k];
+// Líneas posibles para subir desde una persona (en el árbol, los botones «Antepasados de… por»).
+// La de la madre (o el suegro) solo se ofrece si ella tiene antepasados, o si no hay padre.
+function opcionesLinaje(id){
+  const f = fam(id);
+  return ['pl', 'pa', 'ma', 'su'].filter(k => f[k] && (k === 'pl' || k === 'pa' || tieneAntepasados(f[k]) || !f.pa && !f.pl))
+                                  .map(k => ({k, id:f[k]}));
+}
+// Línea de antepasados, del más antiguo al padre (o la madre) de la persona. Cada paso: el
+// antepasado (id), cómo se une a su hijo en la línea (rel: pa, pl, ma o su), ese hijo (child) y el
+// otro progenitor del hijo (partner). primera: por dónde subir en el primer paso.
+function linaje(persona, primera){
+  const pasos = [];
+  const lucas = LUCAS_SOLO.has(persona) || (primera && LUCAS_SOLO.has(fam(persona)[primera]));
+  const orden = lucas ? ['su', 'pl', 'pa', 'ma'] : ['pl', 'pa', 'ma', 'su'];
+  const vistos = new Set([persona]);
+  for (let cur = persona, k = primera; ; k = null){
+    const f = fam(cur);
+    k = k && f[k] ? k : orden.find(x => f[x]);
+    if (!k || vistos.has(f[k])) break;
+    const up = f[k];
+    vistos.add(up);
+    const partner = k === 'su' ? null : k === 'ma' ? (f.pl || f.pa || null) : (f.ma || null);
+    pasos.unshift({id:up, rel:k, child:cur, partner});
+    cur = up;
+  }
+  return pasos;
+}
