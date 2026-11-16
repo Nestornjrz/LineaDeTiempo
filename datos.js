@@ -749,3 +749,10 @@ const FAMILIA = [
    d:'Mujer judía creyente y madre de Timoteo; su esposo era griego. Pablo elogió la fe de ella y la de Loida, la abuela de Timoteo.',
    r:'Hechos 16:1; 2 Timoteo 1:5; 3:15'},
 ];
+
+// Ids de las personas que tienen algún parentesco: las que aparecen en el árbol genealógico
+const EN_ARBOL = new Set();
+for (const f of FAMILIA){
+  const rel = [f.pa, f.ma, f.pl, f.su, ...(f.cy || []), ...(f.hm || [])].filter(Boolean);
+  if (rel.length){ EN_ARBOL.add(f.id); rel.forEach(id => EN_ARBOL.add(id)); }
+}

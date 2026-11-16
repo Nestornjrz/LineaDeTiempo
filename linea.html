@@ -8,7 +8,7 @@
 <!-- Vista previa al compartir el enlace (WhatsApp, Facebook, Telegram, X…). La imagen
      (vista-previa.png, 1200 × 630) necesita la dirección completa de la página publicada. -->
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="Línea de tiempo bíblica">
+<meta property="og:site_name" content="Personajes de la Biblia">
 <meta property="og:title" content="Línea de tiempo bíblica">
 <meta property="og:description" content="Personajes y acontecimientos bíblicos en una línea de tiempo interactiva.">
 <meta property="og:url" content="https://nestornjrz.github.io/LineaDeTiempo/linea.html">
@@ -27,7 +27,7 @@
 <meta name="theme-color" content="#f7f5f0" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#16140f" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Línea bíblica">
+<meta name="apple-mobile-web-app-title" content="Personajes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="stylesheet" href="comun.css">
 <style>
@@ -304,7 +304,14 @@ body.v .person .bar{top:0; left:0; width:10px}
   background:var(--col); color:#fff; font:inherit; font-weight:600; font-size:14px;
 }
 #card .seegroup:hover{filter:brightness(1.08)}
-#card.group .more, #card:not(.group) .seegroup{display:none}
+/* Enlace al árbol genealógico (solo en las personas que tienen parentesco) */
+#card .tree{
+  display:inline-block; margin:10px 0 0 6px; padding:5.5px 12px; border-radius:8px;
+  border:1.5px solid var(--col); color:var(--col); font-weight:600; font-size:14px; text-decoration:none;
+}
+#card .tree:hover{background:var(--grid)}
+#card .tree[hidden]{display:none}
+#card.group .more, #card.group .tree, #card:not(.group) .seegroup{display:none}
 #card.group .refs{max-height:7.5em; overflow-y:auto}
 #card.group h2 a{text-decoration:none; pointer-events:none}
 
@@ -447,6 +454,7 @@ body.v .person.crono .bar::after{
   <div class="origen"></div>
   <div class="refs"></div>
   <a class="more" target="_blank" rel="noopener">Más información en jw.org ↗</a>
+  <a class="tree">Ver en el árbol genealógico</a>
   <button class="seegroup">Ver estas personas en la línea de tiempo</button>
 </div>
 
@@ -987,6 +995,9 @@ function select(id, scroll){
   setOrigen(extra, p.src ? 'Fuente: ' + p.src : 'La Biblia no narra este hecho; se conoce por la historia');
   card.querySelector('.refs').textContent =
     p.r ? (extra ? 'Textos relacionados: ' : 'Textos: ') + p.r : p.src && !extra ? 'Fuente: ' + p.src : '';
+  const tree = card.querySelector('.tree');
+  tree.hidden = !EN_ARBOL.has(p.id);
+  tree.href = 'arbol.html#p=' + p.id;
   card.classList.add('open');
 }
 // Línea "Extrabíblico · …" de la ficha (oculta en lo bíblico)
@@ -1453,6 +1464,24 @@ function onResize(){
 }
 addEventListener('resize', onResize);
 onResize();
+
+// Enlace directo a una persona (p. ej., desde el árbol genealógico): linea.html#p=abrahan.
+// Se muestra en la vista «Personas» (sin cambiar la vista guardada) y se selecciona.
+function abrirDesdeHash(){
+  const id = new URLSearchParams(location.hash.slice(1)).get('p');
+  const p = id && PEOPLE.find(x => x.id === id);
+  if (!p) return;
+  if (groupView && !isCapa(p)){
+    groupView = false;
+    zoomLevel = 5;
+    document.getElementById('viewPeople').setAttribute('aria-pressed', true);
+    document.getElementById('viewGroups').setAttribute('aria-pressed', false);
+    render();
+  }
+  addPick(p.ix);
+}
+abrirDesdeHash();
+addEventListener('hashchange', abrirDesdeHash);
 
 /* ===================== APP INSTALABLE (PWA) ===================== */
 if ('serviceWorker' in navigator && location.protocol !== 'file:'){

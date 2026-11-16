@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Línea de tiempo bíblica</title>
-<meta name="description" content="Personajes y acontecimientos bíblicos en una línea de tiempo interactiva.">
+<title>Personajes de la Biblia</title>
+<meta name="description" content="Personajes y acontecimientos bíblicos en una línea de tiempo y en un árbol genealógico.">
 <!-- Vista previa al compartir el enlace (WhatsApp, Facebook, Telegram, X…). La imagen
      (vista-previa.png, 1200 × 630) necesita la dirección completa de la página publicada. -->
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="Línea de tiempo bíblica">
-<meta property="og:title" content="Línea de tiempo bíblica">
-<meta property="og:description" content="Personajes y acontecimientos bíblicos en una línea de tiempo interactiva.">
+<meta property="og:site_name" content="Personajes de la Biblia">
+<meta property="og:title" content="Personajes de la Biblia">
+<meta property="og:description" content="Personajes y acontecimientos bíblicos en una línea de tiempo y en un árbol genealógico.">
 <meta property="og:url" content="https://nestornjrz.github.io/LineaDeTiempo/">
 <meta property="og:locale" content="es_ES">
 <meta property="og:image" content="https://nestornjrz.github.io/LineaDeTiempo/vista-previa.png">
@@ -27,7 +27,7 @@
 <meta name="theme-color" content="#f7f5f0" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#16140f" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Línea bíblica">
+<meta name="apple-mobile-web-app-title" content="Personajes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="stylesheet" href="comun.css">
 <style>
@@ -55,14 +55,6 @@ a.option:focus-visible{outline:3px solid var(--accent); outline-offset:3px}
 .option p{margin:0; color:var(--muted)}
 .option .go{margin-top:auto; padding-top:10px; color:var(--accent); font-weight:600}
 a.option:hover .go{text-decoration:underline; text-underline-offset:3px}
-/* Sección que todavía no está disponible */
-.option.soon .pic{opacity:.55}
-.option.soon .go{color:var(--muted); font-weight:400; font-style:italic}
-.badge{
-  padding:2px 8px; border-radius:10px; font-size:11px; font-weight:700; letter-spacing:.4px; text-transform:uppercase;
-  color:var(--muted); background:var(--grid); border:1px solid var(--line);
-}
-
 /* Dibujos de las tarjetas (con los colores de las categorías) */
 .axis{stroke:var(--axis); stroke-width:1.5}
 .tk{stroke:var(--axis); stroke-width:1}
@@ -123,7 +115,7 @@ footer a{color:inherit; text-underline-offset:2px}
       </div>
     </a>
 
-    <div class="option soon" aria-disabled="true">
+    <a class="option" href="arbol.html">
       <div class="pic" aria-hidden="true">
         <svg viewBox="0 0 240 104">
           <path class="lnk" d="M111 14h18M120 14v14M66 28h108M66 28v12M120 28v12M174 28v12M174 52v12M150 64h48M150 64v12M198 64v12"/>
@@ -133,11 +125,11 @@ footer a{color:inherit; text-underline-offset:2px}
         </svg>
       </div>
       <div class="txt">
-        <h2>Árbol genealógico <span class="badge">En preparación</span></h2>
-        <p>Desde Adán y Eva: de quién es hijo cada personaje, con las mujeres que menciona la Biblia.</p>
-        <span class="go">Disponible próximamente</span>
+        <h2>Árbol genealógico</h2>
+        <p>Desde Adán y Eva: de quién es hijo cada personaje, con las mujeres que menciona la Biblia y las dos genealogías de Jesús.</p>
+        <span class="go">Abrir →</span>
       </div>
-    </div>
+    </a>
   </nav>
 </main>
 

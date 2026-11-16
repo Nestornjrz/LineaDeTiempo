@@ -33,8 +33,12 @@ Reglas:
 
 - Es una PWA sin compilación (HTML, CSS y JavaScript sueltos):
   - `index.html`: portada, el menú de inicio con las secciones de la app
-    (línea de tiempo y árbol genealógico, este todavía en preparación).
+    (línea de tiempo y árbol genealógico).
   - `linea.html`: la línea de tiempo (código de dibujo, filtros y fichas).
+  - `arbol.html`: el árbol genealógico, centrado en una persona: su línea de
+    antepasados, sus hermanos, sus cónyuges y sus hijos (horizontal en la PC,
+    vertical en el celular). Las dos páginas se enlazan con `#p=<id>`
+    (p. ej., `arbol.html#p=isaac`, `linea.html#p=isaac`).
   - `datos.js`: los datos que comparten las secciones (`CATS`, `GRUPOS`,
     `PEOPLE`, `JUICIO`, `EVENTS` y `JW`). Cada entrada de `PEOPLE` tiene un `id`
     estable (minúsculas, sin acentos ni artículos, p. ej. `abrahan`,

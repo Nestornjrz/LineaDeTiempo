@@ -1,0 +1,795 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Árbol genealógico bíblico</title>
+<meta name="description" content="Árbol genealógico de los personajes bíblicos, desde Adán y Eva hasta Jesús, según la Biblia.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Personajes de la Biblia">
+<meta property="og:title" content="Árbol genealógico bíblico">
+<meta property="og:description" content="Árbol genealógico de los personajes bíblicos, desde Adán y Eva hasta Jesús, según la Biblia.">
+<meta property="og:url" content="https://nestornjrz.github.io/LineaDeTiempo/arbol.html">
+<meta property="og:locale" content="es_ES">
+<meta property="og:image" content="https://nestornjrz.github.io/LineaDeTiempo/vista-previa.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<!-- PWA: instalable en el móvil y en la PC -->
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="icon" href="icons/icon-192.png" sizes="192x192" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="theme-color" content="#f7f5f0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#16140f" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Personajes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="stylesheet" href="comun.css">
+<style>
+/* --gold: antepasados de Jesús · --c-gen: personas que solo están en el árbol (sin fechas) */
+:root{--gold:#b8860b; --c-gen:#6f685d}
+@media (prefers-color-scheme: dark){ :root{--gold:#e5b94e; --c-gen:#857c6e} }
+
+/* ---------- Encabezado ---------- */
+header{
+  position:sticky; top:0; z-index:30;
+  background:var(--bg); border-bottom:1px solid var(--line);
+  padding:10px 16px;
+  display:flex; flex-wrap:wrap; gap:8px 16px; align-items:center;
+}
+h1{font-size:18px; margin:0; font-weight:700; letter-spacing:.2px}
+.home{
+  flex:none; width:34px; height:34px; margin-right:-6px; display:inline-grid; place-items:center;
+  color:var(--text); background:var(--surface); border:1px solid var(--line); border-radius:8px;
+}
+.home:hover{border-color:var(--axis); color:var(--accent)}
+.home:focus-visible{outline:2px solid var(--accent); outline-offset:1px}
+.home svg{width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round}
+.search{position:relative; flex:1; min-width:200px; max-width:340px; margin-left:auto}
+.search input{
+  width:100%; padding:8px 12px; font:inherit; color:var(--text);
+  background:var(--surface); border:1px solid var(--line); border-radius:8px;
+}
+.search input:focus{outline:2px solid var(--accent); outline-offset:0; border-color:transparent}
+.suggest{
+  position:absolute; top:calc(100% + 4px); left:0; right:0; z-index:40;
+  list-style:none; margin:0; padding:4px; display:none;
+  background:var(--surface); border:1px solid var(--line); border-radius:8px; box-shadow:var(--shadow);
+  max-height:320px; overflow:auto;
+}
+.suggest.open{display:block}
+.suggest li{padding:6px 8px; border-radius:6px; cursor:pointer; display:flex; justify-content:space-between; gap:8px}
+.suggest li small{color:var(--muted); white-space:nowrap}
+.suggest li.active,.suggest li:hover{background:var(--grid)}
+.suggest .empty{color:var(--muted); cursor:default}
+/* Atajos y elección de la línea de antepasados */
+.row{width:100%; display:flex; flex-wrap:wrap; align-items:center; gap:6px; font-size:13px; color:var(--muted)}
+.row[hidden]{display:none}
+.row > b{font-weight:600; margin-right:2px}
+.row button{
+  height:30px; padding:0 10px; font:inherit; font-size:13px; cursor:pointer; white-space:nowrap;
+  color:var(--text); background:var(--surface); border:1px solid var(--line); border-radius:15px;
+}
+.row button:hover{border-color:var(--axis)}
+.row button:focus-visible{outline:2px solid var(--accent); outline-offset:1px}
+.row button[aria-pressed="true"]{background:var(--accent); border-color:var(--accent); color:var(--bg); font-weight:600}
+.row button small{opacity:.8}
+@media (max-width: 759px){
+  header{column-gap:12px}
+  .home{margin-right:-4px}
+  .search{flex-basis:100%; max-width:none; margin-left:0}
+}
+/* En vertical (celular) la cabecera no queda fija, para dejar sitio al árbol, y los atajos y las
+   líneas se desplazan de lado en una sola fila */
+body.v header{position:static}
+body.v .row{flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; width:calc(100% + 32px); margin:0 -16px; padding:0 16px}
+body.v .row::-webkit-scrollbar{display:none}
+body.v .row > b{flex:none}
+
+/* ---------- Árbol ---------- */
+#scroller{position:relative}
+body.h #scroller{height:calc(100vh - var(--head,110px)); overflow:auto; display:flex; flex-direction:column}
+body.h #scroller.dragging{cursor:grabbing; user-select:none}
+#canvas{position:relative; flex:none; margin:auto}
+#links{position:absolute; left:0; top:0; overflow:visible; pointer-events:none}
+.lnk{fill:none; stroke:var(--axis); stroke-width:1.5}
+.lnk.line{stroke:var(--accent); stroke-width:2}
+.lnk.dash{stroke-dasharray:5 4}
+.lnk.mar{stroke:var(--axis); stroke-dasharray:2 3}
+.lnk-lbl{font-size:10.5px; fill:var(--muted); font-style:italic}
+
+.node{
+  position:absolute; display:flex; flex-direction:column; justify-content:center; gap:1px;
+  padding:3px 18px 3px 12px; margin:0; text-align:left; font:inherit; color:var(--text); cursor:pointer;
+  background:var(--surface); border:1px solid var(--line); border-radius:8px; overflow:hidden;
+  transition:border-color .15s, box-shadow .15s;
+}
+.node::before{content:''; position:absolute; left:0; top:0; bottom:0; width:4px; background:var(--col)}
+.node .nm{font-size:13px; font-weight:600; line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.node .sb{font-size:11px; line-height:1.2; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.node .sb i{font-style:italic}
+.node.sn .nm{font-style:italic; font-weight:500}
+.node:hover{border-color:var(--col)}
+.node:hover .nm{color:var(--col)}
+.node:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.node .kids{position:absolute; right:6px; bottom:3px; font-size:10.5px; color:var(--muted)}
+/* Antepasado de Jesús: punto dorado */
+.node.mes::after{content:''; position:absolute; top:6px; right:6px; width:7px; height:7px; border-radius:50%; background:var(--gold)}
+/* Persona resaltada (el centro del árbol) */
+.node.focus{
+  border:2px solid var(--accent); box-shadow:var(--shadow);
+  background:color-mix(in srgb, var(--accent) 9%, var(--surface));
+}
+.node.focus .nm{font-size:15px}
+.node.focus:hover .nm{color:var(--text)}
+.node.focus .sb::after{content:'Ver su ficha'; color:var(--accent)}
+.node.focus.has-sb .sb::after{content:' · ficha'}
+.glbl{
+  position:absolute; font-size:11px; font-weight:600; letter-spacing:.4px; text-transform:uppercase;
+  color:var(--muted); white-space:nowrap;
+}
+
+/* ---------- Ficha ---------- */
+#card{
+  position:fixed; z-index:50; left:16px; right:16px; bottom:16px; margin:0 auto; max-width:480px;
+  max-height:min(70vh, 620px); overflow-y:auto; overscroll-behavior:contain;
+  background:var(--surface); border:1px solid var(--line); border-left:5px solid var(--col,var(--accent));
+  border-radius:10px; box-shadow:var(--shadow); padding:14px 16px; display:none;
+}
+#card.open{display:block}
+#card h2{margin:0 28px 2px 0; font-size:19px}
+#card h2 a{color:inherit; text-decoration:underline; text-decoration-color:var(--col); text-underline-offset:3px}
+#card h2 a:hover{color:var(--col)}
+#card .cat{font-size:12px; color:var(--col); font-weight:600; text-transform:uppercase; letter-spacing:.5px}
+#card .dates{margin:6px 0 2px; font-weight:600}
+#card .dates:empty{display:none}
+#card .mes{margin:6px 0 0; font-size:13px; color:var(--muted)}
+#card .mes::before{content:''; display:inline-block; width:8px; height:8px; margin-right:6px; border-radius:50%; background:var(--gold)}
+#card p{margin:8px 0 6px}
+#card .fam{margin:10px 0 6px; display:grid; grid-template-columns:auto 1fr; gap:6px 10px; align-items:baseline; font-size:14px}
+#card .fam:empty{display:none}
+#card .fam dt{color:var(--muted); font-size:13px}
+#card .fam dd{margin:0; display:flex; flex-wrap:wrap; gap:4px}
+#card .fam button{
+  padding:1px 8px; font:inherit; font-size:13.5px; cursor:pointer; color:var(--text);
+  background:var(--grid); border:1px solid transparent; border-radius:12px;
+}
+#card .fam button:hover{border-color:var(--axis)}
+#card .fam button small{color:var(--muted)}
+#card .nota{margin:8px 0; padding:7px 9px; border-radius:7px; background:var(--grid); font-size:13.5px}
+#card .nota:empty{display:none}
+#card .refs{font-size:13px; color:var(--muted)}
+#card .refs div + div{margin-top:3px}
+#card .acts{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
+#card .acts a{
+  display:inline-block; padding:7px 12px; border-radius:8px; font-weight:600; font-size:14px; text-decoration:none;
+  background:var(--col); color:#fff; border:1.5px solid var(--col);
+}
+#card .acts a.alt{background:none; color:var(--col)}
+#card .acts a:hover{filter:brightness(1.08)}
+#card .acts a[hidden]{display:none}
+#card .close{
+  position:absolute; top:8px; right:8px; width:30px; height:30px; border:0; border-radius:6px;
+  background:none; color:var(--muted); font-size:20px; cursor:pointer;
+}
+#card .close:hover{background:var(--grid)}
+
+.note{font-size:12px; color:var(--muted); padding:10px 16px 90px}
+.note summary{
+  display:inline-block; list-style:none; cursor:pointer; color:var(--muted);
+  text-decoration:underline dotted; text-underline-offset:3px;
+}
+.note summary::-webkit-details-marker{display:none}
+.note summary:hover, .note[open] summary{color:var(--text)}
+.note summary:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:3px}
+.note p{margin:6px 0 0; max-width:900px}
+.note .dot{display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--gold); vertical-align:1px}
+</style>
+</head>
+<body>
+<header id="head">
+  <a class="home" href="./" title="Volver al inicio" aria-label="Volver al inicio">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 11 12 4l8.5 7M6 9v11h4.5v-6h3v6H18V9"/></svg>
+  </a>
+  <h1>Árbol genealógico</h1>
+  <div class="search">
+    <input id="q" type="search" placeholder="Buscar personajes… (ej. Rut)" autocomplete="off" aria-label="Buscar personaje en el árbol">
+    <ul id="suggest" class="suggest" role="listbox"></ul>
+  </div>
+  <nav class="row" id="jump" aria-label="Ir a"><b>Ir a:</b></nav>
+  <div class="row" id="lines" role="group" aria-label="Línea de antepasados" hidden></div>
+</header>
+
+<div id="scroller"><div id="canvas"><svg id="links" aria-hidden="true"></svg></div></div>
+<details class="note">
+  <summary><span aria-hidden="true">ⓘ </span>Cómo leer el árbol</summary>
+  <p>El árbol se centra en una persona (resaltada) y muestra su línea de antepasados hasta el más antiguo que menciona la Biblia, sus hermanos, sus cónyuges y sus hijos. Toca a cualquier persona para centrar el árbol en ella, y toca a la persona resaltada para ver su ficha, con su parentesco y los textos bíblicos que lo muestran. Cuando una persona tiene dos líneas de antepasados (por ejemplo, Jesús: la de José, en Mateo, y la de María, en Lucas), arriba aparecen los botones para elegir cuál ver. Las líneas discontinuas indican un parentesco legal (padre legal o adoptivo) o un yerno al que la Biblia llama «hijo» (Lucas 3:27). El punto <span class="dot"></span> dorado marca a los antepasados de Jesús. Las personas cuyo nombre no da la Biblia aparecen en cursiva. El número en la esquina de cada persona indica cuántos hijos suyos hay en el árbol. El parentesco sigue la Traducción del Nuevo Mundo y la obra «Perspicacia para comprender las Escrituras»; cuando una genealogía tiene alguna dificultad, la ficha lo explica.</p>
+</details>
+
+<div id="card" role="dialog" aria-live="polite">
+  <button class="close" aria-label="Cerrar">×</button>
+  <div class="cat"></div>
+  <h2><a class="name" target="_blank" rel="noopener"></a></h2>
+  <div class="dates"></div>
+  <div class="mes" hidden>Antepasado de Jesús</div>
+  <p class="desc"></p>
+  <dl class="fam"></dl>
+  <div class="nota"></div>
+  <div class="refs"></div>
+  <div class="acts">
+    <a class="more" target="_blank" rel="noopener">Más información en jw.org ↗</a>
+    <a class="tl alt">Ver en la línea de tiempo</a>
+  </div>
+</div>
+
+<script src="datos.js"></script>
+<script>
+/* ===================== PERSONAS Y PARENTESCO =====================
+   Cada persona junta sus datos de PEOPLE (fechas, descripción…) y de FAMILIA (parentesco).
+   ord: orden de los datos, que en FAMILIA sigue el de las genealogías (y el de nacimiento). */
+const PER = new Map();
+PEOPLE.forEach((p, i) => PER.set(p.id, {...p, ord:100000 + i}));
+FAMILIA.forEach((f, i) => PER.set(f.id, {...(PER.get(f.id) || {}), ...f, ord:i}));
+const get = id => PER.get(id);
+const push = (m, k, v) => { if (!m.has(k)) m.set(k, []); if (!m.get(k).includes(v)) m.get(k).push(v); };
+const HIJOS = new Map(), CONYUGES = new Map(), YERNOS = new Map(), HERMANOS = new Map();
+for (const f of FAMILIA){
+  for (const k of ['pa', 'ma', 'pl']) if (f[k]) push(HIJOS, f[k], f.id);
+  for (const c of f.cy || []){ push(CONYUGES, f.id, c); push(CONYUGES, c, f.id); }
+  if (f.su) push(YERNOS, f.su, f.id);
+  if (f.hm){ const g = [f.id, ...f.hm]; for (const a of g) for (const b of g) if (a !== b) push(HERMANOS, a, b); }
+}
+const byOrd = (a, b) => get(a).ord - get(b).ord;
+const hijosDe = id => [...(HIJOS.get(id) || [])].sort(byOrd);
+const nombre = id => get(id).n;
+// Nombre breve para las tarjetas: sin la aclaración entre paréntesis, que el árbol ya muestra
+// con el parentesco (p. ej., «Gad (hijo de Jacob)» → «Gad»)
+const corto = id => get(id).lb || get(id).n.replace(/\s*\(.*\)$/, '');
+
+// Antepasados de Jesús (por las dos líneas, y por los suegros que nombra Lucas)
+const MESIAS = new Set();
+(function subir(id){
+  const p = get(id);
+  if (!p) return;
+  for (const k of ['pa', 'ma', 'pl', 'su']) if (p[k] && !MESIAS.has(p[k])){ MESIAS.add(p[k]); subir(p[k]); }
+})('jesus');
+
+// Línea de María (Lucas 3): sus antepasados hasta Natán, hijo de David. En ella, Sealtiel sube por
+// su suegro Nerí, porque Lucas lo llama «hijo de Nerí»; en las demás líneas, por su padre.
+function cadena(desde, orden){
+  const out = [];
+  for (let id = desde; id && out.length < 300; ){ out.push(id); const p = get(id) || {}; id = p[orden.find(k => p[k])]; }
+  return out;
+}
+const LUCAS_SOLO = (() => {
+  const mateo = new Set(cadena('jose-maria', ['pl', 'pa']));
+  return new Set(cadena('maria', ['su', 'pl', 'pa']).filter(id => !mateo.has(id)));
+})();
+
+/* ===================== UTILIDADES ===================== */
+const norm = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+const fmtY = y => y < 0 ? `${-y} a.e.c.` : `${y} e.c.`;
+function el(tag, cls, txt){
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (txt !== undefined) e.textContent = txt;
+  return e;
+}
+// Años de una persona de la línea de tiempo, en forma breve (1858–1711 a.e.c.)
+function anos(p){
+  const a = p.a || '', cs = a.includes('s') ? 'c. ' : '', ce = a.includes('e') ? 'c. ' : '';
+  if (p.s === p.e) return cs + fmtY(p.s);
+  if (p.s < 0 && p.e < 0) return `${cs}${-p.s}–${ce}${-p.e} a.e.c.`;
+  if (p.s > 0) return `${cs}${p.s}–${ce}${p.e} e.c.`;
+  return `${cs}${fmtY(p.s)} – ${ce}${fmtY(p.e)}`;
+}
+// Segunda línea de cada persona en el árbol
+function sub(p){
+  if (p.s === undefined) return '';
+  if (p.k === 'vida') return anos(p);
+  if (p.k === 'reinado') return 'Reinó ' + anos(p);
+  if (p.k === 'juez') return 'Juez de Israel';
+  if (p.k === 'profecia') return 'Profeta';
+  return '';
+}
+const color = p => p.c ? `var(${CATS[p.c].v})` : 'var(--c-gen)';
+
+/* ===================== VISTA CENTRADA EN UNA PERSONA =====================
+   spine: línea de antepasados, del más antiguo al padre (o la madre) de la persona. Cada bloque
+          es el antepasado (id), el otro progenitor del siguiente (partner) y cómo se une al
+          siguiente (rel: pa, pl, ma o su).
+   fam:   la generación de la persona: ella y sus hermanos, agrupados por el otro progenitor.
+   kids:  sus hijos (y yernos), agrupados por el otro progenitor. */
+const ORDEN = ['pl', 'pa', 'ma'];
+const LINEA = {pa:'padre', pl:'padre legal', ma:'madre', su:'suegro'};
+// Líneas posibles para subir desde una persona (se elige con los botones de arriba)
+function opciones(id){
+  const p = get(id), tiene = x => { const q = get(x); return q && (q.pa || q.ma || q.pl || q.su); };
+  return ['pl', 'pa', 'ma', 'su'].filter(k => p[k] && (k === 'pl' || k === 'pa' || tiene(p[k]) || !p.pa && !p.pl))
+                                  .map(k => ({k, id:p[k]}));
+}
+function vista(focus, primera){
+  const spine = [];
+  const lucas = LUCAS_SOLO.has(focus) || (primera && LUCAS_SOLO.has(get(focus)[primera]));
+  const orden = lucas ? ['su', ...ORDEN] : [...ORDEN, 'su'];
+  const vistos = new Set([focus]);
+  for (let cur = focus, k = primera; ; k = null){
+    const p = get(cur);
+    k = k && p[k] ? k : orden.find(x => p[x]);
+    if (!k || vistos.has(p[k])) break;
+    const up = p[k];
+    vistos.add(up);
+    const partner = k === 'su' ? null : k === 'ma' ? (p.pl || p.pa || null) : (p.ma || null);
+    spine.unshift({id:up, partner, rel:k});
+    cur = up;
+  }
+  // Generación de la persona
+  const last = spine[spine.length - 1];
+  let fam;
+  if (!last){
+    fam = [{ids:[focus, ...(HERMANOS.get(focus) || [])].sort(byOrd)}];
+  } else if (last.rel === 'su'){
+    fam = [{ids:[focus], label:'Yerno'}];
+  } else {
+    const ids = [...new Set([...hijosDe(last.id), ...(last.partner ? hijosDe(last.partner) : []), focus])].sort(byOrd);
+    // Se agrupan por el otro progenitor (la madre, si la línea sube por el padre)
+    const otro = id => last.rel === 'ma' ? (get(id).pl || get(id).pa) : get(id).ma;
+    fam = agrupar(ids, otro, get(last.id).mu ? 'Padre' : 'Madre');
+  }
+  // Hijos de la persona y yernos
+  const yo = get(focus);
+  const otroK = id => yo.mu ? (get(id).pl || get(id).pa) : get(id).ma;
+  const kids = agrupar(hijosDe(focus), otroK, yo.mu ? 'Padre' : 'Madre');
+  if (YERNOS.has(focus)) kids.push({ids:YERNOS.get(focus), label:YERNOS.get(focus).length > 1 ? 'Yernos' : 'Yerno', yerno:true});
+  if (kids.length === 1 && !kids[0].yerno) kids[0].label = null;
+  return {focus, spine, fam, spouses:CONYUGES.get(focus) || [], kids};
+}
+function agrupar(ids, otro, quien){
+  const m = new Map();
+  for (const id of ids) push(m, otro(id) || '', id);
+  const gs = [...m].map(([o, list]) => ({ids:list, label:o ? `Hijos de ${corto(o)}` : `${quien} no mencionada`}));
+  if (quien === 'Padre') gs.forEach(g => { if (g.label.endsWith('no mencionada')) g.label = 'Padre no mencionado'; });
+  if (gs.length < 2) gs.forEach(g => g.label = null);
+  return gs;
+}
+// Etiqueta junto a un hijo cuando el parentesco no es el carnal (los yernos van en su propio grupo)
+function tagDe(id, padre){
+  const p = get(id);
+  if (p.pl === padre && p.pa !== padre) return p.pa ? 'hijo legal' : 'hijo adoptivo';
+  return '';
+}
+
+/* ===================== DIBUJO ===================== */
+const canvas = document.getElementById('canvas');
+const scroller = document.getElementById('scroller');
+const svg = document.getElementById('links');
+const wideQuery = matchMedia('(min-width: 760px) and (min-aspect-ratio: 1/1)');
+let horizontal = true;
+let state = {focus:'adan', line:null};
+let focusBox = null;   // posición de la persona resaltada en el último dibujo
+
+function nodo(it){
+  const p = get(it.id);
+  const b = el('button', 'node' + (it.focus ? ' focus' : '') + (p.sn ? ' sn' : '') + (MESIAS.has(it.id) ? ' mes' : ''));
+  b.dataset.id = it.id;
+  Object.assign(b.style, {left:it.x + 'px', top:it.y + 'px', width:it.w + 'px', height:it.h + 'px'});
+  b.style.setProperty('--col', color(p));
+  b.append(el('span', 'nm', it.focus ? p.n : corto(it.id)));
+  const s = sub(p);
+  if (s || it.tag || it.focus){
+    const sb = el('span', 'sb');
+    if (s) sb.append(s);
+    if (it.tag) sb.append(s ? ' · ' : '', el('i', '', it.tag));
+    b.append(sb);
+    if (s || it.tag) b.classList.add('has-sb');
+  }
+  const nk = (HIJOS.get(it.id) || []).length;
+  if (nk && !it.focus) b.append(Object.assign(el('span', 'kids', nk), {title:`${nk} ${nk === 1 ? 'hijo' : 'hijos'} en el árbol`}));
+  let tip = p.n;
+  if (MESIAS.has(it.id)) tip += ' · antepasado de Jesús';
+  b.title = it.focus ? `${tip}. Toca para ver su ficha` : `${tip}. Toca para ver su familia`;
+  b.addEventListener('click', () => it.focus ? toggleCard() : go(it.id));
+  return b;
+}
+
+// Horizontal (PC): las generaciones van de izquierda a derecha
+function layoutH(v){
+  const CW = 152, CH = 44, CWF = 176, CHF = 54, GX = 72, GY = 10, LBL = 20;
+  const items = [], links = [], labels = [];
+  const colX = i => i * (CW + GX);
+  const S = v.spine;
+  // Línea de antepasados: cada bloque, la persona y debajo el otro progenitor
+  S.forEach((b, i) => {
+    const x = colX(i), yl = b.partner ? -CH - 5 : -CH / 2;
+    items.push({id:b.id, x, y:yl, w:CW, h:CH});
+    if (b.partner){
+      items.push({id:b.partner, x, y:5, w:CW, h:CH});
+      links.push({d:`M${x + 16} ${yl + CH}V5`, cls:'mar'});
+    }
+    b.inY = yl + CH / 2;
+  });
+  for (let i = 1; i < S.length; i++){
+    const x1 = colX(i - 1) + CW, x2 = colX(i), xm = x1 + GX / 2, y2 = S[i].inY;
+    links.push({d:`M${x1} 0H${xm}V${y2}H${x2}`, cls:'line' + (S[i - 1].rel === 'pl' || S[i - 1].rel === 'su' ? ' dash' : ''),
+                lbl:S[i - 1].rel === 'pl' || S[i - 1].rel === 'su' ? LINEA[S[i - 1].rel] : '', lx:x1 + 4, ly:-6});
+  }
+  // Generación de la persona
+  const k = S.length, xf = colX(k), fam = [];
+  let y = 0, fy = 0;
+  for (const g of v.fam){
+    if (g.label){ fam.push({label:g.label, x:xf, y}); y += LBL; }
+    for (const id of g.ids){
+      if (id === v.focus){
+        fy = y;
+        fam.push({id, x:xf, y, w:CWF, h:CHF, focus:true});
+        y += CHF + GY;
+        for (const sp of v.spouses){
+          fam.push({id:sp, x:xf + 18, y, w:CW, h:CH, spouse:true});
+          y += CH + GY;
+        }
+      } else {
+        fam.push({id, x:xf, y, w:CW, h:CH, tag:S.length ? tagDe(id, S[k - 1].id) : ''});
+        y += CH + GY;
+      }
+    }
+  }
+  const dy = -(fy + CHF / 2);
+  fam.forEach(it => it.y += dy);
+  for (const it of fam) (it.label ? labels : items).push(it);
+  const casados = fam.filter(it => it.spouse);
+  if (casados.length) links.push({d:`M${xf + 9} ${CHF / 2}V${casados[casados.length - 1].y + CH / 2}` +
+                                    casados.map(it => `M${xf + 9} ${it.y + CH / 2}H${xf + 18}`).join(''), cls:'mar'});
+  if (k){
+    const x1 = colX(k - 1) + CW, xt = xf - GX / 2;
+    const hermanos = fam.filter(it => it.id && !it.spouse);
+    const cys = hermanos.map(it => it.y + it.h / 2);
+    links.push({d:`M${x1} 0H${xt}V${Math.min(0, ...cys)}V${Math.max(0, ...cys)}`, cls:''});
+    for (const it of hermanos)
+      links.push({d:`M${xt} ${it.y + it.h / 2}H${xf}`, cls:(it.focus ? 'line' : '') + (it.tag ? ' dash' : '')});
+    links.push({d:`M${x1} 0H${xt}V0`, cls:'line' + (S[k - 1].rel === 'pl' || S[k - 1].rel === 'su' ? ' dash' : ''),
+                lbl:S[k - 1].rel === 'pl' || S[k - 1].rel === 'su' ? LINEA[S[k - 1].rel] : '', lx:x1 + 4, ly:-6});
+  }
+  // Hijos
+  const xk = xf + CWF + GX, kids = [];
+  y = 0;
+  for (const g of v.kids){
+    if (g.label){ kids.push({label:g.label, x:xk, y}); y += LBL; }
+    for (const id of g.ids){ kids.push({id, x:xk, y, w:CW, h:CH, tag:tagDe(id, v.focus)}); y += CH + GY; }
+  }
+  if (kids.length){
+    const ky = -(y - GY) / 2;
+    kids.forEach(it => it.y += ky);
+    for (const it of kids) (it.label ? labels : items).push(it);
+    const cards = kids.filter(it => it.id), xt = xk - GX / 2;
+    const cys = cards.map(it => it.y + CH / 2);
+    links.push({d:`M${xf + CWF} 0H${xt}M${xt} ${Math.min(0, ...cys)}V${Math.max(0, ...cys)}` +
+                  cards.map(it => `M${xt} ${it.y + CH / 2}H${xk}`).join(''), cls:''});
+  }
+  return {items, links, labels};
+}
+
+// Vertical (celular): las generaciones van de arriba abajo, como un esquema con sangrías
+function layoutV(v, W){
+  const CH = 44, CHF = 54, GV = 24, GY = 8, LBL = 20, IND = 26, TX = 14;
+  const items = [], links = [], labels = [];
+  const S = v.spine;
+  const Wc = Math.min(210, (W - 10) / 2);
+  let y = 0;
+  S.forEach((b, i) => {
+    items.push({id:b.id, x:0, y, w:Wc, h:CH});
+    if (b.partner){
+      items.push({id:b.partner, x:Wc + 10, y, w:Wc, h:CH});
+      links.push({d:`M${Wc} ${y + CH / 2}H${Wc + 10}`, cls:'mar'});
+    }
+    if (i){
+      const rel = S[i - 1].rel, raro = rel === 'pl' || rel === 'su';
+      links.push({d:`M${TX} ${y - GV}V${y}`, cls:'line' + (raro ? ' dash' : ''), lbl:raro ? LINEA[rel] : '', lx:TX + 8, ly:y - GV / 2 + 4});
+    }
+    y += CH + GV;
+  });
+  // Generación de la persona (con sangría si hay antepasados); sus hijos, debajo de ella
+  const x1 = S.length ? IND : 0, w1 = Math.min(W - x1, 420);
+  const x2 = x1 + IND, w2 = Math.min(W - x2, 420);
+  if (S.length) y -= GV - 12;
+  const top = y - 12, ramas = [];
+  for (const g of v.fam){
+    if (g.label){ labels.push({label:g.label, x:x1, y}); y += LBL; }
+    for (const id of g.ids){
+      const foco = id === v.focus;
+      const it = {id, x:x1, y, w:w1, h:foco ? CHF : CH, focus:foco, tag:!foco && S.length ? tagDe(id, S[S.length - 1].id) : ''};
+      items.push(it);
+      ramas.push(it);
+      y += it.h + GY;
+      if (!foco) continue;
+      // Cónyuges, de dos en dos, y debajo los hijos
+      const fyb = it.y + it.h;
+      if (v.spouses.length){
+        const sw = (w2 - 8) / 2;
+        labels.push({label:'⚭ ' + (get(id).mu ? (v.spouses.length > 1 ? 'Esposos' : 'Esposo') : (v.spouses.length > 1 ? 'Esposas' : 'Esposa')), x:x2, y});
+        y += LBL;
+        v.spouses.forEach((sp, j) => {
+          items.push({id:sp, x:x2 + (j % 2) * (sw + 8), y, w:sw, h:CH});
+          if (j % 2 || j === v.spouses.length - 1) y += CH + GY;
+        });
+      }
+      const hijos = [];
+      for (const kg of v.kids){
+        if (kg.label){ labels.push({label:kg.label, x:x2, y}); y += LBL; }
+        for (const kid of kg.ids){
+          const k = {id:kid, x:x2, y, w:w2, h:CH, tag:tagDe(kid, v.focus)};
+          items.push(k);
+          hijos.push(k);
+          y += CH + GY;
+        }
+      }
+      if (hijos.length){
+        const xt = x1 + TX, last = hijos[hijos.length - 1];
+        links.push({d:`M${xt} ${fyb}V${last.y + CH / 2}` + hijos.map(k => `M${xt} ${k.y + CH / 2}H${x2}`).join(''), cls:''});
+      }
+      y += 6;
+    }
+  }
+  if (S.length){
+    const rel = S[S.length - 1].rel, raro = rel === 'pl' || rel === 'su';
+    const last = ramas[ramas.length - 1], foco = ramas.find(it => it.focus);
+    links.push({d:`M${TX} ${top}V${last.y + last.h / 2}` +
+                  ramas.filter(it => !it.focus).map(it => `M${TX} ${it.y + it.h / 2}H${x1}`).join(''), cls:''});
+    links.push({d:`M${TX} ${top}V${foco.y + foco.h / 2}H${x1}`, cls:'line' + (raro ? ' dash' : ''),
+                lbl:raro ? LINEA[rel] : '', lx:TX + 8, ly:top + 14});
+  }
+  return {items, links, labels};
+}
+
+function render(){
+  horizontal = wideQuery.matches;
+  document.body.classList.toggle('h', horizontal);
+  document.body.classList.toggle('v', !horizontal);
+  document.documentElement.style.setProperty('--head', document.getElementById('head').offsetHeight + 'px');
+  const v = vista(state.focus, state.line);
+  const PAD = horizontal ? 32 : 16;
+  const W = document.documentElement.clientWidth - 2 * PAD;
+  const L = horizontal ? layoutH(v) : layoutV(v, W);
+  // Llevar todo a coordenadas positivas
+  const all = [...L.items, ...L.labels.map(l => ({x:l.x, y:l.y, w:120, h:16}))];
+  const minX = Math.min(...all.map(it => it.x)), minY = Math.min(...all.map(it => it.y));
+  const maxX = Math.max(...all.map(it => it.x + it.w)), maxY = Math.max(...all.map(it => it.y + it.h));
+  const ox = PAD - minX, oy = PAD - minY;
+  const width = horizontal ? maxX - minX + 2 * PAD : W + 2 * PAD, height = maxY - minY + 2 * PAD;
+  canvas.style.width = width + 'px';
+  canvas.style.height = height + 'px';
+  canvas.querySelectorAll('.node, .glbl').forEach(n => n.remove());
+  svg.setAttribute('width', width);
+  svg.setAttribute('height', height);
+  svg.replaceChildren();
+  const NS = 'http://www.w3.org/2000/svg';
+  const g = document.createElementNS(NS, 'g');
+  g.setAttribute('transform', `translate(${ox} ${oy})`);
+  // Primero las líneas normales y encima las de la línea de antepasados
+  for (const l of [...L.links].sort((a, b) => /line/.test(a.cls) - /line/.test(b.cls))){
+    const p = document.createElementNS(NS, 'path');
+    p.setAttribute('d', l.d);
+    p.setAttribute('class', 'lnk ' + l.cls);
+    g.append(p);
+    if (l.lbl){
+      const t = document.createElementNS(NS, 'text');
+      t.setAttribute('x', l.lx);
+      t.setAttribute('y', l.ly);
+      t.setAttribute('class', 'lnk-lbl');
+      t.textContent = l.lbl;
+      g.append(t);
+    }
+  }
+  svg.append(g);
+  const frag = document.createDocumentFragment();
+  for (const it of L.items) frag.append(nodo({...it, x:it.x + ox, y:it.y + oy}));
+  for (const l of L.labels){
+    const d = el('div', 'glbl', l.label);
+    Object.assign(d.style, {left:l.x + ox + 'px', top:l.y + oy + 3 + 'px'});
+    frag.append(d);
+  }
+  canvas.append(frag);
+  const f = L.items.find(it => it.focus);
+  focusBox = {x:f.x + ox, y:f.y + oy, w:f.w, h:f.h};
+  renderLines(v);
+}
+
+// Llevar la vista a la persona resaltada
+function centrar(){
+  if (!focusBox) return;
+  const head = document.getElementById('head').offsetHeight;
+  if (horizontal){
+    scroller.scrollLeft = focusBox.x + focusBox.w / 2 - scroller.clientWidth / 2;
+    scroller.scrollTop = focusBox.y + focusBox.h / 2 - scroller.clientHeight / 2;
+  } else {
+    // La cabecera no es fija: se deja la persona a un tercio de la pantalla, con sus antepasados encima
+    const top = scroller.getBoundingClientRect().top + scrollY + focusBox.y;
+    window.scrollTo(0, Math.max(0, top - innerHeight * 0.3));
+  }
+}
+
+/* ===================== NAVEGACIÓN =====================
+   La persona resaltada va en la dirección: arbol.html#p=isaac (y &l=ma para elegir la línea).
+   Así funcionan los botones Atrás y Adelante, y se puede compartir el enlace. */
+function leerHash(){
+  const h = new URLSearchParams(location.hash.slice(1));
+  const id = h.get('p');
+  state = {focus: id && PER.has(id) && EN_ARBOL.has(id) ? id : 'adan', line: h.get('l') || null};
+  if (state.line && !get(state.focus)[state.line]) state.line = null;
+}
+function go(id, line){
+  const h = 'p=' + id + (line ? '&l=' + line : '');
+  if (location.hash.slice(1) === h) return;
+  location.hash = h;
+}
+addEventListener('hashchange', () => {
+  leerHash();
+  render();
+  centrar();
+  if (card.classList.contains('open')) fillCard(state.focus);
+});
+
+// Botones para elegir por qué línea subir, cuando hay más de una
+function renderLines(v){
+  const box = document.getElementById('lines');
+  const ops = opciones(v.focus);
+  box.replaceChildren();
+  box.hidden = ops.length < 2;
+  if (box.hidden) return;
+  const actual = v.spine.length ? v.spine[v.spine.length - 1].rel : null;
+  box.append(el('b', '', `Antepasados de ${corto(v.focus)} por:`));
+  for (const o of ops){
+    const b = el('button');
+    b.append(corto(o.id) + ' ', el('small', '', `(${LINEA[o.k]})`));
+    b.setAttribute('aria-pressed', o.k === actual);
+    b.addEventListener('click', () => go(v.focus, o.k));
+    box.append(b);
+  }
+}
+
+// Atajos
+const ATAJOS = ['adan', 'noe', 'abrahan', 'jacob', 'david', 'jesus'];
+const jump = document.getElementById('jump');
+for (const id of ATAJOS) if (PER.has(id)){
+  const b = el('button', '', nombre(id));
+  b.addEventListener('click', () => go(id));
+  jump.append(b);
+}
+
+// Arrastrar con el ratón para desplazarse (en la PC)
+let drag = null;
+scroller.addEventListener('pointerdown', e => {
+  if (!horizontal || e.pointerType !== 'mouse' || e.button !== 0 || e.target.closest('.node')) return;
+  drag = {x:e.clientX, y:e.clientY, l:scroller.scrollLeft, t:scroller.scrollTop};
+  scroller.setPointerCapture(e.pointerId);
+  scroller.classList.add('dragging');
+});
+scroller.addEventListener('pointermove', e => {
+  if (!drag) return;
+  scroller.scrollLeft = drag.l - (e.clientX - drag.x);
+  scroller.scrollTop = drag.t - (e.clientY - drag.y);
+});
+const soltar = () => { drag = null; scroller.classList.remove('dragging'); };
+scroller.addEventListener('pointerup', soltar);
+scroller.addEventListener('pointercancel', soltar);
+
+/* ===================== FICHA ===================== */
+const card = document.getElementById('card');
+function toggleCard(){
+  if (card.classList.contains('open')) card.classList.remove('open');
+  else fillCard(state.focus);
+}
+function fillCard(id){
+  const p = get(id);
+  card.style.setProperty('--col', color(p));
+  card.querySelector('.cat').textContent = p.c ? CATS[p.c].n : 'Genealogía';
+  const name = card.querySelector('.name');
+  name.textContent = p.n;
+  name.href = card.querySelector('.more').href = jwUrl(p);
+  name.title = `Leer sobre ${p.n} en jw.org`;
+  card.querySelector('.dates').textContent = p.s !== undefined ? anos(p) : '';
+  card.querySelector('.mes').hidden = !MESIAS.has(id);
+  card.querySelector('.desc').textContent = p.d || '';
+  // Parentesco
+  const fam = card.querySelector('.fam');
+  fam.replaceChildren();
+  const fila = (titulo, ids, nota) => {
+    ids = ids.filter(Boolean);
+    if (!ids.length) return;
+    const dd = el('dd');
+    for (const x of ids){
+      const b = el('button', '', corto(x));
+      if (nota && nota(x)) b.append(' ', el('small', '', `(${nota(x)})`));
+      b.title = nombre(x);
+      b.addEventListener('click', () => { go(x); fillCard(x); });
+      dd.append(b);
+    }
+    fam.append(el('dt', '', titulo), dd);
+  };
+  fila('Padre', [p.pa]);
+  fila(p.pa ? 'Padre legal' : 'Padre adoptivo', [p.pl]);
+  fila('Madre', [p.ma]);
+  fila('Suegro', [p.su]);
+  const cy = CONYUGES.get(id) || [];
+  fila(p.mu ? (cy.length > 1 ? 'Esposos' : 'Esposo') : (cy.length > 1 ? 'Esposas' : 'Esposa'), cy);
+  const hijos = hijosDe(id);
+  fila(hijos.length === 1 ? (get(hijos[0]).mu ? 'Hija' : 'Hijo') : 'Hijos', hijos, x => tagDe(x, id));
+  fila((YERNOS.get(id) || []).length > 1 ? 'Yernos' : 'Yerno', YERNOS.get(id) || []);
+  const padres = [p.pa, p.ma, p.pl].filter(Boolean);
+  const hermanos = [...new Set([...padres.flatMap(hijosDe), ...(HERMANOS.get(id) || [])])].filter(x => x !== id).sort(byOrd);
+  fila(hermanos.length === 1 ? (get(hermanos[0]).mu ? 'Hermana' : 'Hermano') : 'Hermanos', hermanos);
+  card.querySelector('.nota').textContent = p.np || '';
+  const refs = card.querySelector('.refs');
+  refs.replaceChildren();
+  if (p.r) refs.append(el('div', '', 'Textos: ' + p.r));
+  if (p.rp) refs.append(el('div', '', 'Parentesco: ' + p.rp));
+  const tl = card.querySelector('.tl');
+  tl.hidden = p.s === undefined;
+  tl.href = 'linea.html#p=' + id;
+  card.classList.add('open');
+}
+card.querySelector('.close').addEventListener('click', () => card.classList.remove('open'));
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && document.activeElement !== qInput) card.classList.remove('open'); });
+
+/* ===================== BÚSQUEDA ===================== */
+const qInput = document.getElementById('q');
+const sugg = document.getElementById('suggest');
+const BUSCABLES = [...EN_ARBOL].filter(id => PER.has(id)).map(id => {
+  const p = get(id);
+  return {id, key:norm(p.n + ' ' + (p.al || '')), n:p.n, info:p.s !== undefined ? anos(p) : (p.r || '').split(';')[0]};
+});
+let matches = [], active = 0;
+function updateSearch(){
+  const q = norm(qInput.value.trim());
+  const pos = m => { const i = norm(m.n).indexOf(q); return i < 0 ? Infinity : i; };
+  matches = q ? BUSCABLES.filter(m => m.key.includes(q)).sort((a, b) => (pos(a) - pos(b)) || byOrd(a.id, b.id)) : [];
+  active = 0;
+  sugg.replaceChildren();
+  if (q && !matches.length) sugg.append(el('li', 'empty', 'Sin resultados'));
+  matches.forEach((m, i) => {
+    const li = el('li');
+    li.setAttribute('role', 'option');
+    li.append(el('span', '', m.n), el('small', '', m.info));
+    li.addEventListener('mousedown', e => { e.preventDefault(); choose(i); });
+    sugg.append(li);
+  });
+  sugg.classList.toggle('open', !!q);
+  highlight();
+}
+const highlight = () => [...sugg.children].forEach((li, i) => li.classList.toggle('active', i === active && matches.length > 0));
+function choose(i){
+  const m = matches[i];
+  if (!m) return;
+  qInput.value = '';
+  updateSearch();
+  qInput.blur();
+  go(m.id);
+  fillCard(m.id);
+}
+qInput.addEventListener('input', updateSearch);
+qInput.addEventListener('focus', () => { if (qInput.value) sugg.classList.add('open'); });
+qInput.addEventListener('blur', () => sugg.classList.remove('open'));
+qInput.addEventListener('keydown', e => {
+  if (e.key === 'ArrowDown'){ active = Math.min(active + 1, matches.length - 1); highlight(); e.preventDefault(); }
+  else if (e.key === 'ArrowUp'){ active = Math.max(active - 1, 0); highlight(); e.preventDefault(); }
+  else if (e.key === 'Enter'){ choose(active); e.preventDefault(); }
+  else if (e.key === 'Escape'){ qInput.value = ''; updateSearch(); qInput.blur(); }
+});
+
+/* ===================== INICIO ===================== */
+let lastMode = null, lastW = 0;
+function onResize(){
+  const mode = wideQuery.matches, w = document.documentElement.clientWidth;
+  if (mode !== lastMode || (!mode && w !== lastW)){ lastMode = mode; lastW = w; render(); centrar(); }
+  else document.documentElement.style.setProperty('--head', document.getElementById('head').offsetHeight + 'px');
+}
+leerHash();
+addEventListener('resize', onResize);
+onResize();
+
+if ('serviceWorker' in navigator && location.protocol !== 'file:'){
+  addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+}
+</script>
+</body>
+</html>

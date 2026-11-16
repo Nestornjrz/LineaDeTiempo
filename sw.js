@@ -1,14 +1,15 @@
 /* Service worker: permite instalar la app y usarla sin conexión.
-   - Las páginas (index.html, linea.html), los datos (datos.js) y los estilos (comun.css) se piden
+   - Las páginas (index.html, linea.html, arbol.html), los datos (datos.js) y los estilos (comun.css) se piden
      primero a la red, para recibir siempre la última versión, y si no hay conexión se usa la
      copia guardada.
    - Los iconos y las imágenes se sirven desde la caché.
    Si cambias los iconos o el manifiesto, o añades archivos a ASSETS, sube el número de versión de CACHE. */
-const CACHE = 'linea-biblica-v2';
+const CACHE = 'linea-biblica-v4';
 const ASSETS = [
   './',
   './index.html',
   './linea.html',
+  './arbol.html',
   './datos.js',
   './comun.css',
   './manifest.webmanifest',
