@@ -69,16 +69,28 @@ footer{
   font-size:13px; color:var(--muted);
 }
 footer a{color:inherit; text-underline-offset:2px}
-.install{
-  height:38px; padding:0 16px; font:inherit; font-size:14px; font-weight:600; cursor:pointer;
-  color:var(--bg); background:var(--accent); border:0; border-radius:8px;
+/* Botones de la portada: instalar la app y compartirla */
+.acciones{display:flex; flex-wrap:wrap; justify-content:center; gap:10px; margin-top:18px}
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  height:42px; padding:0 18px; font:inherit; font-size:15px; font-weight:600; cursor:pointer;
+  color:var(--text); background:var(--surface); border:1px solid var(--line); border-radius:10px;
+  text-decoration:none; transition:filter .15s, border-color .15s;
 }
-.install:hover{filter:brightness(1.08)}
-.install[hidden]{display:none}
+.btn svg{width:18px; height:18px; flex:none}
+.btn:hover{border-color:var(--accent)}
+.btn:focus-visible{outline:3px solid var(--accent); outline-offset:2px}
+.btn[hidden]{display:none}
+.btn.install{color:var(--bg); background:var(--accent); border-color:var(--accent)}
+.btn.wa{color:#fff; background:#15803d; border-color:#15803d}
+.btn.install:hover, .btn.wa:hover{filter:brightness(1.1)}
+.aviso{min-height:1.4em; margin:8px 0 0; font-size:14px; color:var(--accent)}
 @media (max-width: 559px){
   main{padding-top:28px}
   .top{margin-bottom:22px}
   h1{font-size:24px}
+  .acciones{flex-direction:column; align-items:center}
+  .btn{width:min(100%, 300px)}
 }
 </style>
 </head>
@@ -88,6 +100,21 @@ footer a{color:inherit; text-underline-offset:2px}
     <img src="icons/icon.svg" alt="">
     <h1>Personajes de la Biblia</h1>
     <p>Elige cómo quieres explorarlos.</p>
+    <div class="acciones">
+      <button id="install" class="btn install" hidden title="Instalar como aplicación en este dispositivo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>
+        Instalar la aplicación
+      </button>
+      <a id="whatsapp" class="btn wa" target="_blank" rel="noopener" title="Enviar el enlace de la aplicación por WhatsApp">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l1.3-3.9A8 8 0 1 1 8 19z"/></svg>
+        Compartir por WhatsApp
+      </a>
+      <button id="share" class="btn" title="Compartir el enlace de la aplicación">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.6-4.4M8.2 13.2l7.6 4.4"/></svg>
+        <span>Compartir</span>
+      </button>
+    </div>
+    <p class="aviso" id="aviso" role="status"></p>
   </div>
 
   <nav class="options" aria-label="Secciones">
@@ -134,7 +161,6 @@ footer a{color:inherit; text-underline-offset:2px}
 </main>
 
 <footer>
-  <button id="install" class="install" hidden title="Instalar como aplicación en este dispositivo">⬇ Instalar la aplicación</button>
   <span>Fechas y datos según las publicaciones de los testigos de Jehová (<a href="https://www.jw.org/es/" target="_blank" rel="noopener">jw.org</a>).</span>
 </footer>
 
@@ -169,6 +195,33 @@ installBtn.addEventListener('click', async () => {
     installPrompt = null;
   } else if (isIOS){
     alert('Para instalar en iPhone o iPad:\n\n1. Abre esta página en Safari.\n2. Toca el botón Compartir (el cuadrado con la flecha hacia arriba).\n3. Elige «Añadir a pantalla de inicio».');
+  }
+});
+
+/* ===================== COMPARTIR LA APLICACIÓN ===================== */
+// Siempre se comparte la dirección publicada (también desde la app instalada o desde la PC)
+const URL_APP = document.querySelector('meta[property="og:url"]').content;
+const TEXTO = 'Personajes de la Biblia: una línea de tiempo y un árbol genealógico con los personajes bíblicos. ' +
+              'Se puede instalar en el celular.';
+const aviso = document.getElementById('aviso');
+const avisar = t => { aviso.textContent = t; setTimeout(() => { if (aviso.textContent === t) aviso.textContent = ''; }, 4000); };
+
+document.getElementById('whatsapp').href = 'https://wa.me/?text=' + encodeURIComponent(`${TEXTO}\n${URL_APP}`);
+
+// Celular: el menú de compartir del sistema (WhatsApp, Telegram, correo…). PC: copiar el enlace.
+const shareBtn = document.getElementById('share');
+if (!navigator.share) shareBtn.querySelector('span').textContent = 'Copiar el enlace';
+shareBtn.addEventListener('click', async () => {
+  if (navigator.share){
+    try { await navigator.share({title: 'Personajes de la Biblia', text: TEXTO, url: URL_APP}); }
+    catch {}   // el usuario cerró el menú
+    return;
+  }
+  try {
+    await navigator.clipboard.writeText(URL_APP);
+    avisar('Enlace copiado. Ya puedes pegarlo en un mensaje.');
+  } catch {
+    prompt('Copia este enlace:', URL_APP);
   }
 });
 </script>
