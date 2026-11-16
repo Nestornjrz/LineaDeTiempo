@@ -247,6 +247,12 @@ body.v .evline{border-top-width:1px; height:0}
 /* Acontecimientos con fecha aproximada: línea de puntos más tenue y etiqueta en cursiva */
 .evline.aprox{border-style:dotted; opacity:.5}
 .evlabel.aprox{font-style:italic; border-style:dashed; pointer-events:auto; cursor:help}
+/* En vertical: etiqueta acortada (solo la fecha; un toque la abre) y, si no hay hueco libre,
+   por debajo de las barras y casi transparente */
+.evlabel.corta:not(.abierta) .evn{display:none}
+.evlabel.corta{cursor:pointer}
+.evlabel.tapa:not(.abierta){z-index:1; opacity:.55}
+.evlabel.abierta{z-index:4; opacity:1}
 .legend .ev-aprox{font-style:italic}
 
 .person{
@@ -525,6 +531,7 @@ let horizontal = true;
 const ZOOM_MAX = 12, ZOOM_STEP = 1.5;
 let zoomLevel = 1;
 let curScale = 1;   // píxeles por año del último dibujo
+let evVert = null;  // en vertical: etiquetas de los acontecimientos y lo que ocupa su franja
 let selected = null;
 let query = '';
 const catFilter = new Set();   // categorías visibles (vacío = todas)
@@ -759,6 +766,7 @@ function render(){
   };
 
   if (horizontal){
+    evVert = null;
     const EV_H = evRowEnd.length * 22 + 6;
     const AX_H = 34;
     const ROW = 36;
@@ -812,7 +820,6 @@ function render(){
     const left0 = AX_W + 10 + (bands.length ? 8 : 0);   // franja para el nombre del milenio
     const width = Math.max(left0 + lanes * COL + 8, scroller.clientWidth);
     Object.assign(canvas.style, {width: width + 'px', height: extent + 'px'});
-    stickEventLabels();
 
     // Milenios (detrás de todo); el nombre va en vertical junto al eje
     for (const m of bands){
@@ -833,21 +840,30 @@ function render(){
     });
     canvas.append(el('div','axisline',{left:AX_W+'px', top:PAD+'px', width:'1px', height:(span-PAD*2)+'px'}));
 
-    let prevBottom = -Infinity;
-    for (const ev of evs){
-      canvas.append(el('div','evline' + (ev.a ? ' aprox' : ''),{top:ev.p+'px', left:AX_W+'px', width:(width-AX_W)+'px'}));
-      const top = Math.max(ev.p - 10, prevBottom + 3);
-      prevBottom = top + 20;
-      // Pegadas al borde derecho de la pantalla aunque la línea de tiempo se desplace hacia los lados
-      canvas.append(evLabel(ev, {top:top+'px', left:'calc(var(--vx, 100%) - 8px)', transform:'translateX(-100%)'}));
-    }
-
     for (const p of items){
       const b = p.sup ? supEl(p) : p.people ? groupEl(p) : personEl(p);
       Object.assign(b.style, {top:p.px+'px', left:(left0 + p.lane*COL)+'px', height:Math.max(p.len,p.lw)+'px', width:'28px'});
       b.querySelector('.bar').style.height = p.len + 'px';
       canvas.append(b);
     }
+
+    // Etiquetas de los acontecimientos: se colocan en un hueco libre entre las barras de la parte
+    // visible (ver colocarEventos). Para eso se guarda lo que ocupa cada franja: barras y nombres.
+    evVert = {AX_W, labels: []};
+    let prevBottom = -Infinity;
+    for (const ev of evs){
+      canvas.append(el('div','evline' + (ev.a ? ' aprox' : ''),{top:ev.p+'px', left:AX_W+'px', width:(width-AX_W)+'px'}));
+      const top = Math.max(ev.p - 10, prevBottom + 3);
+      prevBottom = top + 20;
+      const l = evLabel(ev, {top:top+'px'});
+      canvas.append(l);
+      const occ = items.filter(p => p.px < top + 20 && p.px + Math.max(p.len, p.lw) > top)
+                       .map(p => [left0 + p.lane*COL - 4, left0 + p.lane*COL + 28 + 4])
+                       .sort((a, b) => a[0] - b[0]);
+      // Ancho completo y ancho corto (solo la fecha)
+      evVert.labels.push({l, occ, w: l.offsetWidth, wc: l.querySelector('b').offsetWidth + 16});
+    }
+    colocarEventos();
     // Linaje: de la barra de cada antepasado sale una línea hasta el comienzo de la barra de su hijo
     if (lin) conectores(width, extent, (P, C) => {
       const xP = left0 + P.lane*COL + 5, xC = left0 + C.lane*COL + 5, y = C.px - 4;
@@ -883,9 +899,43 @@ const evDate = ev => ev.t || fmtY(ev.y);
 
 function evLabel(ev, style){
   const l = el('div', 'evlabel' + (ev.a ? ' aprox' : ''), style);
-  l.innerHTML = `<b>${evDate(ev)}</b> · ${ev.n}`;
-  if (ev.d) l.title = ev.d;
+  l.innerHTML = `<b>${evDate(ev)}</b><span class="evn"> · ${ev.n}</span>`;
+  l.title = `${evDate(ev)} · ${ev.n}` + (ev.d ? `\n${ev.d}` : '');
+  // En vertical, un toque muestra el nombre completo de una etiqueta acortada
+  l.addEventListener('click', () => {
+    if (horizontal) return;
+    l.classList.toggle('abierta');
+    colocarEventos();
+  });
   return l;
+}
+
+// En vertical, cada etiqueta de acontecimiento va pegada a la derecha de la parte visible, en el
+// hueco libre de barras más a la derecha donde quepa entera; si no cabe, solo con la fecha. Si
+// tampoco cabe así, se queda a la derecha, por debajo de las barras y casi transparente.
+function colocarEventos(){
+  if (horizontal || !evVert) return;
+  const lo = Math.max(scroller.scrollLeft, evVert.AX_W) + 4;
+  const hi = scroller.scrollLeft + scroller.clientWidth - 8;
+  for (const e of evVert.labels){
+    // Huecos libres dentro de [lo, hi], de derecha a izquierda
+    const gaps = [];
+    let x = lo;
+    for (const [a, b] of e.occ){
+      if (a > x) gaps.push([x, Math.min(a, hi)]);
+      x = Math.max(x, b);
+      if (x >= hi) break;
+    }
+    if (x < hi) gaps.push([x, hi]);
+    gaps.reverse();
+    const fit = w => gaps.find(([a, b]) => b - a >= w);
+    let g = fit(e.w), corta = false;
+    if (!g){ g = fit(e.wc); corta = true; }
+    e.l.classList.toggle('corta', corta);
+    e.l.classList.toggle('tapa', !g);
+    const w = corta && !e.l.classList.contains('abierta') ? e.wc : e.w;
+    e.l.style.left = Math.max(lo, (g ? g[1] : hi) - w) + 'px';
+  }
 }
 
 function ticks(step){
@@ -1313,11 +1363,8 @@ document.getElementById('zoomIn').addEventListener('click', () => setZoom(1));
 document.getElementById('zoomOut').addEventListener('click', () => setZoom(-1));
 
 // En vista ancha, la rueda del ratón desplaza la línea de tiempo hacia los lados.
-// En vertical, las etiquetas de los hitos siguen el borde derecho visible al desplazarse de lado
-function stickEventLabels(){
-  if (!horizontal) canvas.style.setProperty('--vx', (scroller.scrollLeft + scroller.clientWidth) + 'px');
-}
-scroller.addEventListener('scroll', stickEventLabels, {passive:true});
+// En vertical, las etiquetas de los hitos siguen la parte visible al desplazarse de lado
+scroller.addEventListener('scroll', colocarEventos, {passive:true});
 
 scroller.addEventListener('wheel', e => {
   if (!horizontal || e.ctrlKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
