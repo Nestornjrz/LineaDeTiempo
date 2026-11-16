@@ -1146,8 +1146,11 @@ document.getElementById('modeSolo').setAttribute('aria-pressed', soloMode);
 
 function updateSearch(){
   query = norm(qInput.value.trim());
+  // Primero los que tienen el texto en el nombre (antes cuanto más al principio); después, los que
+  // solo lo tienen en los alias (al). A igualdad, por fecha.
+  const pos = p => { const i = norm(p.n).indexOf(query); return i < 0 ? Infinity : i; };
   matches = query ? PEOPLE.filter(p => p.key.includes(query))
-                          .sort((a,b) => norm(a.n).indexOf(query) - norm(b.n).indexOf(query) || a.s - b.s) : [];
+                          .sort((a,b) => (pos(a) - pos(b)) || a.s - b.s) : [];
   active = 0;
   sugg.innerHTML = '';
   if (query){
