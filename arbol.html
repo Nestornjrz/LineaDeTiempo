@@ -308,6 +308,13 @@ const nombre = id => get(id).n;
 // Nombre breve para las tarjetas: sin la aclaración entre paréntesis, que el árbol ya muestra
 // con el parentesco (p. ej., «Gad (hijo de Jacob)» → «Gad»)
 const corto = id => get(id).lb || get(id).n.replace(/\s*\(.*\)$/, '');
+// Nombre dentro de una frase: las personas sin nombre en la Biblia llevan artículo
+// («Hijos de la hija de Súa», «Moab es hijo de la hija mayor de Lot»)
+const enFrase = id => {
+  const p = get(id), c = corto(id);
+  return p.sn ? (p.mu ? 'la ' : 'el ') + c.charAt(0).toLowerCase() + c.slice(1) : c;
+};
+const mayuscula = s => s.charAt(0).toUpperCase() + s.slice(1);
 
 // Antepasados de Jesús (por las dos líneas, y por los suegros que nombra Lucas)
 const MESIAS = new Set();
@@ -379,7 +386,7 @@ function vista(focus, primera){
 function agrupar(ids, otro, quien){
   const m = new Map();
   for (const id of ids) push(m, otro(id) || '', id);
-  const gs = [...m].map(([o, list]) => ({ids:list, label:o ? `Hijos de ${corto(o)}` : `${quien} no mencionada`}));
+  const gs = [...m].map(([o, list]) => ({ids:list, label:o ? `Hijos de ${enFrase(o)}` : `${quien} no mencionada`}));
   if (quien === 'Padre') gs.forEach(g => { if (g.label.endsWith('no mencionada')) g.label = 'Padre no mencionado'; });
   if (gs.length < 2) gs.forEach(g => g.label = null);
   return gs;
@@ -952,7 +959,7 @@ function parentesco(a, b){
   if (a === b) return {frases, exp, camino, comun};
   // En las frases, el nombre breve (sin la aclaración entre paréntesis), salvo que los dos coincidan
   const largo = corto(a) === corto(b);
-  const nm = id => largo && (id === a || id === b) ? get(id).n : corto(id);
+  const nm = id => largo && (id === a || id === b) ? get(id).n : enFrase(id);
   const N = nm;   // dentro de esta función, todas las frases usan el nombre breve
   // Padre legal o adoptivo
   if (B.pl === a) frases.push(`${N(a)} es padre ${tipoPl(b)} de ${N(b)}.`);
@@ -972,30 +979,44 @@ function parentesco(a, b){
     if (legal) exp.push('Este parentesco pasa por un padre legal o adoptivo; no es de sangre.');
     camino = caminoPor(s);
     comun = s.grupo ? null : s.c;
+    // Además, suegro o yerno (Labán era tío de Jacob y también su suegro)
+    const hijoDe = (x, y) => get(x).pa === y || get(x).ma === y;
+    if ((CONYUGES.get(a) || []).some(c => hijoDe(c, b))) frases.push(`Además, ${N(a)} es ${gen(a, ['yerno', 'nuera'])} de ${N(b)}.`);
+    if ((CONYUGES.get(b) || []).some(c => hijoDe(c, a))) frases.push(`Además, ${N(a)} es ${gen(a, ['suegro', 'suegra'])} de ${N(b)}.`);
   }
   // Por matrimonio: el cónyuge de uno es pariente del otro
   if (!frases.length){
+    // x es el que está casado; su cónyuge c es pariente de sangre de y. invertir: x es b (no a)
     const porConyuge = (x, y, invertir) => {
       for (const c of CONYUGES.get(x) || []){
         const r = sangre(c, y, ['pa', 'ma']);
         if (!r) continue;
-        // r: parentesco de c (cónyuge de x) con y
         let t = null;
-        if (!invertir && r.da === 1 && r.db === 0) t = gen(a, ['yerno', 'nuera']);            // el cónyuge de a es hijo de b
-        if (invertir && r.da === 0 && r.db === 1) t = gen(a, ['suegro', 'suegra']);           // el cónyuge de b es hijo de a
-        if (r.da === 1 && r.db === 1) t = gen(a, ['cuñado', 'cuñada']);                       // el cónyuge es hermano del otro
-        const tc = termino(r.da, r.db, c, false);
+        if (r.da === 1 && r.db === 0) t = invertir ? gen(a, ['suegro', 'suegra']) : gen(a, ['yerno', 'nuera']);   // c es hijo de y
+        if (r.da === 1 && r.db === 1) t = gen(a, ['cuñado', 'cuñada']);                                           // c es hermano de y
+        const tc = termino(r.da, r.db, c, medios(c, y, r.comunes));
         frases.push(t ? `${N(a)} es ${t} de ${N(b)}.` : `${N(a)} y ${N(b)} son parientes por matrimonio.`);
-        exp.push(invertir ? `${N(b)} es ${gen(b, ['esposo', 'esposa'])} de ${N(c)}, y ${N(c)} es ${tc || 'pariente'} de ${N(a)}.`
-                          : `${N(a)} es ${gen(a, ['esposo', 'esposa'])} de ${N(c)}, y ${N(c)} es ${tc || 'pariente'} de ${N(b)}.`);
-        const p = caminoPor(r);
-        camino = invertir ? [...p, b] : [a, ...p];
+        exp.push(`${N(x)} es ${gen(x, ['esposo', 'esposa'])} de ${N(c)}, y ${N(c)} es ${tc || 'pariente'} de ${N(y)}.`);
+        const p = caminoPor(r);                       // de c a y
+        camino = invertir ? [...p.reverse(), b] : [a, ...p];
         comun = r.c;
         return true;
       }
       return false;
     };
-    porConyuge(a, b, false) || porConyuge(b, a, true);
+    // Los dos casados con dos hermanos (Rut y Orpá): concuñados
+    const concunados = () => {
+      for (const ca of CONYUGES.get(a) || []) for (const cb of CONYUGES.get(b) || []){
+        const r = sangre(ca, cb, ['pa', 'ma']);
+        if (!r || r.da !== 1 || r.db !== 1) continue;
+        frases.push(`${N(a)} es ${gen(a, ['concuñado', 'concuñada'])} de ${N(b)}.`);
+        exp.push(`${N(a)} es ${gen(a, ['esposo', 'esposa'])} de ${N(ca)}, y ${N(b)}, de ${N(cb)}, que eran ${get(ca).mu && get(cb).mu ? 'hermanas' : 'hermanos'}.`);
+        camino = [a, ca, cb, b];
+        return true;
+      }
+      return false;
+    };
+    porConyuge(a, b, false) || porConyuge(b, a, true) || concunados();
   }
   // Vínculos del camino que son probables, no seguros (pr en los datos dice cuál: pa o ma; la ficha
   // lo explica). Solo cuentan si el camino pasa por ese vínculo.
@@ -1010,7 +1031,7 @@ function parentesco(a, b){
   // Hermanos: también cuenta si uno de los padres en común es el vínculo probable
   if (s) for (const x of [a, b]) if (get(x).pr && s.comunes.includes(get(x)[get(x).pr]) && !probables.includes(x)) probables.push(x);
   if (probables.length) exp.push(`Este camino incluye un parentesco probable, no seguro: lee la nota en la ficha de ${probables.map(nm).join(', ')}.`);
-  return {frases, exp, camino, comun};
+  return {frases:frases.map(mayuscula), exp:exp.map(mayuscula), camino, comun};
 }
 
 // Panel
