@@ -11,7 +11,7 @@
 <meta property="og:site_name" content="Línea de tiempo bíblica">
 <meta property="og:title" content="Línea de tiempo bíblica">
 <meta property="og:description" content="Personajes y acontecimientos bíblicos en una línea de tiempo interactiva.">
-<meta property="og:url" content="https://nestornjrz.github.io/LineaDeTiempo/">
+<meta property="og:url" content="https://nestornjrz.github.io/LineaDeTiempo/linea.html">
 <meta property="og:locale" content="es_ES">
 <meta property="og:image" content="https://nestornjrz.github.io/LineaDeTiempo/vista-previa.png">
 <meta property="og:image:type" content="image/png">
@@ -29,37 +29,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Línea bíblica">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="stylesheet" href="comun.css">
 <style>
-:root{
-  --bg:#f7f5f0; --surface:#ffffff; --text:#1f1d1a; --muted:#6b665e;
-  --line:#e6e1d6; --grid:#ece7dc; --axis:#bdb5a5; --accent:#8a5a1f;
-  --c-ante:#7b5ea7; --c-patri:#b5762a; --c-epat:#8f5f4a; --c-israel:#2f7d6d; --c-reyes:#b23a48;
-  --c-juda:#b0306f; --c-isr:#56677a;
-  --c-profp:#2f6db3; --c-profm:#1689a8; --c-prof:#5a55b8;
-  --c-exilio:#6f7f22; --c-cristo:#c0562b; --c-apost:#3d8c40; --c-gob:#8a6d1f; --c-disc:#a0688f; --c-crono:#5b544a; --c-guerra:#9c3a1e; --c-pres:#2a6f97;
-  --good:#2e8b57; --bad:#c0392b; --tibio:#a87a00;
-  --mil:rgba(138,90,31,.17); --mil-line:rgba(138,90,31,.35); --sheen:rgba(255,255,255,.45); --event:#9a8f7a; --pill:#fffaf0; --shadow:0 6px 24px rgba(40,30,10,.18);
-}
-@media (prefers-color-scheme: dark){
-  :root{
-    --bg:#16140f; --surface:#211e17; --text:#ece6da; --muted:#a39b8b;
-    --line:#332e24; --grid:#2a261e; --axis:#5c5446; --accent:#e0a85a;
-    --c-ante:#a98ad6; --c-patri:#e0a24f; --c-epat:#c9937c; --c-israel:#4fb8a2; --c-reyes:#e06474;
-    --c-juda:#e66fa6; --c-isr:#9aaabd;
-    --good:#5cc98a; --bad:#ef6b5e; --tibio:#e8c04a;
-    --c-profp:#6aa3e6; --c-profm:#4cc4e0; --c-prof:#9b96ec;
-    --c-exilio:#a8bb4c; --c-cristo:#ee8758; --c-apost:#6cc26f; --c-gob:#d1b04f; --c-disc:#d39bc2; --c-crono:#ada188; --c-guerra:#e0714f; --c-pres:#6fb3d9;
-    --mil:rgba(255,236,205,.12); --mil-line:rgba(224,168,90,.3); --sheen:rgba(255,255,255,.6); --event:#8c836f; --pill:#2a261d; --shadow:0 6px 24px rgba(0,0,0,.5);
-  }
-}
-*{box-sizing:border-box}
-html,body{margin:0}
-body{
-  background:var(--bg); color:var(--text);
-  font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-  font-size:15px; line-height:1.4;
-}
-
 /* ---------- Encabezado ---------- */
 header{
   position:sticky; top:0; z-index:30;
@@ -68,6 +39,14 @@ header{
   display:flex; flex-wrap:wrap; gap:8px 16px; align-items:center;
 }
 h1{font-size:18px; margin:0; font-weight:700; letter-spacing:.2px}
+/* Botón para volver a la portada (index.html) */
+.home{
+  flex:none; width:34px; height:34px; margin-right:-6px; display:inline-grid; place-items:center;
+  color:var(--text); background:var(--surface); border:1px solid var(--line); border-radius:8px;
+}
+.home:hover{border-color:var(--axis); color:var(--accent)}
+.home:focus-visible{outline:2px solid var(--accent); outline-offset:1px}
+.home svg{width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round}
 .tools{display:flex; flex-wrap:wrap; gap:8px; align-items:center; flex:1; min-width:240px; justify-content:flex-end}
 .search{position:relative; flex:1; max-width:340px}
 .search input{
@@ -218,6 +197,9 @@ header > .legend{order:4}
 @media (max-width: 759px){
   /* En el celular, el botón va junto al título y las herramientas pasan a la fila siguiente */
   header > .legend-toggle{order:0; margin-left:auto}
+  /* Botón de inicio, título y «Filtros» en una sola fila */
+  header{column-gap:12px}
+  .home{margin-right:-4px}
   header > .tools{flex-basis:100%; justify-content:flex-start}
   .search{flex:1 1 150px; max-width:none}
   /* En el celular, la leyenda abierta no ocupa más de un tercio de la pantalla */
@@ -225,6 +207,9 @@ header > .legend{order:4}
   .legend button{padding:4px 8px}
   .legend button.sup{padding-right:3px}
   .legend button.exp{padding:4px 10px 4px 4px}
+}
+@media (max-width: 379px){
+  h1{font-size:16px}
 }
 
 /* ---------- Valoración de los reyes ---------- */
@@ -412,6 +397,9 @@ body.v .person.crono .bar::after{
 </head>
 <body>
 <header id="head">
+  <a class="home" href="./" title="Volver al inicio" aria-label="Volver al inicio">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 11 12 4l8.5 7M6 9v11h4.5v-6h3v6H18V9"/></svg>
+  </a>
   <h1>Línea de tiempo bíblica</h1>
   <div class="tools">
     <div class="search">
@@ -462,417 +450,8 @@ body.v .person.crono .bar::after{
   <button class="seegroup">Ver estas personas en la línea de tiempo</button>
 </div>
 
+<script src="datos.js"></script>
 <script>
-/* ===================== DATOS =====================
-   Años: negativo = a.e.c. (antes de la era común), positivo = e.c.
-   a: qué fechas son aproximadas ('s' inicio, 'e' fin, 'se' ambas)
-   k: 'vida' = nacimiento-muerte; 'registro' = aparición-desaparición en el relato;
-      'profecia' = periodo en que profetizó (pt: texto propio para la duración);
-      'juez' = periodo como juez (jt: lo que dice la Biblia sobre los años). Las fechas de
-      cada juez son aproximadas: jw.org solo fecha el periodo completo (c. 1450–1117 a.e.c.)
-      y Jueces 11:26 sitúa a Jefté unos 300 años después de la conquista (c. 1173 a.e.c.);
-      'reinado' = años de reinado (rn: duración tal como la indica la Biblia)
-   dt: texto propio para la duración (se usa en lugar del texto automático)
-   seg: tramos de una profecía [{n, s, e, d}]; mark: momentos destacados dentro de ella [{y, n}]
-   lb: nombre corto para la barra en la vista vertical (celular)
-   src: fuente (publicación) cuando no hay textos bíblicos que citar
-   q: término de búsqueda en jw.org cuando el nombre lleva aclaración, p. ej. "Ocozías (Judá)"
-   x: true = extrabíblico: la Biblia no lo narra como algo que ocurrió; se conoce por la historia
-      o por las publicaciones, aunque la Biblia lo haya profetizado. En las personas se pone en
-      la categoría (CATS); en las guerras, en cada una.
-*/
-const CATS = {
-  ante:   {n:'Antes del Diluvio', v:'--c-ante'},
-  patri:  {n:'Patriarcas',        v:'--c-patri', t:'Abrahán, Isaac, Jacob y los 12 hijos de Jacob, entre otros (Hechos 7:8, 9)'},
-  epat:   {n:'Familias y otros',  v:'--c-epat',  t:'Esposas, hijos y otros personajes del tiempo de los patriarcas'},
-  israel: {n:'Israel y jueces',   v:'--c-israel'},
-  reyes:  {n:'Reino unido',       v:'--c-reyes', t:'Reyes de las 12 tribus antes de la división del reino'},
-  juda:   {n:'Reyes de Judá',     v:'--c-juda',  t:'Reino de dos tribus (Judá y Benjamín), capital Jerusalén'},
-  isr:    {n:'Reyes de Israel',   v:'--c-isr',   t:'Reino de diez tribus, capital Samaria'},
-  profp:  {n:'Profetas principales', v:'--c-profp', t:'Isaías, Jeremías, Ezequiel y Daniel: sus libros proféticos son los más extensos'},
-  profm:  {n:'Profetas menores',  v:'--c-profm', t:'Los 12 libros proféticos más breves, de Oseas a Malaquías'},
-  prof:   {n:'Otros profetas',    v:'--c-prof',  t:'Profetas que no tienen un libro de la Biblia con su nombre'},
-  exilio: {n:'Exilio y regreso',  v:'--c-exilio'},
-  apost:  {n:'Apóstoles',         v:'--c-apost', t:'Los 12 apóstoles de Jesús, Matías y Pablo'},
-  cristo: {n:'Jesús y su familia', v:'--c-cristo', t:'Jesús, sus padres, sus medios hermanos y sus parientes'},
-  gob:    {n:'Gobernantes y sacerdotes', v:'--c-gob', t:'Reyes, emperadores, gobernadores y sumos sacerdotes del tiempo de Jesús'},
-  disc:   {n:'Discípulos y otros', v:'--c-disc', t:'Discípulos y otras personas de los Evangelios y de los primeros años del cristianismo'},
-  pres:   {n:'Presidentes de la Watch Tower', v:'--c-pres', t:'Presidentes de la Sociedad Watch Tower Bible and Tract Society of Pennsylvania, la entidad legal de los testigos de Jehová', x:true},
-  // capa: no es una categoría de personas; se muestra u oculta con su propio botón y no se agrupa
-  crono:  {n:'Profecías cronológicas', v:'--c-crono', t:'Profecías bíblicas que indican un periodo de tiempo y cuyo cumplimiento se puede fechar', capa:true},
-  guerra: {n:'Guerras', v:'--c-guerra', t:'Guerras y conquistas importantes del relato bíblico, y guerras posteriores (extrabíblicas) que cumplen profecías bíblicas según las publicaciones', capa:true},
-};
-
-/* ===================== GRUPOS PRINCIPALES =====================
-   En la vista «Grupos» y en «Filtros», estas categorías se juntan en un grupo principal que
-   se abre con un clic para verlas por separado. Las demás categorías van solas.
-   cats: sus categorías, en el orden de «Filtros»; lb: nombre corto (vista vertical y fichas) */
-const GRUPOS = {
-  patriarcal: {n:'Época patriarcal', cats:['patri','epat'],
-               t:'Los patriarcas, sus familias y otras personas de su tiempo'},
-  monarquia:  {n:'Reyes', cats:['reyes','juda','isr'],
-               t:'Los reyes del reino unido de Israel y, después de su división, los de Judá y los de Israel'},
-  profetas:   {n:'Profetas', cats:['profp','profm','prof'],
-               t:'Profetas con libro en la Biblia (principales y menores) y otros profetas'},
-  jesus:      {n:'Tiempo de Jesús y los apóstoles', lb:'Jesús y apóstoles', cats:['gob','cristo','disc','apost'],
-               t:'Gobernantes y sacerdotes de su tiempo, la familia de Jesús, sus discípulos y sus apóstoles'},
-};
-const SUP_OF = {};   // categoría -> su grupo principal
-for (const s in GRUPOS) GRUPOS[s].cats.forEach(c => SUP_OF[c] = s);
-
-const PEOPLE = [
-  {n:'Adán', s:-4026, e:-3096, c:'ante', k:'vida', d:'El primer hombre, creado por Jehová. Vivió 930 años. Pecó y fue expulsado del jardín de Edén; la Biblia no dice en qué año ocurrió.', r:'Génesis 2:7; 3:17-24; 5:3-5'},
-  {n:'Eva', s:-4026, e:-3896, a:'e', c:'ante', k:'registro', dt:'Fue creada en 4026 a.e.c., poco después de Adán. La Biblia no dice cuándo murió; aparece por última vez en el nacimiento de Set (3896 a.e.c.)', d:'La primera mujer, creada de una costilla de Adán. Satanás la engañó y desobedeció a Jehová. Es la madre de todos los seres humanos.', r:'Génesis 2:21-23; 3:1-6, 20; 4:1, 25; 2 Corintios 11:3', al:'Eva'},
-  {n:'Caín', s:-4015, e:-3896, a:'se', c:'ante', k:'registro', dt:'La Biblia no dice cuándo nació ni cuándo murió. Nació después de la expulsión del Edén; la barra llega hasta el nacimiento de Set (3896 a.e.c.), cuando ya había matado a Abel', d:'Primer hijo de Adán y Eva, y agricultor. Por envidia mató a su hermano Abel, y Jehová lo condenó a vagar por la tierra.', r:'Génesis 4:1-17; 1 Juan 3:12', al:'Cain'},
-  {n:'Abel', s:-4013, e:-3896, a:'se', c:'ante', k:'registro', dt:'La Biblia no dice cuándo nació ni cuándo murió. Nació después de Caín y murió asesinado antes del nacimiento de Set (3896 a.e.c.)', d:'Segundo hijo de Adán y Eva, y pastor de ovejas. Por su fe ofreció un sacrificio que agradó a Jehová. Fue el primer hombre fiel y murió asesinado por su hermano.', r:'Génesis 4:2-8, 25; Mateo 23:35; Hebreos 11:4'},
-  {n:'Set', s:-3896, e:-2984, c:'ante', k:'vida', d:'Hijo de Adán y Eva, nacido después de la muerte de Abel.', r:'Génesis 4:25; 5:3-8'},
-  {n:'Enós', s:-3791, e:-2886, c:'ante', k:'vida', d:'Hijo de Set. En sus días se empezó a invocar el nombre de Jehová.', r:'Génesis 4:26; 5:6-11'},
-  {n:'Quenán', s:-3701, e:-2791, c:'ante', k:'vida', d:'Hijo de Enós.', r:'Génesis 5:9-14', al:'Cainán Kenan'},
-  {n:'Mahalalel', s:-3631, e:-2736, c:'ante', k:'vida', d:'Hijo de Quenán.', r:'Génesis 5:12-17'},
-  {n:'Jared', s:-3566, e:-2604, c:'ante', k:'vida', d:'Hijo de Mahalalel y padre de Enoc.', r:'Génesis 5:15-20'},
-  {n:'Enoc', s:-3404, e:-3039, c:'ante', k:'vida', d:'Caminó con Dios y profetizó contra los impíos.', r:'Génesis 5:18-24; Judas 14, 15', al:'Henoc'},
-  {n:'Matusalén', s:-3339, e:-2370, c:'ante', k:'vida', d:'El hombre más longevo del registro: 969 años. Murió el año del Diluvio.', r:'Génesis 5:21-27'},
-  {n:'Lamec', s:-3152, e:-2375, c:'ante', k:'vida', d:'Hijo de Matusalén y padre de Noé.', r:'Génesis 5:25-31'},
-  {n:'Noé', s:-2970, e:-2020, c:'ante', k:'vida', d:'Construyó el arca y sobrevivió al Diluvio con su familia.', r:'Génesis 5:28–9:29', al:'Noe'},
-  {n:'Sem', s:-2468, e:-1868, c:'patri', k:'vida', d:'Hijo de Noé y antepasado de Abrahán.', r:'Génesis 11:10, 11'},
-  {n:'Taré', s:-2148, e:-1943, c:'patri', k:'vida', d:'Padre de Abrahán. Murió en Harán.', r:'Génesis 11:24-32', al:'Tare Terah'},
-  {n:'Abrahán', s:-2018, e:-1843, c:'patri', k:'vida', d:'Amigo de Jehová y padre de la nación de Israel. Jehová hizo un pacto con él.', r:'Génesis 11:26–25:10; Santiago 2:23', al:'Abraham Abram'},
-  {n:'Sara', s:-2008, e:-1881, c:'epat', k:'vida', d:'Esposa de Abrahán y madre de Isaac.', r:'Génesis 17:17; 23:1, 2', al:'Sarai'},
-  {n:'Ismael', s:-1932, e:-1795, c:'epat', k:'vida', d:'Hijo de Abrahán y Agar.', r:'Génesis 16:16; 25:17'},
-  {n:'Isaac', s:-1918, e:-1738, c:'patri', k:'vida', d:'Hijo prometido de Abrahán y Sara.', r:'Génesis 21:5; 35:28, 29'},
-  {n:'Jacob', s:-1858, e:-1711, c:'patri', k:'vida', d:'Hijo de Isaac. Jehová le cambió el nombre a Israel; sus 12 hijos dieron origen a las tribus.', r:'Génesis 25:26; 47:28', al:'Israel'},
-  {n:'José', s:-1767, e:-1657, c:'patri', k:'vida', d:'Hijo de Jacob. Vendido como esclavo, llegó a ser administrador de Egipto.', r:'Génesis 30:24; 41:46; 50:26', al:'Jose'},
-  // --- Hijos de Jacob (nacimientos aproximados; Jacob se casó c. 1774 a.e.c. y José nació en 1767) ---
-  {n:'Rubén', s:-1773, e:-1711, a:'se', c:'patri', k:'registro', dt:'Nació c. 1773 a.e.c. La Biblia no dice cuándo murió; la barra llega hasta la muerte de Jacob (1711 a.e.c.), cuando aún vivía', d:'Primogénito de Jacob y Lea. Intentó salvar a José, pero perdió la primogenitura por acostarse con Bilhá, la concubina de su padre.', r:'Génesis 29:32; 35:22; 37:21, 22; 49:3, 4; 1 Crónicas 5:1', al:'Ruben'},
-  {n:'Simeón', s:-1772, e:-1711, a:'se', c:'patri', k:'registro', dt:'Nació c. 1772 a.e.c. La Biblia no dice cuándo murió; la barra llega hasta la muerte de Jacob (1711 a.e.c.), cuando aún vivía', d:'Segundo hijo de Lea. Junto con Leví, mató a los hombres de Siquem para vengar a Dina. José lo retuvo en Egipto.', r:'Génesis 29:33; 34:25; 42:24; 49:5-7', al:'Simeon'},
-  {n:'Leví', s:-1771, e:-1634, a:'se', c:'patri', k:'vida', age:'137 años', d:'Tercer hijo de Lea. De su descendencia vinieron Moisés, Aarón y los sacerdotes.', r:'Génesis 29:34; Éxodo 6:16-20; Números 3:6-10', al:'Levi'},
-  {n:'Judá', s:-1770, e:-1711, a:'se', c:'patri', k:'registro', dt:'Nació c. 1770 a.e.c. La Biblia no dice cuándo murió; la barra llega hasta la muerte de Jacob (1711 a.e.c.), cuando aún vivía', d:'Cuarto hijo de Lea. Se ofreció como esclavo en lugar de Benjamín. Jacob profetizó que de su tribu vendría el gobernante; fue antepasado de David y de Jesús.', r:'Génesis 29:35; 44:18-34; 49:8-10; Mateo 1:2, 3', al:'Juda'},
-  {n:'Dan', s:-1770, e:-1711, a:'se', c:'patri', k:'registro', dt:'Nació c. 1770 a.e.c. La Biblia no dice cuándo murió; la barra llega hasta la muerte de Jacob (1711 a.e.c.), cuando aún vivía', d:'Primer hijo de Bilhá, la sierva de Raquel.', r:'Génesis 30:4-6; 49:16-18'},
-  {n:'Neftalí', s:-1769, e:-1711, a:'se', c:'patri', k:'registro', dt:'Nació c. 1769 a.e.c. La Biblia no dice cuándo murió; la barra llega hasta la muerte de Jacob (1711 a.e.c.), cuando aún vivía', d:'Segundo hijo de Bilhá, la sierva de Raquel.', r:'Génesis 30:7, 8; 49:21', al:'Neftali'},
-  {n:'Gad (hijo de Jacob)', q:'Gad', s:-1769, e:-1711, a:'se', c:'patri', k:'registro', dt:'Nació c. 1769 a.e.c. La Biblia no dice cuándo murió; la barra llega hasta la muerte de Jacob (1711 a.e.c.), cuando aún vivía', d:'Primer hijo de Zilpá, la sierva de Lea.', r:'Génesis 30:9-11; 49:19'},
-  {n:'Aser', s:-1768, e:-1711, a:'se', c:'patri', k:'registro', dt:'Nació c. 1768 a.e.c. La Biblia no dice cuándo murió; la barra llega hasta la muerte de Jacob (1711 a.e.c.), cuando aún vivía', d:'Segundo hijo de Zilpá, la sierva de Lea.', r:'Génesis 30:12, 13; 49:20'},
-  {n:'Isacar', s:-1768, e:-1711, a:'se', c:'patri', k:'registro', dt:'Nació c. 1768 a.e.c. La Biblia no dice cuándo murió; la barra llega hasta la muerte de Jacob (1711 a.e.c.), cuando aún vivía', d:'Quinto hijo de Lea.', r:'Génesis 30:17, 18; 49:14, 15'},
-  {n:'Zabulón', s:-1767, e:-1711, a:'se', c:'patri', k:'registro', dt:'Nació c. 1767 a.e.c. La Biblia no dice cuándo murió; la barra llega hasta la muerte de Jacob (1711 a.e.c.), cuando aún vivía', d:'Sexto hijo de Lea.', r:'Génesis 30:19, 20; 49:13', al:'Zabulon'},
-  {n:'Benjamín', s:-1758, e:-1711, a:'se', c:'patri', k:'registro', dt:'Nació c. 1758 a.e.c. La Biblia no dice cuándo murió; la barra llega hasta la muerte de Jacob (1711 a.e.c.), cuando aún vivía', d:'Hijo menor de Jacob y Raquel; ella murió al darlo a luz. José lo quería mucho.', r:'Génesis 35:16-19; 43:29, 30; 45:14; 49:27', al:'Benjamin Benoni'},
-  // --- Época patriarcal (personajes que no son patriarcas) ---
-  {n:'Lot', s:-1943, e:-1919, a:'e', c:'epat', k:'registro', d:'Sobrino de Abrahán. Se fue a vivir cerca de Sodoma, y Jehová lo rescató antes de destruir la ciudad.', r:'Génesis 12:4, 5; 13:10-13; 19:15-29; 2 Pedro 2:7, 8'},
-  {n:'Melquisedec', s:-1935, e:-1935, a:'se', c:'epat', k:'registro', dt:'Aparece una sola vez en el relato, cuando bendijo a Abrahán', d:'Rey de Salem y sacerdote del Dios Altísimo. Bendijo a Abrahán, quien le dio la décima parte de todo. Prefiguró a Jesús como rey y sacerdote.', r:'Génesis 14:18-20; Salmo 110:4; Hebreos 7:1-3'},
-  {n:'Agar', s:-1933, e:-1913, a:'e', c:'epat', k:'registro', d:'Sierva egipcia de Sara y madre de Ismael. Sara se la dio a Abrahán como concubina.', r:'Génesis 16:1-16; 21:9-21; Gálatas 4:22-25'},
-  {n:'Rebeca', s:-1878, e:-1781, a:'e', c:'epat', k:'registro', d:'Esposa de Isaac y madre de Esaú y Jacob. Fue sepultada en la cueva de Macpelá.', r:'Génesis 24:15-67; 25:21-26; 27:42-46; 49:31'},
-  {n:'Labán', s:-1878, e:-1761, a:'se', c:'epat', k:'registro', d:'Hermano de Rebeca y padre de Lea y Raquel. Engañó a Jacob y le cambió el salario muchas veces.', r:'Génesis 24:29; 29:15-30; 31:7, 41-55', al:'Laban'},
-  {n:'Esaú', s:-1858, e:-1738, c:'epat', k:'registro', dt:'Nació en 1858 a.e.c., gemelo de Jacob. La Biblia no dice cuándo murió; la barra llega hasta el entierro de Isaac (1738 a.e.c.)', d:'Hijo de Isaac y hermano gemelo de Jacob. Despreció la primogenitura y la vendió por un plato de guisado. Antepasado de los edomitas.', r:'Génesis 25:25-34; 33:1-4; 35:29; Hebreos 12:16', al:'Esau Edom'},
-  {n:'Lea', s:-1781, e:-1728, a:'e', c:'epat', k:'registro', d:'Hija mayor de Labán y primera esposa de Jacob. Madre de seis tribus de Israel y de Dina; fue sepultada en Macpelá.', r:'Génesis 29:16-35; 30:17-21; 49:31'},
-  {n:'Raquel', s:-1781, e:-1758, a:'e', c:'epat', k:'registro', d:'Hija menor de Labán y la esposa a quien Jacob amaba. Madre de José y Benjamín; murió al dar a luz a Benjamín.', r:'Génesis 29:9-30; 30:22-24; 35:16-20'},
-  {n:'Bilhá', s:-1774, e:-1758, a:'se', c:'epat', k:'registro', d:'Sierva de Raquel y concubina de Jacob. Madre de Dan y Neftalí.', r:'Génesis 29:29; 30:3-8; 35:22', al:'Bilha'},
-  {n:'Zilpá', s:-1774, e:-1768, a:'se', c:'epat', k:'registro', d:'Sierva de Lea y concubina de Jacob. Madre de Gad y Aser.', r:'Génesis 29:24; 30:9-13', al:'Zilpa'},
-  {n:'Dina', s:-1766, e:-1728, a:'se', c:'epat', k:'registro', dt:'Nació c. 1766 a.e.c. La Biblia no dice cuándo murió; aparece por última vez cuando la familia se fue a Egipto (1728 a.e.c.)', d:'Hija de Jacob y Lea. Siquem la violó, y sus hermanos Simeón y Leví se vengaron matando a los hombres de la ciudad.', r:'Génesis 30:21; 34:1-31; 46:15'},
-  {n:'Manasés (hijo de José)', q:'Manasés', s:-1736, e:-1711, a:'se', c:'epat', k:'registro', dt:'Nació c. 1736 a.e.c., durante los años de abundancia en Egipto. La barra llega hasta la bendición de Jacob (1711 a.e.c.)', d:'Primogénito de José y Asenat. Jacob lo adoptó como hijo, y su descendencia llegó a ser una tribu de Israel.', r:'Génesis 41:50-52; 48:5, 13-20', al:'Manases'},
-  {n:'Efraín', s:-1734, e:-1711, a:'se', c:'epat', k:'registro', dt:'Nació c. 1734 a.e.c., durante los años de abundancia en Egipto. La barra llega hasta la bendición de Jacob (1711 a.e.c.)', d:'Segundo hijo de José. Jacob lo bendijo por encima de su hermano mayor, y su tribu llegó a ser la más importante del reino de diez tribus.', r:'Génesis 41:52; 48:13-20', al:'Efrain'},
-  {n:'Eliezer', s:-1935, e:-1878, a:'se', c:'epat', k:'registro', dt:'Aparece antes del nacimiento de Ismael; probablemente es el siervo que buscó esposa para Isaac (1878 a.e.c.)', d:'Siervo de confianza de Abrahán, de Damasco. Es probable que fuera él a quien Abrahán envió a buscar esposa para Isaac.', r:'Génesis 15:2, 3; 24:2-4, 10-67'},
-  {n:'Keturá', s:-1881, e:-1843, a:'se', c:'epat', k:'registro', d:'Esposa (concubina) de Abrahán después de la muerte de Sara. Le dio seis hijos, entre ellos Madián.', r:'Génesis 25:1-6; 1 Crónicas 1:32, 33', al:'Ketura Cetura'},
-  {n:'Tamar', s:-1745, e:-1740, a:'se', c:'epat', k:'registro', d:'Nuera de Judá. Por medio de él tuvo a los gemelos Pérez y Zérah, y llegó a ser antepasada de David y de Jesús.', r:'Génesis 38:6-30; Rut 4:12; Mateo 1:3'},
-  {n:'Asenat', s:-1737, e:-1730, a:'e', c:'epat', k:'registro', d:'Hija de Potifera, sacerdote de On. El faraón se la dio a José como esposa; fue madre de Manasés y Efraín.', r:'Génesis 41:45, 50-52; 46:20'},
-  {n:'Job', s:-1657, e:-1473, a:'se', c:'epat', k:'registro', dt:'El libro de Job abarca más de 140 años entre 1657 y 1473 a.e.c. Después de su prueba vivió 140 años', d:'Hombre íntegro de la tierra de Uz. Satanás le quitó sus bienes, sus hijos y la salud, pero él se mantuvo fiel a Jehová, y Jehová lo bendijo.', r:'Job 1:1, 8-22; 2:7-10; 42:10-17; Santiago 5:11'},
-  {n:'Aarón', s:-1596, e:-1473, c:'israel', k:'vida', d:'Hermano de Moisés y primer sumo sacerdote de Israel.', r:'Éxodo 7:7; Números 33:39', al:'Aaron'},
-  {n:'Moisés', s:-1593, e:-1473, c:'israel', k:'vida', d:'Sacó a Israel de Egipto y fue el mediador del pacto de la Ley.', r:'Éxodo 2:1-10; 7:7; Deuteronomio 34:7', al:'Moises'},
-  {n:'Josué', s:-1560, e:-1450, a:'se', c:'israel', k:'vida', d:'Sucesor de Moisés. Dirigió la conquista de Canaán.', r:'Josué 1:1, 2; 24:29', al:'Josue'},
-  // --- Jueces (fechas aproximadas, encadenadas según el orden del libro de Jueces) ---
-  {n:'Otniel', s:-1440, e:-1400, a:'se', c:'israel', k:'juez', jt:'Después de su victoria, el país tuvo reposo 40 años', d:'Primer juez después de Josué. Pariente de Caleb, libró a Israel de Cusán-risataim, rey de Mesopotamia.', r:'Jueces 3:7-11; Josué 15:16, 17', al:'Otoniel'},
-  {n:'Ehúd', s:-1385, e:-1305, a:'se', c:'israel', k:'juez', jt:'Después de su victoria, el país tuvo reposo 80 años', d:'Benjaminita zurdo. Mató a Eglón, rey de Moab, y libró a Israel de la opresión moabita.', r:'Jueces 3:12-30', al:'Ehud Aod'},
-  {n:'Samgar', s:-1305, e:-1305, a:'se', c:'israel', k:'juez', jt:'La Biblia no dice cuántos años juzgó', d:'Hijo de Anat. Salvó a Israel matando a 600 filisteos con una aguijada para el ganado.', r:'Jueces 3:31; 5:6'},
-  {n:'Débora', s:-1298, e:-1258, a:'se', c:'israel', k:'juez', jt:'Después de la victoria, el país tuvo reposo 40 años', d:'Profetisa y jueza. Animó a Barac a pelear contra Sísara, el jefe del ejército de Jabín, y Jehová les dio la victoria.', r:'Jueces 4:4-16; 5:1, 31', al:'Debora Barac'},
-  {n:'Gedeón', s:-1258, e:-1218, a:'se', c:'israel', k:'juez', jt:'Durante su vida, el país tuvo reposo 40 años', d:'Con solo 300 hombres, Jehová lo usó para derrotar a los madianitas. Rechazó que lo hicieran rey.', r:'Jueces 6:11-16; 7:7, 19-22; 8:22, 23, 28', al:'Gedeon Jerubaal'},
-  {n:'Tolá', s:-1215, e:-1192, a:'se', c:'israel', k:'juez', jt:'Juzgó a Israel 23 años', d:'De la tribu de Isacar. Salvó a Israel después de la muerte de Abimélec.', r:'Jueces 10:1, 2', al:'Tola'},
-  {n:'Jaír', s:-1195, e:-1173, a:'se', c:'israel', k:'juez', jt:'Juzgó a Israel 22 años', d:'Galaadita. Tenía 30 hijos que montaban 30 burros y gobernaban 30 ciudades.', r:'Jueces 10:3-5', al:'Jair'},
-  {n:'Jefté', s:-1173, e:-1167, a:'se', c:'israel', k:'juez', jt:'Juzgó a Israel 6 años', d:'Galaadita que, con la ayuda de Jehová, venció a los ammonitas. Cumplió su voto dedicando a su hija al servicio de Jehová.', r:'Jueces 11:1-11, 26, 29-40; 12:7; Hebreos 11:32', al:'Jefte'},
-  {n:'Ibzán', s:-1167, e:-1160, a:'se', c:'israel', k:'juez', jt:'Juzgó a Israel 7 años', d:'De Belén. Tuvo 30 hijos y 30 hijas.', r:'Jueces 12:8-10', al:'Ibzan'},
-  {n:'Elón', s:-1160, e:-1150, a:'se', c:'israel', k:'juez', jt:'Juzgó a Israel 10 años', d:'De la tribu de Zabulón.', r:'Jueces 12:11, 12', al:'Elon'},
-  {n:'Abdón', s:-1150, e:-1142, a:'se', c:'israel', k:'juez', jt:'Juzgó a Israel 8 años', d:'Hijo de Hilel, de Piratón. Tuvo 40 hijos y 30 nietos.', r:'Jueces 12:13-15', al:'Abdon'},
-  {n:'Sansón', s:-1140, e:-1120, a:'se', c:'israel', k:'juez', jt:'Juzgó a Israel 20 años, en tiempos de los filisteos', d:'Nazareo desde su nacimiento. Jehová le dio una fuerza extraordinaria para luchar contra los filisteos.', r:'Jueces 13:2-5, 24; 15:20; 16:28-31', al:'Sanson'},
-  {n:'Elí', s:-1180, e:-1140, a:'se', c:'israel', k:'juez', jt:'Juzgó a Israel 40 años', d:'Sumo sacerdote y juez en Siló. No corrigió a sus malvados hijos y murió al saber que el Arca había sido capturada.', r:'1 Samuel 2:12, 22-25; 4:15-18', al:'Eli'},
-  {n:'Samuel', s:-1180, e:-1080, a:'se', c:'israel', k:'vida', d:'Profeta y último juez de Israel. Ungió a Saúl y a David.', r:'1 Samuel 1–25'},
-  {n:'Saúl', s:-1117, e:-1078, c:'reyes', k:'registro', d:'Primer rey de Israel. Reinó 40 años.', r:'1 Samuel 10:1; 31:4-6; Hechos 13:21', al:'Saul'},
-  {n:'David', s:-1107, e:-1037, c:'reyes', k:'vida', d:'Pastor, salmista y rey de Israel. Jehová hizo con él un pacto para un reino.', r:'2 Samuel 5:4, 5; 1 Reyes 2:10, 11'},
-  {n:'Salomón', s:-1060, e:-998, a:'s', c:'reyes', k:'vida', d:'Rey conocido por su sabiduría. Construyó el templo de Jehová en Jerusalén.', r:'1 Reyes 3:12; 6:1; 11:42, 43', al:'Salomon'},
-  {n:'Elías', s:-940, e:-905, a:'se', c:'prof', k:'registro', d:'Profeta en tiempos del rey Acab. Se enfrentó a los profetas de Baal.', r:'1 Reyes 17–19; 2 Reyes 2; 2 Crónicas 21:12', al:'Elias'},
-  {n:'Eliseo', s:-920, e:-850, a:'se', c:'prof', k:'registro', d:'Sucesor de Elías. Realizó muchos milagros.', r:'1 Reyes 19:19-21; 2 Reyes 2–13'},
-  {n:'Isaías', s:-778, e:-732, a:'se', c:'profp', k:'profecia', d:'Profetizó en Judá durante los reinados de Uzías, Jotán, Acaz y Ezequías.', r:'Isaías 1:1; 6:1', al:'Isaias'},
-  {n:'Jeremías', s:-647, e:-580, a:'e', c:'profp', k:'profecia', d:'Profetizó la destrucción de Jerusalén y la vio cumplirse.', r:'Jeremías 1:1-3; 52', al:'Jeremias'},
-  {n:'Natán', s:-1070, e:-1037, a:'se', c:'prof', k:'registro', d:'Profeta en tiempos de David. Le comunicó el pacto del Reino, lo reprendió por su pecado con Bat-Seba y ayudó a que Salomón fuera rey.', r:'2 Samuel 7:1-17; 12:1-14; 1 Reyes 1:32-34', al:'Natan'},
-  {n:'Gad (profeta)', q:'Gad', s:-1100, e:-1037, a:'se', c:'prof', k:'registro', d:'Profeta y visionario de David. Le aconsejó cuando huía de Saúl y le comunicó el castigo por el censo.', r:'1 Samuel 22:5; 2 Samuel 24:11-19; 1 Crónicas 29:29'},
-  {n:'Ahíyá', s:-1000, e:-980, a:'se', c:'prof', k:'registro', d:'Profeta de Siló. Le anunció a Jeroboam que gobernaría diez tribus y luego predijo el fin de su casa.', r:'1 Reyes 11:29-39; 14:1-18', al:'Ahiya Ahías Ahias'},
-  {n:'Micaías', s:-920, e:-920, a:'se', c:'prof', k:'profecia', pt:'Profetizó contra Acab poco antes de su muerte', d:'Mientras 400 profetas falsos anunciaban la victoria, predijo la derrota y muerte del rey Acab.', r:'1 Reyes 22:8-28; 2 Crónicas 18', al:'Micaias'},
-  {n:'Hulda', s:-642, e:-642, a:'se', c:'prof', k:'profecia', pt:'Profetizó en el año 18 del reinado de Josías', d:'Profetisa en días del rey Josías. Cuando se halló el libro de la Ley, confirmó el juicio de Jehová contra Judá.', r:'2 Reyes 22:14-20; 2 Crónicas 34:22-28'},
-
-  // --- Profetas menores (fechas de escritura según "Toda Escritura es inspirada de Dios") ---
-  {n:'Jonás', s:-844, e:-844, a:'se', c:'profm', k:'profecia', pt:'Escribió su libro c. 844 a.e.c.', d:'Primero huyó de su comisión, pero luego predicó en Nínive, y sus habitantes se arrepintieron. También profetizó en días de Jeroboam II.', r:'Jonás 1:1-3; 3:1-10; 2 Reyes 14:25', al:'Jonas'},
-  {n:'Joel', s:-820, e:-820, a:'se', c:'profm', k:'profecia', pt:'Escribió su libro c. 820 a.e.c. (fecha incierta)', d:'Hijo de Petuel. Profetizó en Judá sobre una plaga de langostas y anunció el gran y temible día de Jehová.', r:'Joel 1:1-4; 2:28-32'},
-  {n:'Amós', s:-804, e:-804, a:'se', c:'profm', k:'profecia', pt:'Escribió su libro c. 804 a.e.c.', d:'Pastor y cultivador de higos de Tecoa, en Judá. Jehová lo envió a profetizar contra el reino de Israel en días de Uzías y Jeroboam II.', r:'Amós 1:1; 7:14, 15', al:'Amos'},
-  {n:'Oseas (profeta)', q:'Oseas', s:-804, e:-745, a:'se', c:'profm', k:'profecia', d:'Profetizó en Israel durante unos 59 años. Su matrimonio con Gómer ilustró la misericordia de Jehová con su pueblo infiel.', r:'Oseas 1:1-3; 3:1; 14:1, 2', al:'Oseas Hosea'},
-  {n:'Miqueas', s:-777, e:-717, a:'se', c:'profm', k:'profecia', d:'De Moréset. Profetizó en días de Jotán, Acaz y Ezequías, y predijo que el Mesías nacería en Belén.', r:'Miqueas 1:1; 5:2; Jeremías 26:18'},
-  {n:'Sofonías', s:-648, e:-648, a:'se', c:'profm', k:'profecia', pt:'Escribió su libro antes de 648 a.e.c.', d:'Descendiente del rey Ezequías. Profetizó en días de Josías y advirtió que el día de Jehová estaba cerca.', r:'Sofonías 1:1, 14-18; 2:3', al:'Sofonias'},
-  {n:'Nahúm', s:-634, e:-634, a:'se', c:'profm', k:'profecia', pt:'Escribió su libro antes de 632 a.e.c.', d:'Profetizó la destrucción de Nínive, la capital de Asiria, que se cumplió en 632 a.e.c.', r:'Nahúm 1:1; 3:1-7', al:'Nahum'},
-  {n:'Habacuc', s:-628, e:-628, a:'se', c:'profm', k:'profecia', pt:'Escribió su libro c. 628 a.e.c. (fecha incierta)', d:'Le preguntó a Jehová por qué permitía la injusticia. Profetizó que los caldeos castigarían a Judá y que el justo viviría por su fe.', r:'Habacuc 1:1-6; 2:4'},
-  {n:'Abdías', s:-607, e:-607, a:'se', c:'profm', k:'profecia', pt:'Escribió su libro c. 607 a.e.c.', d:'Profetizó la destrucción de Edom por haberse alegrado de la caída de Jerusalén.', r:'Abdías 1, 10-15', al:'Abdias'},
-  {n:'Ageo', s:-520, e:-520, c:'profm', k:'profecia', pt:'Profetizó durante 112 días en el año 520 a.e.c.', d:'Animó a los judíos que regresaron del exilio a terminar la reconstrucción del templo.', r:'Ageo 1:1-8; Esdras 5:1, 2; 6:14'},
-  {n:'Zacarías (profeta)', q:'Zacarías', s:-520, e:-518, c:'profm', k:'profecia', d:'Hijo de Berequías. Junto con Ageo, animó a reconstruir el templo y profetizó mucho sobre el Mesías.', r:'Zacarías 1:1; 9:9; Esdras 5:1; 6:14', al:'Zacarias'},
-  {n:'Malaquías', s:-443, e:-443, a:'se', c:'profm', k:'profecia', pt:'Escribió su libro después de 443 a.e.c.', d:'Último profeta de las Escrituras Hebreas. Denunció a los sacerdotes infieles y anunció la llegada de un mensajero que prepararía el camino.', r:'Malaquías 1:6-8; 3:1; 4:5, 6', al:'Malaquias'},
-  {n:'Nabucodonosor', s:-624, e:-582, c:'exilio', k:'registro', d:'Rey de Babilonia. Destruyó Jerusalén en 607 a.e.c.', r:'2 Reyes 25:1-10; Daniel 1–4'},
-  {n:'Daniel', s:-617, e:-536, a:'e', c:'profp', k:'registro', d:'Llevado cautivo a Babilonia. Profeta fiel hasta su vejez.', r:'Daniel 1:1-6; 6; 10:1', al:'Beltsasar'},
-  {n:'Ezequiel', s:-613, e:-591, a:'e', c:'profp', k:'profecia', d:'Sacerdote y profeta entre los exiliados en Babilonia.', r:'Ezequiel 1:1-3; 29:17'},
-  {n:'Ciro', s:-539, e:-530, c:'exilio', k:'registro', d:'Rey persa que conquistó Babilonia y permitió a los judíos volver a Jerusalén.', r:'Isaías 45:1; Esdras 1:1-4'},
-  {n:'Ester', s:-490, e:-475, a:'se', c:'exilio', k:'registro', d:'Reina judía de Persia que ayudó a salvar a su pueblo.', r:'Ester 2:16, 17; 4:14', al:'Hadasá Hadasa'},
-  {n:'Esdras', s:-468, e:-455, a:'e', c:'exilio', k:'registro', d:'Sacerdote y copista. Llegó a Jerusalén en 468 a.e.c. y enseñó la Ley.', r:'Esdras 7:6-9; Nehemías 8'},
-  {n:'Nehemías', s:-455, e:-443, a:'e', c:'exilio', k:'registro', d:'Gobernador que reconstruyó los muros de Jerusalén.', r:'Nehemías 2:1-8; 6:15; 13:6', al:'Nehemias'},
-
-  // --- Reino de Judá (dos tribus) ---
-  {n:'Rehoboam', s:-997, e:-980, c:'juda', k:'reinado', rn:'17 años', d:'Hijo de Salomón. Durante su reinado, diez tribus se separaron y el reino se dividió.', r:'1 Reyes 12:1-24; 14:21-31', al:'Roboam'},
-  {n:'Abiyam', s:-980, e:-977, c:'juda', k:'reinado', rn:'3 años', d:'Hijo de Rehoboam. También se le llama Abías.', r:'1 Reyes 15:1-8; 2 Crónicas 13', al:'Abias Abías'},
-  {n:'Asá', s:-977, e:-936, c:'juda', k:'reinado', rn:'41 años', d:'Rey fiel que eliminó la idolatría de Judá.', r:'1 Reyes 15:9-24; 2 Crónicas 14–16', al:'Asa'},
-  {n:'Jehosafat', s:-936, e:-911, c:'juda', k:'reinado', rn:'25 años', d:'Rey fiel que hizo que se enseñara la Ley de Jehová por todo Judá.', r:'1 Reyes 22:41-50; 2 Crónicas 17–20', al:'Josafat'},
-  {n:'Jehoram (Judá)', q:'Jehoram', s:-913, e:-906, c:'juda', k:'reinado', rn:'8 años', d:'Hijo de Jehosafat. Se casó con Atalía, hija de Acab, e hizo lo malo.', r:'2 Reyes 8:16-24; 2 Crónicas 21', al:'Joram'},
-  {n:'Ocozías (Judá)', q:'Ocozías', s:-906, e:-905, a:'se', c:'juda', k:'reinado', rn:'1 año', d:'Hijo de Jehoram y Atalía. Lo mató Jehú.', r:'2 Reyes 8:25-29; 9:27-29', al:'Ocozias'},
-  {n:'Atalía', s:-905, e:-898, a:'s', c:'juda', k:'reinado', rn:'6 años', d:'Hija de Acab y Jezabel. Se apoderó del trono tras intentar exterminar la descendencia real. Fue la única reina que gobernó Judá.', r:'2 Reyes 11:1-16; 2 Crónicas 22:10–23:15', al:'Atalia'},
-  {n:'Jehoás (Judá)', q:'Jehoás', s:-898, e:-858, c:'juda', k:'reinado', rn:'40 años', d:'Salvado de niño por su tía Jehoseba. Reparó el templo, pero después se apartó de Jehová.', r:'2 Reyes 12; 2 Crónicas 24', al:'Joas Jehoas'},
-  {n:'Amasías', s:-858, e:-829, c:'juda', k:'reinado', rn:'29 años', d:'Hijo de Jehoás. Venció a Edom, pero luego adoró a los dioses de los edomitas.', r:'2 Reyes 14:1-20; 2 Crónicas 25', al:'Amasias'},
-  {n:'Uzías', s:-829, e:-777, c:'juda', k:'reinado', rn:'52 años', d:'También llamado Azarías. Por orgullo quiso ofrecer incienso en el templo, y Jehová lo castigó con lepra.', r:'2 Reyes 15:1-7; 2 Crónicas 26', al:'Uzias Azarías Azarias'},
-  {n:'Jotán', s:-777, e:-762, a:'s', c:'juda', k:'reinado', rn:'16 años', d:'Hijo de Uzías. Hizo lo recto a los ojos de Jehová.', r:'2 Reyes 15:32-38; 2 Crónicas 27', al:'Jotan Jotam'},
-  {n:'Acaz', s:-762, e:-746, c:'juda', k:'reinado', rn:'16 años', d:'Rey idólatra que pidió ayuda a Asiria en vez de confiar en Jehová.', r:'2 Reyes 16; 2 Crónicas 28; Isaías 7'},
-  {n:'Ezequías', s:-746, e:-717, c:'juda', k:'reinado', rn:'29 años', d:'Rey fiel de Judá. Empezó a reinar a los 25 años, y Jehová lo libró de los asirios.', r:'2 Reyes 18:1-7; 19:35', al:'Ezequias'},
-  {n:'Manasés', s:-716, e:-661, c:'juda', k:'reinado', rn:'55 años', d:'Hijo de Ezequías. Fue muy idólatra, pero se arrepintió y Jehová lo perdonó.', r:'2 Reyes 21:1-18; 2 Crónicas 33:1-20', al:'Manases'},
-  {n:'Amón', s:-661, e:-659, c:'juda', k:'reinado', rn:'2 años', d:'Hijo de Manasés. Hizo lo malo y sus siervos lo asesinaron.', r:'2 Reyes 21:19-26; 2 Crónicas 33:21-25', al:'Amon'},
-  {n:'Josías', s:-659, e:-629, c:'juda', k:'reinado', rn:'31 años', d:'Empezó a reinar a los 8 años y restauró la adoración pura en Judá.', r:'2 Reyes 22:1, 2; 23:29', al:'Josias'},
-  {n:'Jehoacaz (Judá)', q:'Jehoacaz', s:-628, e:-628, c:'juda', k:'reinado', rn:'3 meses', d:'Hijo de Josías. El faraón Nekó lo llevó cautivo a Egipto.', r:'2 Reyes 23:31-34; 2 Crónicas 36:1-4', al:'Salum'},
-  {n:'Jehoiaquim', s:-628, e:-618, c:'juda', k:'reinado', rn:'11 años', d:'Hijo de Josías, puesto en el trono por el faraón. Quemó el rollo con las profecías de Jeremías.', r:'2 Reyes 23:34–24:6; Jeremías 36', al:'Eliaquim Joacim'},
-  {n:'Joaquín', s:-618, e:-617, c:'juda', k:'reinado', rn:'3 meses y 10 días', d:'Hijo de Jehoiaquim. Nabucodonosor se lo llevó cautivo a Babilonia.', r:'2 Reyes 24:8-15; 25:27-30; 2 Crónicas 36:9, 10', al:'Jeconías Jeconias Conías'},
-  {n:'Sedequías', s:-617, e:-607, c:'juda', k:'reinado', rn:'11 años', d:'Último rey de Judá. Se rebeló contra Babilonia, y Jerusalén fue destruida en 607 a.e.c.', r:'2 Reyes 24:17–25:7; Jeremías 52:1-11', al:'Sedequias Matanías'},
-
-  // --- Reino de Israel (diez tribus) ---
-  {n:'Jeroboam', s:-997, e:-976, a:'e', c:'isr', k:'reinado', rn:'22 años', d:'Primer rey de las diez tribus. Estableció la adoración de becerros de oro en Dan y Betel.', r:'1 Reyes 11:26-40; 12:20-33; 14:20', al:'Jeroboán'},
-  {n:'Nadab', s:-976, e:-975, a:'se', c:'isr', k:'reinado', rn:'2 años', d:'Hijo de Jeroboam. Lo mató Baasá.', r:'1 Reyes 15:25-31'},
-  {n:'Baasá', s:-975, e:-952, a:'se', c:'isr', k:'reinado', rn:'24 años', d:'Mató a Nadab y exterminó a la casa de Jeroboam.', r:'1 Reyes 15:27–16:7', al:'Baasa'},
-  {n:'Elá', s:-952, e:-951, a:'se', c:'isr', k:'reinado', rn:'2 años', d:'Hijo de Baasá. Zimrí lo mató mientras estaba borracho.', r:'1 Reyes 16:8-10', al:'Ela'},
-  {n:'Zimrí', s:-951, e:-951, a:'se', c:'isr', k:'reinado', rn:'7 días', d:'Jefe militar que mató a Elá. Murió al prenderle fuego a la casa del rey estando él dentro.', r:'1 Reyes 16:9-20', al:'Zimri'},
-  {n:'Omrí', s:-951, e:-940, a:'se', c:'isr', k:'reinado', rn:'12 años', d:'Jefe del ejército. Venció a Tibní, que también quería el trono, y fundó Samaria.', r:'1 Reyes 16:16-28', al:'Omri'},
-  {n:'Acab', s:-940, e:-920, a:'se', c:'isr', k:'reinado', rn:'22 años', d:'Hijo de Omrí y esposo de Jezabel. Promovió la adoración de Baal.', r:'1 Reyes 16:29–22:40', al:'Ahab'},
-  {n:'Ocozías (Israel)', q:'Ocozías', s:-920, e:-918, a:'se', c:'isr', k:'reinado', rn:'2 años', d:'Hijo de Acab. Consultó a Baal-Zebub, el dios de Ecrón.', r:'1 Reyes 22:51-53; 2 Reyes 1', al:'Ocozias'},
-  {n:'Jehoram (Israel)', q:'Jehoram', s:-917, e:-905, a:'se', c:'isr', k:'reinado', rn:'12 años', d:'Hijo de Acab, también llamado Joram. Lo mató Jehú.', r:'2 Reyes 3:1-3; 9:14-26', al:'Joram'},
-  {n:'Jehú', s:-905, e:-877, a:'s', c:'isr', k:'reinado', rn:'28 años', d:'Ungido por orden de Eliseo. Acabó con la casa de Acab y con la adoración de Baal en Israel.', r:'2 Reyes 9; 10', al:'Jehu'},
-  {n:'Jehoacaz (Israel)', q:'Jehoacaz', s:-876, e:-859, c:'isr', k:'reinado', rn:'17 años', d:'Hijo de Jehú. Israel sufrió la opresión de Siria.', r:'2 Reyes 13:1-9'},
-  {n:'Jehoás (Israel)', q:'Jehoás', s:-862, e:-846, a:'s', c:'isr', k:'reinado', rn:'16 años', d:'Visitó a Eliseo antes de que muriera y venció a Siria tres veces.', r:'2 Reyes 13:10-25; 14:8-16', al:'Joas Jehoas'},
-  {n:'Jeroboam II', s:-844, e:-803, a:'se', c:'isr', k:'reinado', rn:'41 años', d:'Recuperó territorio para Israel, tal como profetizó Jonás.', r:'2 Reyes 14:23-29', al:'Jeroboán'},
-  {n:'Zacarías', s:-792, e:-792, a:'se', c:'isr', k:'reinado', rn:'6 meses', d:'Hijo de Jeroboam II y último rey de la dinastía de Jehú. Lo mató Salum.', r:'2 Reyes 15:8-12', al:'Zacarias'},
-  {n:'Salum', s:-791, e:-791, a:'se', c:'isr', k:'reinado', rn:'1 mes', d:'Mató a Zacarías y reinó solo un mes; lo mató Menahem.', r:'2 Reyes 15:10-15'},
-  {n:'Menahem', s:-791, e:-781, a:'se', c:'isr', k:'reinado', rn:'10 años', d:'Pagó tributo a Pul, rey de Asiria.', r:'2 Reyes 15:14-22'},
-  {n:'Pekahías', s:-780, e:-778, a:'se', c:'isr', k:'reinado', rn:'2 años', d:'Hijo de Menahem. Lo mató Pécah, uno de sus oficiales.', r:'2 Reyes 15:23-26', al:'Pekahias'},
-  {n:'Pécah', s:-778, e:-758, a:'se', c:'isr', k:'reinado', rn:'20 años', d:'Se alió con Siria contra Judá. Lo mató Oseas.', r:'2 Reyes 15:25-31; Isaías 7:1-9', al:'Pecah Peka'},
-  {n:'Oseas', s:-758, e:-740, a:'s', c:'isr', k:'reinado', rn:'9 años (desde c. 748 a.e.c.)', d:'Último rey de Israel. En 740 a.e.c., Asiria conquistó Samaria y se llevó cautivo al pueblo.', r:'2 Reyes 15:30; 17:1-6', al:'Hoshea'},
-  {n:'María', s:-3, e:33, a:'s', c:'cristo', k:'registro', d:'Madre de Jesús. Estaba entre los discípulos en el año 33.', r:'Lucas 1:26-38; Hechos 1:14', al:'Maria'},
-  {n:'Juan el Bautista', s:-2, e:32, a:'e', c:'cristo', k:'vida', d:'Precursor del Mesías. Bautizó a Jesús.', r:'Lucas 1:36, 57-63; Mateo 3:13-17; 14:10', al:'Bautista'},
-  {n:'Jesús', s:-2, e:33, c:'cristo', k:'vida', age:'unos 33 años y medio', d:'El Mesías, Hijo de Dios. Fue bautizado en el año 29 y murió en el 33.', r:'Lucas 2:1-7; 3:23; Juan 19', al:'Jesus Cristo Mesías Mesias'},
-  {n:'Pedro', s:29, e:64, a:'e', c:'apost', k:'registro', d:'Apóstol de Jesús. Escribió dos cartas bíblicas.', r:'Juan 1:40-42; Hechos 2; 1 y 2 Pedro', al:'Simón Simon Cefas'},
-  {n:'Juan (apóstol)', s:29, e:98, a:'e', c:'apost', k:'registro', d:'Apóstol de Jesús. Escribió un Evangelio, tres cartas y el libro de Apocalipsis.', r:'Juan 1:35-40; Apocalipsis 1:9', al:'Juan apostol'},
-  // --- Apóstoles ---
-  {n:'Andrés', s:29, e:33, c:'apost', k:'registro', d:'Hermano de Pedro y pescador de Betsaida. Era discípulo de Juan el Bautista y llevó a su hermano a conocer a Jesús.', r:'Juan 1:35-42; Mateo 4:18-20; Hechos 1:13', al:'Andres'},
-  {n:'Felipe (apóstol)', q:'Felipe', s:29, e:33, c:'apost', k:'registro', d:'De Betsaida, como Andrés y Pedro. Llevó a Natanael a conocer a Jesús.', r:'Juan 1:43-46; 6:5-7; 14:8, 9; Hechos 1:13', al:'Felipe'},
-  {n:'Bartolomé', s:29, e:33, c:'apost', k:'registro', d:'Probablemente es el mismo Natanael, de quien Jesús dijo que era un israelita sin engaño.', r:'Juan 1:45-51; 21:2; Mateo 10:3; Hechos 1:13', al:'Bartolome Natanael'},
-  {n:'Santiago (hijo de Zebedeo)', q:'Santiago', s:30, e:44, a:'se', c:'apost', k:'registro', d:'Hermano del apóstol Juan; Jesús los llamó «Hijos del Trueno». Fue el primer apóstol en morir como mártir: Herodes Agripa I lo mandó ejecutar.', r:'Marcos 1:19, 20; 3:17; Hechos 12:1, 2', al:'Santiago Jacobo Zebedeo'},
-  {n:'Mateo', s:31, e:33, a:'s', c:'apost', k:'registro', d:'También llamado Leví. Era recaudador de impuestos cuando Jesús lo llamó. Escribió el primer Evangelio.', r:'Mateo 9:9; Marcos 2:14; Lucas 5:27-29; Hechos 1:13', al:'Levi'},
-  {n:'Tomás', s:31, e:33, c:'apost', k:'registro', d:'Llamado Dídimo. Dudó de la resurrección de Jesús hasta verlo, y entonces exclamó: «¡Mi Señor y mi Dios!».', r:'Mateo 10:3; Juan 11:16; 20:24-29; Hechos 1:13', al:'Tomas Didimo'},
-  {n:'Santiago (hijo de Alfeo)', q:'Santiago', s:31, e:33, c:'apost', k:'registro', d:'Apóstol de quien se sabe poco. Probablemente es el llamado «Santiago el Menor».', r:'Mateo 10:3; Marcos 15:40; Hechos 1:13', al:'Santiago Jacobo Alfeo Menor'},
-  {n:'Tadeo', s:31, e:33, c:'apost', k:'registro', d:'También llamado Judas, hijo de Santiago (no el Iscariote). En la última cena le hizo una pregunta a Jesús.', r:'Mateo 10:3; Lucas 6:16; Juan 14:22; Hechos 1:13', al:'Judas Lebeo'},
-  {n:'Simón el Celoso', s:31, e:33, c:'apost', k:'registro', d:'Apóstol al que llamaban «el Celoso» y «el cananeo». La Biblia dice poco de él.', r:'Mateo 10:4; Lucas 6:15; Hechos 1:13', al:'Simon cananeo cananita zelote'},
-  {n:'Judas Iscariote', s:31, e:33, c:'apost', k:'registro', d:'Era ladrón y traicionó a Jesús por 30 piezas de plata. Después se ahorcó.', r:'Mateo 26:14-16; 27:3-5; Juan 12:4-6; Hechos 1:16-18', al:'Iscariote'},
-  {n:'Matías', s:29, e:33, c:'apost', k:'registro', dt:'Siguió a Jesús desde su bautismo (29 e.c.) y fue elegido apóstol en el 33 e.c.', d:'Discípulo que acompañó a Jesús durante su ministerio. Fue elegido para reemplazar a Judas Iscariote.', r:'Hechos 1:21-26', al:'Matias'},
-
-  // --- Tiempo de Jesús: familia, gobernantes y sacerdotes, discípulos y otros ---
-  {n:'Herodes el Grande', s:-37, e:-1, c:'gob', k:'reinado', dt:'Fue rey de Judea desde 37 a.e.c. hasta su muerte, en 1 a.e.c.', d:'Rey de Judea bajo el dominio de Roma. Mandó matar a los niños de Belén para eliminar a Jesús.', r:'Mateo 2:1-22; Lucas 1:5', al:'Herodes'},
-  {n:'César Augusto', s:-27, e:14, c:'gob', k:'reinado', dt:'Fue emperador de Roma desde 27 a.e.c. hasta 14 e.c.', d:'Emperador romano. Su decreto de inscripción llevó a José y María a Belén, donde nació Jesús.', r:'Lucas 2:1-7', al:'Augusto Cesar Octavio'},
-  {n:'Zacarías (padre de Juan)', q:'Zacarías', s:-3, e:-2, c:'cristo', k:'registro', d:'Sacerdote y padre de Juan el Bautista. Se quedó mudo por no creer el mensaje del ángel Gabriel.', r:'Lucas 1:5-23, 57-79', al:'Zacarias'},
-  {n:'Elisabet', s:-3, e:-2, c:'cristo', k:'registro', d:'Esposa de Zacarías y madre de Juan el Bautista. Era pariente de María.', r:'Lucas 1:5-7, 24, 36-45, 57', al:'Isabel Elisabeth'},
-  {n:'José (esposo de María)', q:'José', s:-3, e:11, a:'e', c:'cristo', k:'registro', dt:'Aparece en el relato desde poco antes del nacimiento de Jesús hasta que Jesús tenía 12 años', d:'Carpintero descendiente de David y padre adoptivo de Jesús. Obedeció a Jehová y protegió a su familia huyendo a Egipto.', r:'Mateo 1:18-25; 2:13-15; Lucas 2:41-51; 13:55', al:'Jose carpintero'},
-  {n:'Simeón (del templo)', q:'Simeón', s:-2, e:-2, c:'disc', k:'registro', dt:'Aparece una sola vez, cuando el niño Jesús fue presentado en el templo', d:'Hombre justo de Jerusalén. Tomó en brazos al niño Jesús en el templo y alabó a Dios.', r:'Lucas 2:25-35', al:'Simeon'},
-  {n:'Ana (profetisa)', q:'Ana', s:-2, e:-2, c:'disc', k:'registro', dt:'Aparece una sola vez, cuando el niño Jesús fue presentado en el templo', d:'Viuda anciana de la tribu de Aser que servía en el templo día y noche. Habló del niño a todos los que esperaban la liberación.', r:'Lucas 2:36-38'},
-  {n:'Herodes Antipas', s:-1, e:39, a:'s', c:'gob', k:'reinado', dt:'Gobernó Galilea y Perea como tetrarca desde la muerte de su padre hasta 39 e.c.', d:'Hijo de Herodes el Grande. Mandó decapitar a Juan el Bautista, y Jesús lo llamó «ese zorro».', r:'Mateo 14:1-12; Lucas 3:1; 13:31, 32; 23:7-12', al:'Herodes Antipas'},
-  {n:'Anás', s:6, e:33, a:'s', c:'gob', k:'registro', dt:'Fue sumo sacerdote desde c. 6 hasta c. 15 e.c., pero en el 33 seguía teniendo mucha influencia', d:'Suegro de Caifás. La noche en que arrestaron a Jesús, lo llevaron primero ante él.', r:'Lucas 3:2; Juan 18:13, 24; Hechos 4:6', al:'Anas'},
-  {n:'Tiberio', s:14, e:37, c:'gob', k:'reinado', dt:'Fue emperador de Roma desde 14 hasta 37 e.c.', d:'Emperador romano durante el ministerio de Jesús. En el año 15 de su reinado, Juan el Bautista empezó a predicar.', r:'Lucas 3:1-3'},
-  {n:'Caifás', s:18, e:36, a:'se', c:'gob', k:'registro', dt:'Fue sumo sacerdote desde c. 18 hasta c. 36 e.c.', d:'Sumo sacerdote que dirigió el complot para matar a Jesús y presidió el juicio contra él.', r:'Juan 11:49-53; Mateo 26:57-66; Hechos 4:6', al:'Caifas'},
-  {n:'Poncio Pilato', s:26, e:36, c:'gob', k:'registro', dt:'Fue gobernador de Judea desde 26 hasta 36 e.c.', d:'Gobernador romano. Aunque no halló culpa en Jesús, lo entregó para que lo ejecutaran.', r:'Lucas 3:1; 23:1-25; Juan 19:1-16', al:'Pilato'},
-  {n:'Nicodemo', s:30, e:33, c:'disc', k:'registro', d:'Fariseo y gobernante de los judíos. Visitó a Jesús de noche y después ayudó a sepultarlo.', r:'Juan 3:1-21; 7:50, 51; 19:39, 40'},
-  {n:'María Magdalena', s:31, e:33, a:'s', c:'disc', k:'registro', d:'Jesús expulsó de ella siete demonios. Fue la primera persona que vio a Jesús resucitado.', r:'Lucas 8:2; Juan 19:25; 20:1-18', al:'Maria Magdalena'},
-  {n:'Juana', s:31, e:33, a:'s', c:'disc', k:'registro', d:'Esposa de Cuza, el administrador de Herodes. Servía a Jesús con sus bienes y fue a la tumba vacía.', r:'Lucas 8:3; 24:10'},
-  {n:'Susana', s:31, e:31, a:'se', c:'disc', k:'registro', dt:'Aparece una sola vez en el relato', d:'Una de las mujeres que servían a Jesús y a sus apóstoles con sus bienes.', r:'Lucas 8:3'},
-  {n:'Jairo', s:31, e:31, a:'se', c:'disc', k:'registro', dt:'Aparece una sola vez en el relato', d:'Presidente de una sinagoga. Jesús resucitó a su hija de 12 años.', r:'Marcos 5:22-24, 35-43; Lucas 8:41, 42, 49-56'},
-  {n:'Santiago (medio hermano de Jesús)', q:'Santiago', s:31, e:62, a:'se', c:'cristo', k:'registro', dt:'Aparece desde el ministerio de Jesús; escribió su carta antes de 62 e.c.', d:'Medio hermano de Jesús. Al principio no creía en él, pero llegó a ser anciano en Jerusalén y escribió la carta de Santiago.', r:'Mateo 13:55; Juan 7:5; Hechos 15:13-21; Gálatas 1:19; Santiago 1:1', al:'Jacobo'},
-  {n:'Judas (medio hermano de Jesús)', q:'Judas', s:31, e:65, a:'se', c:'cristo', k:'registro', dt:'Aparece desde el ministerio de Jesús; escribió su carta c. 65 e.c.', d:'Medio hermano de Jesús y hermano de Santiago. Escribió la carta de Judas.', r:'Mateo 13:55; Juan 7:5; Judas 1'},
-  {n:'Marta', s:32, e:33, a:'s', c:'disc', k:'registro', d:'Hermana de María y Lázaro, de Betania. Jesús la quería mucho; expresó su fe en la resurrección.', r:'Lucas 10:38-42; Juan 11:5, 20-27; 12:2'},
-  {n:'María (hermana de Marta)', q:'María', s:32, e:33, a:'s', c:'disc', k:'registro', d:'Escuchaba con atención a Jesús. Poco antes de su muerte, derramó sobre él un aceite perfumado muy costoso.', r:'Lucas 10:39, 42; Juan 11:1, 2; 12:3-8', al:'Maria Betania'},
-  {n:'Lázaro', s:32, e:33, a:'s', c:'disc', k:'registro', d:'Amigo de Jesús y hermano de Marta y María. Jesús lo resucitó cuatro días después de su muerte.', r:'Juan 11:1-44; 12:1, 2, 9-11', al:'Lazaro'},
-  {n:'Zaqueo', s:33, e:33, c:'disc', k:'registro', dt:'Aparece una sola vez en el relato, poco antes de la muerte de Jesús', d:'Jefe de los recaudadores de impuestos en Jericó. Se subió a un árbol para ver a Jesús y cambió su forma de vivir.', r:'Lucas 19:1-10'},
-  {n:'Bartimeo', s:33, e:33, c:'disc', k:'registro', dt:'Aparece una sola vez en el relato, poco antes de la muerte de Jesús', d:'Mendigo ciego de Jericó. Jesús le devolvió la vista.', r:'Marcos 10:46-52'},
-  {n:'Barrabás', s:33, e:33, c:'disc', k:'registro', dt:'Aparece en el relato del juicio de Jesús', d:'Ladrón y asesino. La multitud pidió que lo soltaran a él en lugar de a Jesús.', r:'Mateo 27:15-26; Juan 18:40; Hechos 3:14', al:'Barrabas'},
-  {n:'Simón de Cirene', s:33, e:33, c:'disc', k:'registro', dt:'Aparece en el relato de la muerte de Jesús', d:'Los soldados lo obligaron a cargar el madero de tormento de Jesús.', r:'Mateo 27:32; Marcos 15:21', al:'Simon Cirene cireneo'},
-  {n:'José de Arimatea', s:33, e:33, c:'disc', k:'registro', dt:'Aparece en el relato de la muerte de Jesús', d:'Miembro del Sanedrín y discípulo de Jesús en secreto. Pidió el cuerpo de Jesús y lo puso en su propia tumba.', r:'Mateo 27:57-60; Juan 19:38', al:'Jose Arimatea'},
-  {n:'Cleofás', s:33, e:33, c:'disc', k:'registro', dt:'Aparece el día de la resurrección de Jesús', d:'Uno de los dos discípulos a los que Jesús resucitado se les apareció en el camino a Emaús.', r:'Lucas 24:13-35', al:'Cleofas'},
-  {n:'Marcos', s:44, e:65, a:'se', c:'disc', k:'registro', d:'También llamado Juan Marcos. Acompañó a Pablo y a Bernabé y escribió uno de los Evangelios.', r:'Hechos 12:12, 25; 15:37-39; 2 Timoteo 4:11', al:'Juan Marcos'},
-  {n:'Lucas', s:50, e:65, a:'se', c:'disc', k:'registro', d:'«El médico amado» y compañero de viaje de Pablo. Escribió el Evangelio de Lucas y el libro de Hechos.', r:'Hechos 16:10; Colosenses 4:14; 2 Timoteo 4:11'},
-  {n:'Esteban', s:33, e:34, a:'se', c:'disc', k:'registro', d:'Discípulo lleno de fe. Fue el primer mártir cristiano.', r:'Hechos 6:5–7:60'},
-  {n:'Pablo', s:34, e:65, a:'se', c:'apost', k:'registro', d:'Antes perseguidor (Saulo). Apóstol a las naciones; escribió 14 cartas.', r:'Hechos 7:58; 9:1-19; 2 Timoteo 4:6-8', al:'Saulo'},
-  // --- Profecías cronológicas (fechas según las publicaciones de los testigos de Jehová) ---
-  {n:'Los 430 años', lb:'430 años', q:'430 años', s:-1943, e:-1513, c:'crono', k:'crono', dt:'430 años: desde el pacto con Abrahán hasta el Éxodo',
-   seg:[{n:'En Canaán', s:-1943, e:-1728, d:'Abrahán, Isaac y Jacob viven como extranjeros en Canaán'},
-        {n:'En Egipto', s:-1728, e:-1513, d:'Desde que Jacob y su familia se van a Egipto hasta el Éxodo'}],
-   d:'La Biblia dice que los israelitas estuvieron 430 años como residentes extranjeros. Se cuentan desde que entró en vigor el pacto con Abrahán, cuando cruzó el Éufrates rumbo a Canaán (1943 a.e.c.), hasta que Israel salió de Egipto (1513 a.e.c.). La Ley se dio 430 años después del pacto.',
-   r:'Génesis 12:4-7; Éxodo 12:40-42; Gálatas 3:16, 17', al:'cuatrocientos treinta Abrahan pacto Exodo profecia'},
-  {n:'Los 400 años de aflicción', lb:'400 años', q:'400 años', s:-1913, e:-1513, c:'crono', k:'crono', dt:'400 años: desde el destete de Isaac hasta el Éxodo',
-   d:'Jehová le dijo a Abrahán que su descendencia sería afligida durante 400 años. Empezaron cuando Ismael se burló de Isaac el día de su destete (1913 a.e.c.) y terminaron cuando Jehová liberó a Israel de Egipto (1513 a.e.c.).',
-   r:'Génesis 15:13, 14; 21:8, 9; Gálatas 4:29; Hechos 7:6', al:'cuatrocientos aflicción aflicion Isaac Ismael Egipto profecia'},
-  {n:'Los 70 años de desolación', lb:'70 años', q:'70 años', s:-607, e:-537, c:'crono', k:'crono', dt:'70 años: desde la destrucción de Jerusalén hasta el regreso del exilio',
-   d:'Jeremías profetizó que Judá quedaría desolada y que los judíos servirían a Babilonia 70 años. Empezaron cuando Babilonia destruyó Jerusalén (607 a.e.c.) y terminaron cuando los judíos regresaron a su tierra (537 a.e.c.).',
-   r:'Jeremías 25:11, 12; 29:10; 2 Crónicas 36:20, 21; Daniel 9:2', al:'setenta desolación desolacion Babilonia exilio profecia'},
-  {n:'Las 70 semanas', lb:'70 semanas', q:'setenta semanas', s:-455, e:36, c:'crono', k:'crono', dt:'490 años: 70 semanas de años',
-   seg:[{n:'7 semanas (49 años)', s:-455, e:-406, d:'Se reconstruye Jerusalén en tiempos difíciles'},
-        {n:'62 semanas (434 años)', s:-406, e:29, d:'Al terminar las 69 semanas aparece el Mesías: Jesús es bautizado y ungido'},
-        {n:'1 semana (7 años)', s:29, e:36, d:'El Mesías y sus discípulos predican a los judíos; en 36 e.c. Cornelio es el primer gentil que se hace cristiano'}],
-   mark:[{y:33, n:'A la mitad de la última semana, el Mesías es «cortado»: muere Jesús y su sacrificio pone fin al valor de los sacrificios de la Ley'}],
-   d:'Daniel profetizó que pasarían 70 semanas de años desde la orden de reconstruir Jerusalén, dada a Nehemías en el año 20 de Artajerjes (455 a.e.c.), hasta el fin del favor especial de Jehová a los judíos.',
-   r:'Daniel 9:24-27; Nehemías 2:1-8; Lucas 3:1, 2, 21-23; Hechos 10:30-48', al:'setenta semanas Daniel Mesias profecia'},
-  {n:'Los siete tiempos', lb:'7 tiempos', q:'siete tiempos', s:-607, e:1914, c:'crono', k:'crono', dt:'2.520 años: siete tiempos proféticos',
-   d:'El árbol del sueño de Nabucodonosor fue cortado y su tocón quedó atado con bandas «hasta que pasen siete tiempos». Tres tiempos y medio equivalen a 1.260 días; siete tiempos, a 2.520 días, y contando un día por un año, a 2.520 años. Empezaron en 607 a.e.c., cuando Babilonia destruyó Jerusalén y dejó de haber un rey de la línea de David en el trono de Jehová, y terminaron en 1914 e.c., cuando Jesús empezó a gobernar como Rey del Reino de Dios. Jesús los llamó «los tiempos señalados de las naciones».',
-   r:'Daniel 4:10-17, 23-25, 32; Lucas 21:24; Ezequiel 21:25-27; Apocalipsis 12:6, 14; Números 14:34; Ezequiel 4:6', al:'7 tiempos naciones gentiles 1914 Nabucodonosor arbol Daniel profecia'},
-
-  // --- Guerras (capa) ---
-  {n:'Guerra de los cuatro reyes', lb:'Cuatro reyes', q:'Quedorlaomer', s:-1935, e:-1935, a:'se', c:'guerra', k:'guerra',
-   dt:'La Biblia no da la fecha: fue entre la llegada de Abrahán a Canaán (1943 a.e.c.) y el nacimiento de Ismael (1932 a.e.c.)',
-   d:'Quedorlaomer, rey de Elam, y otros tres reyes vencieron a los reyes de Sodoma y Gomorra y se llevaron cautivo a Lot. Abrahán los persiguió con 318 hombres y rescató a Lot; al volver, Melquisedec lo bendijo.',
-   r:'Génesis 14:1-24', al:'Quedorlaomer Abrahan Lot Melquisedec guerra'},
-  {n:'Conquista de Canaán', lb:'Conquista', q:'conquista de Canaán', s:-1473, e:-1467, c:'guerra', k:'guerra',
-   dt:'Unos seis años, desde el cruce del Jordán hasta el reparto de la tierra',
-   d:'Bajo el mando de Josué, Israel cruzó el Jordán, tomó Jericó y venció a 31 reyes de Canaán.',
-   r:'Josué 6:1-21; 11:18, 23; 12:7-24; 14:7-10', al:'Josue Jerico Canaan guerra'},
-  {n:'Guerra entre la casa de Saúl y la de David', lb:'Saúl y David', q:'Is-bóset', s:-1077, e:-1070, c:'guerra', k:'guerra',
-   dt:'Siete años y medio, mientras David reinó en Hebrón',
-   d:'Tras la muerte de Saúl, David reinó en Hebrón sobre Judá, e Is-bóset, hijo de Saúl, sobre las demás tribus. La guerra siguió hasta que todo Israel hizo rey a David.',
-   r:'2 Samuel 2:8-11; 3:1; 5:1-5', al:'Saul David Isboset Abner guerra'},
-  {n:'Sisac invade Judá', lb:'Sisac', q:'Sisac', s:-993, e:-993, c:'guerra', k:'guerra',
-   dt:'En el quinto año del reinado de Rehoboam',
-   d:'Como Judá había abandonado la Ley de Jehová, Sisac, rey de Egipto, atacó Jerusalén y se llevó los tesoros del templo y de la casa del rey.',
-   r:'1 Reyes 14:25, 26; 2 Crónicas 12:1-12', al:'Sisac Egipto Rehoboam guerra'},
-  {n:'Asiria sitia Samaria', lb:'Samaria', q:'Samaria', s:-742, e:-740, c:'guerra', k:'guerra',
-   dt:'Un sitio de tres años; Samaria cayó en 740 a.e.c.',
-   d:'Salmanasar V, rey de Asiria, sitió Samaria. Cuando la ciudad cayó, los israelitas del reino de diez tribus fueron llevados al exilio.',
-   r:'2 Reyes 17:3-6; 18:9-12', al:'Asiria Salmanasar Samaria Oseas guerra'},
-  {n:'Senaquerib invade Judá', lb:'Senaquerib', q:'Senaquerib', s:-732, e:-732, c:'guerra', k:'guerra',
-   dt:'En el año 14 del reinado de Ezequías',
-   d:'Senaquerib, rey de Asiria, tomó las ciudades fortificadas de Judá y amenazó Jerusalén. Ezequías confió en Jehová, y en una noche un ángel mató a 185.000 soldados asirios.',
-   r:'2 Reyes 18:13–19:37; Isaías 36, 37', al:'Asiria Senaquerib Ezequias guerra'},
-  {n:'Batalla de Carquemis', lb:'Carquemis', q:'Carquemis', s:-625, e:-625, c:'guerra', k:'guerra',
-   dt:'En el cuarto año del reinado de Jehoiaquim',
-   d:'Nabucodonosor, al frente del ejército de Babilonia, venció al faraón Nekó de Egipto junto al río Éufrates.',
-   r:'Jeremías 46:2; 2 Reyes 24:7', al:'Carquemis Nabucodonosor Neco Egipto Babilonia guerra'},
-  {n:'Babilonia destruye Jerusalén', lb:'Jerusalén', q:'destrucción de Jerusalén', s:-609, e:-607, c:'guerra', k:'guerra',
-   dt:'Un sitio de un año y medio, del año 9 al 11 de Sedequías',
-   d:'Nabucodonosor sitió Jerusalén. Cuando abrieron brecha en la muralla, la ciudad y el templo fueron destruidos y el pueblo fue llevado a Babilonia.',
-   r:'2 Reyes 25:1-10; Jeremías 39:1-8; 52:4-14', al:'Nabucodonosor Sedequias Jerusalen Babilonia guerra'},
-  {n:'Caída de Babilonia', lb:'Babilonia', q:'Babilonia', s:-539, e:-539, c:'guerra', k:'guerra',
-   dt:'En una sola noche de 539 a.e.c.',
-   d:'Los ejércitos de Ciro, rey de Persia, tomaron Babilonia en una sola noche, tal como lo habían profetizado Isaías, Jeremías y Daniel.',
-   r:'Isaías 44:27–45:2; Jeremías 51:30-32; Daniel 5:25-31', al:'Ciro Persia Babilonia Belsasar guerra'},
-  // Extrabíblicas: la Biblia no las narra, aunque las publicaciones las relacionan con profecías bíblicas
-  {n:'Guerra judía contra Roma', lb:'Judíos y Roma', q:'destrucción de Jerusalén 70', s:66, e:73, c:'guerra', k:'guerra', x:true,
-   dt:'De 66 a 73 e.c.; Jerusalén fue destruida en el año 70',
-   d:'Los judíos se rebelaron contra Roma. En 66 e.c. el ejército de Cestio Galo rodeó Jerusalén y se retiró, lo que permitió a los cristianos huir, como Jesús había indicado. En 70 e.c. los romanos, al mando de Tito, destruyeron la ciudad y el templo; la guerra terminó con la caída de Masada en 73 e.c.',
-   r:'Lucas 19:43, 44; 21:20-24; Mateo 24:15-22', al:'Roma Tito Cestio Jerusalen Masada guerra'},
-  {n:'Primera Guerra Mundial', lb:'1.ª Guerra Mundial', q:'Primera Guerra Mundial', s:1914, e:1918, c:'guerra', k:'guerra', x:true,
-   dt:'De 1914 a 1918',
-   d:'Empezó el mismo año en que terminaron los siete tiempos y fue la primera guerra en la que participaron naciones de todo el mundo. Las publicaciones de los testigos de Jehová la relacionan con la señal que dio Jesús: «se levantará nación contra nación».',
-   r:'Mateo 24:3, 7; Lucas 21:10, 11; Apocalipsis 6:4', al:'guerra mundial 1914 primera'},
-  {n:'Segunda Guerra Mundial', lb:'2.ª Guerra Mundial', q:'Segunda Guerra Mundial', s:1939, e:1945, c:'guerra', k:'guerra', x:true,
-   dt:'De 1939 a 1945',
-   d:'La guerra más destructiva de la historia. Las publicaciones de los testigos de Jehová la consideran parte del cumplimiento de la señal de los últimos días.',
-   r:'Mateo 24:7; 2 Timoteo 3:1-5; Apocalipsis 6:4', al:'guerra mundial segunda'},
-
-  // --- Presidentes de la Sociedad Watch Tower (la barra muestra los años de presidencia) ---
-  {n:'Charles T. Russell', q:'Charles Taze Russell', s:1884, e:1916, c:'pres', k:'presidencia',
-   dt:'Presidente de 1884 a 1916 (32 años). Nació en 1852 y murió en 1916',
-   d:'Con un grupo de Estudiantes de la Biblia de Pittsburgh (EE. UU.) empezó a estudiar la Biblia a fondo y en 1879 comenzó a publicar la revista que hoy se llama La Atalaya. Fue el primer presidente de la Sociedad Watch Tower.',
-   src:'Los testigos de Jehová, proclamadores del Reino de Dios (1993) y otras publicaciones de jw.org', r:'', al:'Russell Charles Taze Atalaya Estudiantes de la Biblia'},
-  {n:'Joseph F. Rutherford', q:'Joseph Rutherford', s:1917, e:1942, c:'pres', k:'presidencia',
-   dt:'Presidente de 1917 a 1942 (25 años). Nació en 1869 y murió en 1942',
-   d:'Abogado. Durante su presidencia, en 1931, los Estudiantes de la Biblia adoptaron el nombre bíblico de testigos de Jehová (Isaías 43:10).',
-   src:'Los testigos de Jehová, proclamadores del Reino de Dios (1993) y otras publicaciones de jw.org', r:'', al:'Rutherford Joseph Franklin juez'},
-  {n:'Nathan H. Knorr', q:'Nathan Knorr', s:1942, e:1977, c:'pres', k:'presidencia',
-   dt:'Presidente de 1942 a 1977 (35 años). Nació en 1905 y murió en 1977',
-   d:'Impulsó la capacitación de los predicadores: en 1943 se fundó la Escuela Bíblica de Galaad para formar misioneros y en las congregaciones se inició una escuela para enseñar a predicar.',
-   src:'Los testigos de Jehová, proclamadores del Reino de Dios (1993) y otras publicaciones de jw.org', r:'', al:'Knorr Nathan Homer Galaad'},
-  {n:'Frederick W. Franz', q:'Frederick Franz', s:1977, e:1992, c:'pres', k:'presidencia',
-   dt:'Presidente de 1977 a 1992 (15 años). Nació en 1893 y murió en 1992',
-   d:'Estudioso de la Biblia y de sus idiomas originales. Fue vicepresidente durante la presidencia de Knorr y miembro del Cuerpo Gobernante.',
-   src:'Los testigos de Jehová, proclamadores del Reino de Dios (1993) y otras publicaciones de jw.org', r:'', al:'Franz Frederick William'},
-  {n:'Milton G. Henschel', q:'Milton Henschel', s:1992, e:2000, c:'pres', k:'presidencia',
-   dt:'Presidente de 1992 a 2000 (8 años). Nació en 1920 y murió en 2003',
-   d:'Miembro del Cuerpo Gobernante. En el año 2000, los miembros del Cuerpo Gobernante dejaron la dirección de las corporaciones legales para concentrarse en la enseñanza y el cuidado espiritual.',
-   src:'Los testigos de Jehová, proclamadores del Reino de Dios (1993) y otras publicaciones de jw.org', r:'', al:'Henschel Milton George Cuerpo Gobernante'},
-
-  {n:'Timoteo', s:50, e:65, a:'se', c:'disc', k:'registro', d:'Compañero de viaje de Pablo y superintendente cristiano.', r:'Hechos 16:1-3; 1 y 2 Timoteo'},
-];
-
-/* ===================== VALORACIÓN DE LOS REYES =====================
-   Según lo que la Biblia dice de cada rey.
-   3 = muy bueno, 2 = bueno, 1 = bueno con fallas, 0 = tibio,
-   -1 = malo, -2 = muy malo, -3 = extremadamente malo
-*/
-const LEVELS = {
-  '3':'Muy bueno', '2':'Bueno', '1':'Bueno, con fallas', '0':'Tibio',
-  '-1':'Malo', '-2':'Muy malo', '-3':'Extremadamente malo',
-};
-const JUICIO = {
-  // Reino unido
-  'Saúl':            [-2, 'Empezó siendo humilde, pero desobedeció a Jehová, persiguió a David, mandó matar a los sacerdotes de Nob y consultó a una médium. Murió por su infidelidad. (1 Samuel 15:22, 23; 22:17-19; 1 Crónicas 10:13, 14)'],
-  'David':           [ 3, 'Un hombre agradable al corazón de Jehová. Cometió pecados graves, como en el caso de Urías, pero se arrepintió de corazón. (1 Reyes 15:5; Salmo 51; Hechos 13:22)'],
-  'Salomón':         [ 0, 'Empezó amando a Jehová y construyó su templo, pero en su vejez sus esposas extranjeras desviaron su corazón hacia otros dioses. (1 Reyes 3:3; 11:4-6)'],
-  // Judá
-  'Rehoboam':        [-1, 'Hizo lo malo porque no preparó su corazón para buscar a Jehová, aunque en un momento se humilló. (2 Crónicas 12:12, 14)'],
-  'Abiyam':          [-1, 'Siguió en los pecados de su padre; su corazón no fue completo con Jehová. (1 Reyes 15:3)'],
-  'Asá':             [ 2, 'Su corazón fue completo con Jehová, aunque al final confió en Siria y no en Él. (1 Reyes 15:11, 14; 2 Crónicas 16:7-12)'],
-  'Jehosafat':       [ 2, 'Buscó a Jehová y enseñó su Ley al pueblo, pero se alió con el malvado Acab. (2 Crónicas 17:3-9; 19:2, 3)'],
-  'Jehoram (Judá)':  [-3, 'Mató a sus hermanos y llevó a Judá a la idolatría; murió sin que nadie lo lamentara. (2 Crónicas 21:4, 11, 20)'],
-  'Ocozías (Judá)':  [-2, 'Siguió el camino de la casa de Acab; su madre Atalía le aconsejaba hacer lo malo. (2 Crónicas 22:3, 4)'],
-  'Atalía':          [-3, 'Intentó exterminar a toda la descendencia real y promovió la adoración de Baal. (2 Reyes 11:1, 18; 2 Crónicas 24:7)'],
-  'Jehoás (Judá)':   [ 0, 'Hizo lo recto mientras vivió el sacerdote Jehoiadá; después se volvió a los ídolos y mandó matar a Zacarías, el hijo de Jehoiadá. (2 Crónicas 24:2, 17-22)'],
-  'Amasías':         [ 0, 'Hizo lo recto, pero no con un corazón completo; luego adoró a los dioses de Edom. (2 Crónicas 25:2, 14)'],
-  'Uzías':           [ 1, 'Hizo lo recto y prosperó mientras buscó a Jehová, pero el orgullo lo llevó a ofrecer incienso, algo reservado a los sacerdotes. (2 Crónicas 26:4, 5, 16-21)'],
-  'Jotán':           [ 2, 'Hizo lo recto y se mantuvo firme en sus caminos delante de Jehová. (2 Crónicas 27:2, 6)'],
-  'Acaz':            [-3, 'Quemó a sus hijos en el fuego, adoró a otros dioses y cerró las puertas del templo. (2 Crónicas 28:3, 22-25)'],
-  'Ezequías':        [ 3, 'Confió en Jehová como ningún otro rey de Judá antes o después de él. (2 Reyes 18:3-6)'],
-  'Manasés':         [-3, 'Fue peor que las naciones y derramó mucha sangre inocente, aunque al final se arrepintió y Jehová lo perdonó. (2 Reyes 21:9, 16; 2 Crónicas 33:12, 13)'],
-  'Amón':            [-2, 'Hizo lo malo como su padre, pero nunca se humilló; aumentó su culpa. (2 Crónicas 33:22, 23)'],
-  'Josías':          [ 3, 'Ningún rey se volvió a Jehová con todo su corazón, alma y fuerzas como él. (2 Reyes 23:25)'],
-  'Jehoacaz (Judá)': [-1, 'Hizo lo malo a los ojos de Jehová durante su corto reinado. (2 Reyes 23:32)'],
-  'Jehoiaquim':      [-2, 'Hizo lo malo, derramó sangre inocente y quemó el rollo con la palabra de Jehová. (2 Reyes 23:37; Jeremías 22:17; 36:23)'],
-  'Joaquín':         [-1, 'Hizo lo malo a los ojos de Jehová. (2 Reyes 24:9)'],
-  'Sedequías':       [-2, 'Hizo lo malo, no se humilló ante el profeta Jeremías y endureció su corazón. (2 Crónicas 36:12, 13)'],
-  // Israel
-  'Jeroboam':          [-3, 'Estableció la adoración de los becerros de oro e "hizo pecar a Israel"; fue el modelo de los malos reyes. (1 Reyes 12:28-30; 14:9, 16)'],
-  'Nadab':             [-1, 'Hizo lo malo y siguió en el pecado de su padre. (1 Reyes 15:26)'],
-  'Baasá':             [-1, 'Hizo lo malo y siguió en el camino de Jeroboam. (1 Reyes 15:34)'],
-  'Elá':               [-1, 'Siguió en los pecados de su padre y adoró ídolos sin valor. (1 Reyes 16:13)'],
-  'Zimrí':             [-1, 'Asesinó al rey y siguió en el camino de Jeroboam. (1 Reyes 16:19)'],
-  'Omrí':              [-2, 'Hizo lo malo, peor que todos los reyes que hubo antes que él. (1 Reyes 16:25)'],
-  'Acab':              [-3, 'Nadie se entregó a hacer lo malo como Acab; promovió la adoración de Baal junto con Jezabel. (1 Reyes 16:30-33; 21:25)'],
-  'Ocozías (Israel)':  [-2, 'Sirvió a Baal y consultó a Baal-Zebub en lugar de a Jehová. (1 Reyes 22:52, 53; 2 Reyes 1:2-4)'],
-  'Jehoram (Israel)':  [-1, 'Hizo lo malo, aunque no tanto como sus padres: quitó la columna sagrada de Baal. (2 Reyes 3:2, 3)'],
-  'Jehú':              [ 0, 'Eliminó con celo la adoración de Baal, pero no se apartó de los becerros de oro ni siguió la Ley de Jehová con todo su corazón. (2 Reyes 10:28-31)'],
-  'Jehoacaz (Israel)': [-1, 'Hizo lo malo, aunque en su angustia suplicó a Jehová. (2 Reyes 13:2, 4)'],
-  'Jehoás (Israel)':   [-1, 'Hizo lo malo y no se apartó de los pecados de Jeroboam. (2 Reyes 13:11)'],
-  'Jeroboam II':       [-1, 'Hizo lo malo y no se apartó de los pecados de Jeroboam. (2 Reyes 14:24)'],
-  'Zacarías':          [-1, 'Hizo lo malo, como sus antepasados. (2 Reyes 15:9)'],
-  'Salum':             [-1, 'Conspiró contra el rey Zacarías y lo asesinó; la Biblia no da más detalles de su breve reinado. (2 Reyes 15:10, 13-15)'],
-  'Menahem':           [-2, 'Hizo lo malo y atacó con gran crueldad la ciudad de Tifsah. (2 Reyes 15:16, 18)'],
-  'Pekahías':          [-1, 'Hizo lo malo y no se apartó de los pecados de Jeroboam. (2 Reyes 15:24)'],
-  'Pécah':             [-1, 'Hizo lo malo y se alió con Siria para atacar a Judá. (2 Reyes 15:28, 37; Isaías 7:1-6)'],
-  'Oseas':             [-1, 'Hizo lo malo, aunque no tanto como los reyes de Israel que hubo antes que él. (2 Reyes 17:2)'],
-};
 const valTxt = v => v > 0 ? '✓'.repeat(v) : v < 0 ? '✗'.repeat(-v) : '◐';
 const valCls = v => v > 0 ? 'good' : v < 0 ? 'bad' : 'tibio';
 function valBadge(v){
@@ -882,30 +461,6 @@ function valBadge(v){
   s.title = LEVELS[v];
   return s;
 }
-
-/* a: true = fecha aproximada; la línea se dibuja en y, pero la etiqueta muestra el texto t
-   en lugar del año, y d explica por qué no se conoce la fecha */
-const EVENTS = [
-  {y:-4026, n:'Creación de Adán'},
-  {y:-4016, a:true, t:'Poco después de 4026 a.e.c.', n:'Expulsión del Edén',
-   d:'Fecha aproximada: la Biblia no dice en qué año fueron expulsados Adán y Eva. Fue después de la creación de Adán (4026 a.e.c.) y antes de que nacieran sus hijos; Set nació en 3896 a.e.c. (Génesis 3:23, 24; 4:1, 2; 5:3)'},
-  {y:-2370, n:'Diluvio'},
-  {y:-1943, n:'Pacto con Abrahán'},
-  {y:-1513, n:'Éxodo de Egipto'},
-  {y:-1473, n:'Entrada en Canaán'},
-  {y:-1117, n:'Saúl, rey'},
-  {y:-1027, n:'Templo terminado'},
-  {y:-997,  n:'Reino dividido'},
-  {y:-740,  n:'Caída de Samaria'},
-  {y:-607,  n:'Destrucción de Jerusalén'},
-  {y:-537,  n:'Regreso del exilio'},
-  {y:-455,  n:'Orden de reconstruir Jerusalén'},
-  {y:29,    n:'Bautismo de Jesús'},
-  {y:33,    n:'Muerte de Jesús'},
-  {y:36,    n:'Fin de las 70 semanas'},
-  {y:70,    n:'Roma destruye Jerusalén'},
-  {y:1914,  n:'Fin de los siete tiempos: Jesús empieza a reinar'},
-];
 
 /* ===================== MILENIOS =====================
    Milenios del calendario (no hay año 0): ... 4000–3001 a.e.c., ..., 1000–1 a.e.c., 1–1000 e.c., 1001–2000 e.c.
@@ -924,26 +479,8 @@ const fmtY = y => y < 0 ? `${-y} a.e.c.` : `${y} e.c.`;
 const norm = s => s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
 const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
 
-// Artículo de "Perspicacia para comprender las Escrituras" en la Biblioteca en Línea Watchtower (wol.jw.org)
-const JW = {
-  'Adán':'1200000089', 'Set':'1200003911', 'Enós':'1200001372', 'Quenán':'1200002588',
-  'Mahalalel':'1200002839', 'Jared':'1200002329', 'Enoc':'1200001371', 'Matusalén':'1200003022',
-  'Lamec':'1200002673', 'Noé':'1200003266', 'Sem':'1200003997', 'Taré':'1200004368',
-  'Abrahán':'1200000060', 'Sara':'1200003837', 'Ismael':'1200002215', 'Isaac':'1200002203',
-  'Jacob':'1200002279', 'José':'1200002515', 'Aarón':'1200000005', 'Moisés':'1200003118',
-  'Josué':'1200002523', 'Samuel':'1200003824', 'Saúl':'1200003847', 'David':'1200001130',
-  'Salomón':'1200004178', 'Elías':'1200001307', 'Eliseo':'1200001316', 'Isaías':'1200002204',
-  'Ezequías':'1200002011', 'Josías':'1200002525', 'Jeremías':'1200002421', 'Nabucodonosor':'1200003200',
-  'Daniel':'1200001117', 'Ezequiel':'1200001469', 'Ciro':'1200001102', 'Ester':'1200001430',
-  'Esdras':'1200001475', 'Nehemías':'1200003212', 'María':'1200002918', 'Juan el Bautista':'1200002489',
-  'Jesús':'1200002451', 'Pedro':'1200003451', 'Esteban':'1200004230',
-  'Pablo':'1200003406', 'Timoteo':'1200004416',
-};
-const jwUrl = p => JW[p.n] ? `https://wol.jw.org/es/wol/d/r4/lp-s/${JW[p.n]}`
-                           : `https://wol.jw.org/es/wol/s/r4/lp-s?q=${encodeURIComponent(p.q || p.n)}`;
-
 PEOPLE.forEach((p,i) => {
-  p.id = i;
+  p.ix = i;
   p.approx = p.a || '';
   p.key = norm(p.n + ' ' + (p.al||''));
   if (JUICIO[p.n]) [p.val, p.why] = JUICIO[p.n];
@@ -989,7 +526,7 @@ try { Object.assign(fuentes, JSON.parse(localStorage.getItem('fuentes') || '{}')
 const srcOk = p => p.c === 'crono' || fuentes[fuenteOf(p)];
 const catOk = p => srcOk(p) && (isCapa(p) ? layers[p.c] : layers.personas && (!catFilter.size || catFilter.has(p.c)));
 const visible = p => isCapa(p) ? catOk(p)
-                               : catOk(p) && (!soloMode || !picked.size || picked.has(p.id));
+                               : catOk(p) && (!soloMode || !picked.size || picked.has(p.ix));
 
 // Vista por grupos: una barra por categoría, desde su primer personaje hasta el último
 let groupView = true;   // vista inicial: grupos (salvo que el usuario haya elegido "Personas")
@@ -1035,7 +572,7 @@ function groupOf(k){
           label:`${CATS[k].n} (${people.length})`, lb:CATS[k].n};   // en vertical, sin el número
 }
 const groupVisible = g => g.people.some(srcOk) && (!catFilter.size || catFilter.has(g.k)) &&
-  (!soloMode || !picked.size || g.people.some(p => picked.has(p.id)));
+  (!soloMode || !picked.size || g.people.some(p => picked.has(p.ix)));
 
 // Grupo principal con sus subgrupos visibles (subs). Cerrado, es una sola barra; abierto, una
 // línea fina con sus subgrupos debajo (kids). Si los filtros ocultan alguno de sus subgrupos,
@@ -1301,8 +838,8 @@ const barLabel = p => {
 };
 
 function personEl(p){
-  const b = el('button', 'person' + (p.approx ? ' aprox' : '') + (isExtra(p) ? ' extra' : '') + (selected === p.id ? ' sel' : ''));
-  b.dataset.id = p.id;
+  const b = el('button', 'person' + (p.approx ? ' aprox' : '') + (isExtra(p) ? ' extra' : '') + (selected === p.ix ? ' sel' : ''));
+  b.dataset.id = p.ix;
   b.style.setProperty('--col', `var(${CATS[p.c].v})`);
   b.title = `${p.n}: ${dateRange(p)}` + (isExtra(p) ? ' · Extrabíblico' : '') +
             (p.val !== undefined ? `\n${valTxt(p.val)} ${LEVELS[p.val]}` : '');
@@ -1313,10 +850,10 @@ function personEl(p){
   if (p.c === 'guerra') b.classList.add('guerra');
   if (p.k === 'crono'){
     b.classList.add('crono');
-    b.style.setProperty('--delay', `${-(p.id % 4) * 1.3}s`);   // desfase: no destellan todas a la vez
+    b.style.setProperty('--delay', `${-(p.ix % 4) * 1.3}s`);   // desfase: no destellan todas a la vez
   }
   if (p.seg || p.mark) addSegments(b, p);
-  b.addEventListener('click', () => select(p.id, false));
+  b.addEventListener('click', () => select(p.ix, false));
   return b;
 }
 
@@ -1507,7 +1044,7 @@ let active = 0;
 function applyFilter(){
   // Resaltados: los buscados + lo que se está escribiendo ahora mismo
   const ids = new Set(picked);
-  if (query) matches.forEach(p => ids.add(p.id));
+  if (query) matches.forEach(p => ids.add(p.ix));
   // En "Solo buscados" con personajes elegidos, todo lo visible ya es buscado: no se atenúa nada
   const on = ids.size > 0 && !(soloMode && picked.size);
   canvas.classList.toggle('filtering', on);
@@ -1534,12 +1071,12 @@ function renderPicks(){
     const go = el('button', 'go');
     go.title = `Ir a ${p.n}`;
     go.append(el('i'), p.n);
-    go.addEventListener('click', () => select(p.id, true));
+    go.addEventListener('click', () => select(p.ix, true));
     const x = el('button', 'x');
     x.textContent = '×';
     x.title = `Quitar a ${p.n}`;
     x.setAttribute('aria-label', x.title);
-    x.addEventListener('click', () => removePick(p.id));
+    x.addEventListener('click', () => removePick(p.ix));
     chip.append(go, x);
     picksBox.append(chip);
   });
@@ -1585,7 +1122,7 @@ function setMode(solo){
   renderPicks();
   render();
   if (selected !== null && visible(PEOPLE[selected])) select(selected, true);
-  else if (picked.size) select([...picked].map(id => PEOPLE[id]).filter(visible).sort((a,b) => a.s - b.s)[0]?.id ?? [...picked][0], true);
+  else if (picked.size) select([...picked].map(id => PEOPLE[id]).filter(visible).sort((a,b) => a.s - b.s)[0]?.ix ?? [...picked][0], true);
 }
 function setView(groups){
   const t = centerYear();   // mantener a la vista el mismo año y el mismo zoom
@@ -1621,7 +1158,7 @@ function updateSearch(){
         const li = document.createElement('li');
         li.setAttribute('role','option');
         li.innerHTML = '<span></span><small></small>';
-        li.firstChild.textContent = (picked.has(p.id) ? '✓ ' : '') + p.n;
+        li.firstChild.textContent = (picked.has(p.ix) ? '✓ ' : '') + p.n;
         li.lastChild.textContent = dateRange(p);
         li.addEventListener('mousedown', e => { e.preventDefault(); choose(i); });
         sugg.append(li);
@@ -1642,7 +1179,7 @@ function choose(i){
   qInput.value = '';
   updateSearch();
   if (coarse.matches) qInput.blur();   // en el móvil, ocultar el teclado
-  addPick(p.id);
+  addPick(p.ix);
 }
 qInput.addEventListener('input', updateSearch);
 qInput.addEventListener('focus', () => { if (query) sugg.classList.add('open'); });
@@ -1896,7 +1433,7 @@ function setCatFilter(cats){
   if (catFilter.size){
     const first = PEOPLE.filter(p => !isCapa(p) && visible(p)).sort((a,b) => a.s - b.s)[0];
     const node = groupView ? canvas.querySelector('.person.group')   // los grupos se dibujan en orden cronológico
-                           : first && canvas.querySelector(`.person[data-id="${first.id}"]`);
+                           : first && canvas.querySelector(`.person[data-id="${first.ix}"]`);
     if (node){
       if (horizontal) scroller.scrollTo({left: node.offsetLeft - 40, behavior:'smooth'});
       else window.scrollTo({top: scroller.offsetTop + node.offsetTop - document.getElementById('head').offsetHeight - 20, behavior:'smooth'});

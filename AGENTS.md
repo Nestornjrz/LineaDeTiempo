@@ -31,8 +31,17 @@ Reglas:
 
 ## Sobre el proyecto
 
-- Es una PWA de una sola página: casi todo está en `index.html` (datos en
-  `CATS`, `PEOPLE`, `JUICIO` y `EVENTS`, más el código de dibujo).
-- `sw.js` es el service worker; si cambias iconos o el manifiesto, sube la
-  versión de `CACHE`.
+- Es una PWA sin compilación (HTML, CSS y JavaScript sueltos):
+  - `index.html`: portada, el menú de inicio con las secciones de la app
+    (línea de tiempo y árbol genealógico, este todavía en preparación).
+  - `linea.html`: la línea de tiempo (código de dibujo, filtros y fichas).
+  - `datos.js`: los datos que comparten las secciones (`CATS`, `GRUPOS`,
+    `PEOPLE`, `JUICIO`, `EVENTS` y `JW`). Cada entrada de `PEOPLE` tiene un `id`
+    estable (minúsculas, sin acentos ni artículos, p. ej. `abrahan`,
+    `jehoram-juda`); no lo cambies aunque cambie el nombre, y dale uno nuevo y
+    único a cada entrada que añadas. En `linea.html`, `p.ix` es la posición de
+    la entrada en `PEOPLE`.
+  - `comun.css`: colores (modo claro y oscuro) y estilos base de todas las páginas.
+- `sw.js` es el service worker; si cambias iconos o el manifiesto, o añades
+  archivos a `ASSETS`, sube la versión de `CACHE`.
 - La interfaz, los comentarios y los mensajes de commit van en español.

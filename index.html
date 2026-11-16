@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Línea de tiempo bíblica</title>
+<meta name="description" content="Personajes y acontecimientos bíblicos en una línea de tiempo interactiva.">
+<!-- Vista previa al compartir el enlace (WhatsApp, Facebook, Telegram, X…). La imagen
+     (vista-previa.png, 1200 × 630) necesita la dirección completa de la página publicada. -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Línea de tiempo bíblica">
+<meta property="og:title" content="Línea de tiempo bíblica">
+<meta property="og:description" content="Personajes y acontecimientos bíblicos en una línea de tiempo interactiva.">
+<meta property="og:url" content="https://nestornjrz.github.io/LineaDeTiempo/">
+<meta property="og:locale" content="es_ES">
+<meta property="og:image" content="https://nestornjrz.github.io/LineaDeTiempo/vista-previa.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Línea de tiempo bíblica: Adán, Noé, Abrahán, Moisés, David y Jesús en una línea de tiempo, con el Diluvio, el Éxodo y la destrucción de Jerusalén">
+<meta name="twitter:card" content="summary_large_image">
+<!-- PWA: instalable en el móvil y en la PC -->
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="icon" href="icons/icon-192.png" sizes="192x192" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="theme-color" content="#f7f5f0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#16140f" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Línea bíblica">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="stylesheet" href="comun.css">
+<style>
+/* ---------- Portada: menú de inicio con las secciones de la app ---------- */
+body{min-height:100vh; min-height:100dvh; display:flex; flex-direction:column}
+main{flex:1; width:100%; max-width:860px; margin:0 auto; padding:48px 16px 24px}
+.top{text-align:center; margin-bottom:32px}
+.top img{width:56px; height:56px; border-radius:14px}
+h1{margin:12px 0 6px; font-size:28px; font-weight:700; letter-spacing:.2px; line-height:1.15}
+.top p{margin:0; color:var(--muted); font-size:16px}
+
+.options{display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:16px}
+.option{
+  display:flex; flex-direction:column; overflow:hidden;
+  color:var(--text); text-decoration:none;
+  background:var(--surface); border:1px solid var(--line); border-radius:14px;
+  transition:border-color .15s, box-shadow .15s, transform .15s;
+}
+a.option:hover{border-color:var(--accent); box-shadow:var(--shadow); transform:translateY(-2px)}
+a.option:focus-visible{outline:3px solid var(--accent); outline-offset:3px}
+.option .pic{background:var(--grid); border-bottom:1px solid var(--line); padding:18px 20px}
+.option .pic svg{display:block; width:100%; height:auto}
+.option .txt{padding:16px 20px 20px; display:flex; flex-direction:column; gap:6px; flex:1}
+.option h2{margin:0; font-size:20px; display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+.option p{margin:0; color:var(--muted)}
+.option .go{margin-top:auto; padding-top:10px; color:var(--accent); font-weight:600}
+a.option:hover .go{text-decoration:underline; text-underline-offset:3px}
+/* Sección que todavía no está disponible */
+.option.soon .pic{opacity:.55}
+.option.soon .go{color:var(--muted); font-weight:400; font-style:italic}
+.badge{
+  padding:2px 8px; border-radius:10px; font-size:11px; font-weight:700; letter-spacing:.4px; text-transform:uppercase;
+  color:var(--muted); background:var(--grid); border:1px solid var(--line);
+}
+
+/* Dibujos de las tarjetas (con los colores de las categorías) */
+.axis{stroke:var(--axis); stroke-width:1.5}
+.tk{stroke:var(--axis); stroke-width:1}
+.ev{stroke:var(--event); stroke-width:1; stroke-dasharray:3 3}
+.lnk{fill:none; stroke:var(--axis); stroke-width:1.5}
+.f-ante{fill:var(--c-ante)} .f-patri{fill:var(--c-patri)} .f-epat{fill:var(--c-epat)} .f-israel{fill:var(--c-israel)}
+.f-reyes{fill:var(--c-reyes)} .f-prof{fill:var(--c-prof)} .f-cristo{fill:var(--c-cristo)} .f-apost{fill:var(--c-apost)}
+
+footer{
+  width:100%; max-width:860px; margin:0 auto; padding:8px 16px 28px;
+  display:flex; flex-direction:column; align-items:center; gap:14px; text-align:center;
+  font-size:13px; color:var(--muted);
+}
+footer a{color:inherit; text-underline-offset:2px}
+.install{
+  height:38px; padding:0 16px; font:inherit; font-size:14px; font-weight:600; cursor:pointer;
+  color:var(--bg); background:var(--accent); border:0; border-radius:8px;
+}
+.install:hover{filter:brightness(1.08)}
+.install[hidden]{display:none}
+@media (max-width: 559px){
+  main{padding-top:28px}
+  .top{margin-bottom:22px}
+  h1{font-size:24px}
+}
+</style>
+</head>
+<body>
+<main>
+  <div class="top">
+    <img src="icons/icon.svg" alt="">
+    <h1>Personajes de la Biblia</h1>
+    <p>Elige cómo quieres explorarlos.</p>
+  </div>
+
+  <nav class="options" aria-label="Secciones">
+    <a class="option" href="linea.html">
+      <div class="pic" aria-hidden="true">
+        <svg viewBox="0 0 240 104">
+          <line class="ev" x1="150" y1="6" x2="150" y2="90"/>
+          <rect class="f-ante"   x="8"   y="22" width="78" height="8" rx="3"/>
+          <rect class="f-ante"   x="34"  y="36" width="64" height="8" rx="3"/>
+          <rect class="f-patri"  x="80"  y="50" width="46" height="8" rx="3"/>
+          <rect class="f-israel" x="112" y="64" width="34" height="8" rx="3"/>
+          <rect class="f-reyes"  x="140" y="22" width="30" height="8" rx="3"/>
+          <rect class="f-prof"   x="162" y="36" width="36" height="8" rx="3"/>
+          <rect class="f-cristo" x="196" y="50" width="16" height="8" rx="3"/>
+          <rect class="f-apost"  x="202" y="64" width="30" height="8" rx="3"/>
+          <line class="axis" x1="4" y1="90" x2="236" y2="90"/>
+          <line class="tk" x1="40" y1="90" x2="40" y2="96"/><line class="tk" x1="100" y1="90" x2="100" y2="96"/>
+          <line class="tk" x1="160" y1="90" x2="160" y2="96"/><line class="tk" x1="220" y1="90" x2="220" y2="96"/>
+        </svg>
+      </div>
+      <div class="txt">
+        <h2>Línea de tiempo</h2>
+        <p>Personajes, reyes, profetas y acontecimientos ordenados en el tiempo, desde la creación de Adán (4026 a.e.c.).</p>
+        <span class="go">Abrir →</span>
+      </div>
+    </a>
+
+    <div class="option soon" aria-disabled="true">
+      <div class="pic" aria-hidden="true">
+        <svg viewBox="0 0 240 104">
+          <path class="lnk" d="M111 14h18M120 14v14M66 28h108M66 28v12M120 28v12M174 28v12M174 52v12M150 64h48M150 64v12M198 64v12"/>
+          <circle class="f-ante" cx="104" cy="14" r="8"/><circle class="f-ante" cx="136" cy="14" r="8"/>
+          <circle class="f-ante" cx="66" cy="46" r="7"/><circle class="f-ante" cx="120" cy="46" r="7"/><circle class="f-ante" cx="174" cy="46" r="7"/>
+          <circle class="f-patri" cx="150" cy="82" r="7"/><circle class="f-epat" cx="198" cy="82" r="7"/>
+        </svg>
+      </div>
+      <div class="txt">
+        <h2>Árbol genealógico <span class="badge">En preparación</span></h2>
+        <p>Desde Adán y Eva: de quién es hijo cada personaje, con las mujeres que menciona la Biblia.</p>
+        <span class="go">Disponible próximamente</span>
+      </div>
+    </div>
+  </nav>
+</main>
+
+<footer>
+  <button id="install" class="install" hidden title="Instalar como aplicación en este dispositivo">⬇ Instalar la aplicación</button>
+  <span>Fechas y datos según las publicaciones de los testigos de Jehová (<a href="https://www.jw.org/es/" target="_blank" rel="noopener">jw.org</a>).</span>
+</footer>
+
+<script>
+/* ===================== APP INSTALABLE (PWA) ===================== */
+if ('serviceWorker' in navigator && location.protocol !== 'file:'){
+  addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+}
+const installBtn = document.getElementById('install');
+const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) ||
+              (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+let installPrompt = null;
+const showInstall = show => { installBtn.hidden = !show; };
+
+// Chrome, Edge y Android: el navegador avisa cuando la app se puede instalar
+addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  installPrompt = e;
+  showInstall(true);
+});
+addEventListener('appinstalled', () => { installPrompt = null; showInstall(false); });
+
+// iPhone/iPad: no hay aviso automático; se explica cómo añadirla a la pantalla de inicio
+if (isIOS && !standalone) showInstall(true);
+
+installBtn.addEventListener('click', async () => {
+  if (installPrompt){
+    installPrompt.prompt();
+    const { outcome } = await installPrompt.userChoice;
+    if (outcome === 'accepted') showInstall(false);
+    installPrompt = null;
+  } else if (isIOS){
+    alert('Para instalar en iPhone o iPad:\n\n1. Abre esta página en Safari.\n2. Toca el botón Compartir (el cuadrado con la flecha hacia arriba).\n3. Elige «Añadir a pantalla de inicio».');
+  }
+});
+</script>
+</body>
+</html>
