@@ -41,6 +41,13 @@ Reglas:
     `jehoram-juda`); no lo cambies aunque cambie el nombre, y dale uno nuevo y
     único a cada entrada que añadas. En `linea.html`, `p.ix` es la posición de
     la entrada en `PEOPLE`.
+    `FAMILIA` guarda el parentesco para el árbol genealógico (padre, madre,
+    padre legal, suegro, cónyuges y hermanos), con los textos que lo muestran
+    (`rp`). Las personas que no tienen fechas solo están en `FAMILIA`. Los
+    campos se explican en el comentario que hay sobre `FAMILIA`.
+  - Después de cambiar `datos.js`, ejecuta `node herramientas/validar-datos.cjs`:
+    comprueba ids, vínculos, nombres repetidos, ciclos y fechas, y que las dos
+    genealogías de Jesús (Mateo y Lucas) lleguen hasta Adán.
   - `comun.css`: colores (modo claro y oscuro) y estilos base de todas las páginas.
 - `sw.js` es el service worker; si cambias iconos o el manifiesto, o añades
   archivos a `ASSETS`, sube la versión de `CACHE`.
