@@ -38,7 +38,8 @@ Reglas:
   - `arbol.html`: el árbol genealógico, centrado en una persona: su línea de
     antepasados, sus hermanos, sus cónyuges y sus hijos (horizontal en la PC,
     vertical en el celular). Las dos páginas se enlazan con `#p=<id>`
-    (p. ej., `arbol.html#p=isaac`, `linea.html#p=isaac`).
+    (p. ej., `arbol.html#p=isaac`, `linea.html#p=isaac`). Incluye «¿Qué parentesco
+    tienen?», que calcula el parentesco entre dos personas a partir de `FAMILIA`.
   - `datos.js`: los datos que comparten las secciones (`CATS`, `GRUPOS`,
     `PEOPLE`, `JUICIO`, `EVENTS` y `JW`). Cada entrada de `PEOPLE` tiene un `id`
     estable (minúsculas, sin acentos ni artículos, p. ej. `abrahan`,

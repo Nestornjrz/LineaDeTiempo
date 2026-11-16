@@ -49,8 +49,8 @@ for (const id of new Set([...P.keys(), ...F.keys()])){
 // Vínculos
 const PADRES = ['pa', 'ma', 'pl'];
 for (const f of FAMILIA){
-  const refs = [...PADRES.map(k => [k, f[k]]), ['su', f.su],
-                ...(f.cy || []).map(c => ['cy', c]), ...(f.hm || []).map(h => ['hm', h])].filter(([, v]) => v);
+  const refs = [...PADRES.map(k => [k, f[k]]), ['su', f.su], ...(f.cy || []).map(c => ['cy', c]),
+                ...(f.hm || []).map(h => ['hm', h]), ...(f.mh || []).map(h => ['mh', h])].filter(([, v]) => v);
   for (const [k, v] of refs){
     if (!existe(v)) { error(`«${f.id}».${k}: no existe la persona «${v}»`); continue; }
     if (v === f.id) error(`«${f.id}».${k}: se refiere a sí mismo`);
@@ -61,6 +61,12 @@ for (const f of FAMILIA){
   if ((f.pa || f.ma || f.pl || f.su || f.cy || f.hm) && !f.rp) error(`«${f.id}»: tiene parentesco pero no textos (rp)`);
   if (f.pl && !f.np) aviso(`«${f.id}»: tiene padre legal (pl); conviene explicarlo en np`);
   if (f.pt && (!f.pl || !['adoptivo', 'legal'].includes(f.pt))) error(`«${f.id}».pt = «${f.pt}»: debe ser 'adoptivo' o 'legal', y solo va con pl`);
+  if (f.pr && !f.np) error(`«${f.id}»: tiene parentesco probable (pr) pero no lo explica en np`);
+  if (f.pr && !['pa', 'ma'].includes(f.pr) || f.pr && !f[f.pr]) error(`«${f.id}».pr = «${f.pr}»: debe ser 'pa' o 'ma', y ese vínculo debe existir`);
+  for (const h of f.mh || []){
+    const o = F.get(h) || {};
+    if (!['pa', 'ma'].some(k => f[k] && f[k] === o[k])) error(`«${f.id}».mh = «${h}»: los medios hermanos deben tener el padre o la madre en común`);
+  }
   for (const c of f.cy || []){
     if ((F.get(c)?.cy || []).includes(f.id)) aviso(`Matrimonio anotado dos veces: «${f.id}» y «${c}»`);
     if (!!persona(c).mu === !!persona(f.id).mu) aviso(`«${f.id}» y su cónyuge «${c}» tienen el mismo sexo en los datos`);

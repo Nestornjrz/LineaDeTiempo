@@ -475,8 +475,11 @@ const jwUrl = p => JW[p.n] ? `https://wol.jw.org/es/wol/d/r4/lp-s/${JW[p.n]}`
    su: suegro, cuando la Biblia llama «hijo» al yerno (Sealtiel, «hijo de Nerí»; Lucas 3:27)
    cy: cónyuges (se anota en uno solo de los dos, normalmente en el esposo)
    hm: hermanos, solo cuando la Biblia no nombra a los padres
+   mh: medios hermanos (hijos del mismo padre o la misma madre, pero no de los dos) cuando la Biblia
+       lo dice aunque no nombre al otro progenitor (Sara y Abrahán; Génesis 20:12)
    mu: 1 = mujer · sn: 1 = la Biblia no da su nombre (n la describe)
    rp: textos que muestran el parentesco · np: nota sobre el parentesco
+   pr: qué vínculo (pa o ma) es probable, no seguro (p. ej., «probablemente» en Perspicacia); lo explica np
    Al cambiar estos datos, comprueba que estén bien con: node herramientas/validar-datos.cjs */
 const D_MATEO = 'Antepasado de Jesús por la línea de José, su padre adoptivo. Se le menciona en la genealogía de Mateo.';
 const D_LUCAS = 'Antepasado de Jesús por la línea de María. Se le menciona en la genealogía de Lucas.';
@@ -551,7 +554,7 @@ const FAMILIA = [
 
   // --- La familia de Abrahán ---
   {id:'abrahan', pa:'tare', cy:['sara', 'agar', 'ketura'], rp:'Génesis 11:26, 29; 16:3; 25:1'},
-  {id:'sara', mu:1, pa:'tare', rp:'Génesis 11:29; 20:12',
+  {id:'sara', mu:1, pa:'tare', mh:['abrahan'], rp:'Génesis 11:29; 20:12',
    np:'Abrahán dijo de ella: «Somos hijos del mismo padre pero de distintas madres» (Génesis 20:12). Era su media hermana.'},
   {id:'agar', mu:1},
   {id:'ketura', mu:1},
@@ -708,7 +711,7 @@ const FAMILIA = [
   {id:'absalon', n:'Absalón', pa:'david', ma:'maaca-david', rp:'2 Samuel 3:3',
    d:'Hijo de David y Maacá. Mató a Amnón por haber violado a su hermana Tamar. Después se rebeló contra su padre para quitarle el reino y murió en la batalla del bosque de Efraín.',
    r:'2 Samuel 3:3; 13:23-29; 15:1–18:15', al:'Absalon Abisalom'},
-  {id:'tamar-david', n:'Tamar (hija de David)', mu:1, pa:'david', ma:'maaca-david', rp:'2 Samuel 13:1; 1 Crónicas 3:9',
+  {id:'tamar-david', pr:'ma', n:'Tamar (hija de David)', mu:1, pa:'david', ma:'maaca-david', rp:'2 Samuel 13:1; 1 Crónicas 3:9',
    np:'2 Samuel 13:1 la llama hermana de Absalón. Según Perspicacia, era su «hermana carnal», así que su madre también era Maacá.',
    d:'Hija de David y hermana de Absalón. Su medio hermano Amnón la violó.', r:'2 Samuel 13:1-22; 1 Crónicas 3:9'},
   {id:'adonias', n:'Adonías', pa:'david', ma:'haguit', rp:'2 Samuel 3:4',
@@ -754,7 +757,7 @@ const FAMILIA = [
   // Madres de los reyes de Judá (1 y 2 Reyes)
   {id:'naama-rehoboam', n:'Naamá (madre de Rehoboam)', mu:1,
    d:'Ammonita, madre del rey Rehoboam.', r:'1 Reyes 14:21, 31; 2 Crónicas 12:13', al:'Naama'},
-  {id:'maaca-abiyam', n:'Maacá (madre de Abiyam)', mu:1, pa:'uriel-guibea', rp:'2 Crónicas 13:2',
+  {id:'maaca-abiyam', pr:'pa', n:'Maacá (madre de Abiyam)', mu:1, pa:'uriel-guibea', rp:'2 Crónicas 13:2',
    np:'Según Perspicacia, la «Micaya hija de Uriel» de 2 Crónicas 13:2 es Maacá. 1 Reyes 15:2 la llama «nieta de Abisalom» (Absalón); Perspicacia explica que probablemente era hija de Tamar, la hija de Absalón, y de Uriel.',
    d:'Nieta de Absalón y esposa preferida del rey Rehoboam. Madre del rey Abiyam y abuela del rey Asá, que le quitó su posición de reina madre porque había hecho un ídolo.',
    r:'1 Reyes 15:2, 10, 13; 2 Crónicas 11:20-22; 13:2', al:'Micaya Maaca'},
@@ -806,7 +809,7 @@ const FAMILIA = [
    d:'Hijo del rey Jeconías (Joaquín), nacido después de la deportación a Babilonia.', r:'1 Crónicas 3:17; Mateo 1:12; Lucas 3:27', al:'Salatiel'},
   {id:'pedaya', n:'Pedaya', pa:'joaquin', rp:'1 Crónicas 3:17, 18',
    d:'Hijo del rey Jeconías (Joaquín) y hermano de Sealtiel.', r:'1 Crónicas 3:17-19', al:'Pedaías'},
-  {id:'zorobabel', n:'Zorobabel', pa:'pedaya', pl:'sealtiel', rp:'1 Crónicas 3:19; Esdras 3:2; Mateo 1:12; Lucas 3:27',
+  {id:'zorobabel', pr:'pa', n:'Zorobabel', pa:'pedaya', pl:'sealtiel', rp:'1 Crónicas 3:19; Esdras 3:2; Mateo 1:12; Lucas 3:27',
    np:'Según Perspicacia, probablemente era hijo carnal de Pedaya (1 Crónicas 3:19), pero legalmente se le consideraba hijo de Sealtiel.',
    d:'Nieto del rey Jeconías y gobernador de Judá. Dirigió a los judíos que regresaron de Babilonia y la reconstrucción del templo.',
    r:'Esdras 2:1, 2; 3:8; 5:2; Ageo 1:1; Zacarías 4:9; Mateo 1:12, 13'},
@@ -881,7 +884,7 @@ const FAMILIA = [
   {id:'joel', pa:'petuel', rp:'Joel 1:1'},
   {id:'amitai', n:'Amitái', d:'Padre del profeta Jonás.', r:'Jonás 1:1; 2 Reyes 14:25', al:'Amitai'},
   {id:'jonas', pa:'amitai', rp:'Jonás 1:1'},
-  {id:'amarias-sofonias', n:'Amarías (antepasado de Sofonías)', pa:'ezequias', rp:'Sofonías 1:1',
+  {id:'amarias-sofonias', pr:'pa', n:'Amarías (antepasado de Sofonías)', pa:'ezequias', rp:'Sofonías 1:1',
    np:'Sofonías 1:1 dice que Amarías era hijo de un Ezequías. Según Perspicacia, parece que Sofonías era tataranieto del rey Ezequías.',
    d:'Bisabuelo del profeta Sofonías.', r:'Sofonías 1:1'},
   {id:'guedalias-sofonias', n:'Guedalías (abuelo de Sofonías)', pa:'amarias-sofonias', rp:'Sofonías 1:1',
@@ -910,7 +913,7 @@ const FAMILIA = [
   {id:'mardoqueo', n:'Mardoqueo', pa:'jair-mardoqueo', rp:'Ester 2:5',
    d:'Judío benjaminita que vivía en Susa. Adoptó como hija a su prima Ester y la ayudó a salvar a los judíos. Llegó a ser el segundo en autoridad después del rey Asuero.',
    r:'Ester 2:5-7, 15; 4:1-17; 10:3'},
-  {id:'abihail', n:'Abihail', pa:'simei-mardoqueo', rp:'Ester 2:7, 15',
+  {id:'abihail', pr:'pa', n:'Abihail', pa:'simei-mardoqueo', rp:'Ester 2:7, 15',
    np:'Ester 2:15 dice que Mardoqueo era sobrino de Abihail, y la nota de Ester 2:7 explica que Ester era «la hija del hermano de su padre».',
    d:'Padre de Ester y tío de Mardoqueo.', r:'Ester 2:15; 9:29', al:'Abiháil'},
   {id:'ester', mu:1, pa:'abihail', pl:'mardoqueo', pt:'adoptivo', rp:'Ester 2:7, 15',
