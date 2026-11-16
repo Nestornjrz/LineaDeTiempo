@@ -1064,7 +1064,7 @@ function select(id, scroll){
   tree.hidden = !EN_ARBOL.has(p.id);
   tree.href = 'arbol.html#p=' + p.id;
   const linBtn = card.querySelector('.lin-btn');
-  linBtn.hidden = isCapa(p) || !tieneAntepasados(p.id) || (lin && lin.id === p.id);
+  linBtn.hidden = isCapa(p) || !linajeConFechas(p.id) || (lin && lin.id === p.id);
   linBtn.onclick = () => verLinaje(p.id);
   card.classList.add('open');
 }

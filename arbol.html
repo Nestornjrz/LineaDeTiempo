@@ -763,7 +763,7 @@ function fillCard(id){
   tl.href = 'linea.html#p=' + id;
   // Su linaje en la línea de tiempo, por la misma línea que se ve en el árbol
   const ln = card.querySelector('.lin');
-  ln.hidden = p.s === undefined || !tieneAntepasados(id);
+  ln.hidden = p.s === undefined || !linajeConFechas(id);
   ln.href = 'linea.html#linaje=' + id + (id === state.focus && state.line ? '&l=' + state.line : '');
   card.classList.add('open');
 }
@@ -837,14 +837,29 @@ const gen = (id, par) => par[get(id).mu ? 1 : 0];
 const N = id => get(id).n;
 
 // Antepasados de una persona: generaciones hasta cada uno, y por qué hijo se llega (para el camino)
+// Los hermanos anotados con hm (p. ej., Zeruyá y David) comparten un progenitor que la Biblia no
+// nombra: en el cálculo es un antepasado más («hm:…»), que nunca se muestra.
+const GRUPO_HM = new Map();
+{
+  const grupos = [];
+  for (const f of FAMILIA) if (f.hm){
+    const ids = new Set([f.id, ...f.hm]);
+    const unidos = grupos.filter(g => [...ids].some(x => g.has(x)));
+    for (const g of unidos){ g.forEach(x => ids.add(x)); grupos.splice(grupos.indexOf(g), 1); }
+    grupos.push(ids);
+  }
+  for (const g of grupos){ const k = 'hm:' + [...g].sort().join(','); g.forEach(x => GRUPO_HM.set(x, k)); }
+}
+const esGrupo = id => id.startsWith('hm:');
 function antepasados(id, claves){
   const dist = new Map([[id, 0]]), hijo = new Map(), cola = [id];
+  const llegar = (y, x) => { if (!dist.has(y)){ dist.set(y, dist.get(x) + 1); hijo.set(y, x); cola.push(y); } };
   while (cola.length){
-    const x = cola.shift(), p = get(x);
-    for (const k of claves){
-      const y = p[k];
-      if (y && PER.has(y) && !dist.has(y)){ dist.set(y, dist.get(x) + 1); hijo.set(y, x); cola.push(y); }
-    }
+    const x = cola.shift();
+    if (esGrupo(x)) continue;
+    const p = get(x);
+    for (const k of claves) if (p[k] && PER.has(p[k])) llegar(p[k], x);
+    if (GRUPO_HM.has(x)) llegar(GRUPO_HM.get(x), x);
   }
   return {dist, hijo};
 }
@@ -865,8 +880,12 @@ function sangre(a, b, claves){
       best = {c, da, db};
   }
   if (!best) return null;
-  const comunes = [...A.dist].filter(([c, da]) => da === best.da && B.dist.get(c) === best.db).map(([c]) => c).sort(byOrd);
-  return {...best, comunes, ca:subida(A, best.c), cb:subida(B, best.c)};
+  // Antepasados comunes a esa distancia; si hay alguno con nombre, se deja fuera el «no nombrado»
+  let comunes = [...A.dist].filter(([c, da]) => da === best.da && B.dist.get(c) === best.db).map(([c]) => c);
+  const reales = comunes.filter(c => !esGrupo(c));
+  if (reales.length) comunes = reales.sort(byOrd);
+  const c = comunes[0];
+  return {...best, c, comunes, grupo:esGrupo(c), ca:subida(A, c), cb:subida(B, c)};
 }
 // Hermanos de padre o de madre solamente
 function medios(a, b, comunes){
@@ -893,7 +912,9 @@ function termino(da, db, a, medio){
 }
 const desc = (id, n) => n < DESC.length ? gen(id, DESC[n]) : `descendiente (${n} generaciones después)`;
 // Camino de a hasta b pasando por el antepasado común: a … c … b
-const caminoPor = s => [...s.ca, ...s.cb.slice(0, -1).reverse()];
+// (Si el antepasado común es el progenitor no nombrado de unos hermanos, no se incluye)
+const caminoPor = s => s.grupo ? [...s.ca.slice(0, -1), ...s.cb.slice(0, -1).reverse()]
+                               : [...s.ca, ...s.cb.slice(0, -1).reverse()];
 // «Los dos son hijos» / «Las dos son hijas»
 const losDos = (a, b) => get(a).mu && get(b).mu ? 'Las dos son hijas' : 'Los dos son hijos';
 
@@ -907,6 +928,12 @@ function explicarSangre(a, b, s, pre, nm){
   if (s.da === 0 || s.db === 0){
     const n = s.da + s.db;
     if (n >= 5) exp.push(`Por este camino hay ${n} generaciones entre ${nm(a)} y ${nm(b)}.`);
+  } else if (s.grupo){
+    // Por unos hermanos cuyos padres (o cuál comparten) no nombra la Biblia
+    if (s.da > 1 || s.db > 1){
+      const sa = s.ca[s.ca.length - 2], sb = s.cb[s.cb.length - 2];
+      exp.push(`${nm(sa)} y ${nm(sb)} eran ${get(sa).mu && get(sb).mu ? 'hermanas' : 'hermanos'}.`);
+    }
   } else if (s.da === 1 && s.db === 1){
     const c = s.comunes[0];
     if (s.comunes.length > 1) exp.push(`${losDos(a, b)} de ${lista(s.comunes)}.`);
@@ -927,8 +954,6 @@ function parentesco(a, b){
   const largo = corto(a) === corto(b);
   const nm = id => largo && (id === a || id === b) ? get(id).n : corto(id);
   const N = nm;   // dentro de esta función, todas las frases usan el nombre breve
-  // Hermanos cuyos padres no nombra la Biblia
-  if ((HERMANOS.get(a) || []).includes(b)) frases.push(`${N(a)} es ${gen(a, ['hermano', 'hermana'])} de ${N(b)}.`);
   // Padre legal o adoptivo
   if (B.pl === a) frases.push(`${N(a)} es padre ${tipoPl(b)} de ${N(b)}.`);
   if (A.pl === b) frases.push(`${N(a)} es ${tagDe(a, b)} de ${N(b)}.`);
@@ -946,7 +971,7 @@ function parentesco(a, b){
     exp.push(...r.exp);
     if (legal) exp.push('Este parentesco pasa por un padre legal o adoptivo; no es de sangre.');
     camino = caminoPor(s);
-    comun = s.c;
+    comun = s.grupo ? null : s.c;
   }
   // Por matrimonio: el cónyuge de uno es pariente del otro
   if (!frases.length){
