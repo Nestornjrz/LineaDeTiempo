@@ -496,7 +496,7 @@ const JW = {
   'Salomé':'1200003808', 'Alfeo (padre de Santiago)':'1200000993', 'Alfeo (padre de Mateo)':'1200000209',
   'María (esposa de Clopas)':'1200002918', 'María (madre de Marcos)':'1200002918', 'Santiago (padre de Tadeo)':'1200002313',
   'Simón (medio hermano de Jesús)':'1200004131', 'José (medio hermano de Jesús)':'1200000830',
-  'Alejandro (hijo de Simón de Cirene)':'1200000192', 'Rufo (hijo de Simón de Cirene)':'1200003769', 'Fanuel':'1200003457',
+  'Bernabé':'1200000566', 'Alejandro (hijo de Simón de Cirene)':'1200000192', 'Rufo (hijo de Simón de Cirene)':'1200003769', 'Fanuel':'1200003457',
 };
 const jwUrl = p => JW[p.n] ? `https://wol.jw.org/es/wol/d/r4/lp-s/${JW[p.n]}`
                            : `https://wol.jw.org/es/wol/s/r4/lp-s?q=${encodeURIComponent(p.q || p.n)}`;
@@ -516,6 +516,8 @@ const jwUrl = p => JW[p.n] ? `https://wol.jw.org/es/wol/d/r4/lp-s/${JW[p.n]}`
    mh: medios hermanos (hijos del mismo padre o la misma madre, pero no de los dos) cuando la Biblia
        lo dice aunque no nombre al otro progenitor (Sara y Abrahán; Génesis 20:12)
    mu: 1 = mujer · sn: 1 = la Biblia no da su nombre (n la describe)
+   sx: 1 = no se sabe si era hombre o mujer (se une con pa, pero se muestra como «padre o madre»;
+       p. ej., el progenitor de Bernabé que era hermano o hermana de María, la madre de Marcos)
    rp: textos que muestran el parentesco · np: nota sobre el parentesco
    pr: qué vínculo (pa o ma) es probable, no seguro (p. ej., «probablemente» en Perspicacia); lo explica np
    Al cambiar estos datos, comprueba que estén bien con: node herramientas/validar-datos.cjs */
@@ -1511,6 +1513,13 @@ const FAMILIA = [
    r:'Hechos 12:12-17; Colosenses 4:10'},
   {id:'marcos', ma:'maria-marcos', rp:'Hechos 12:12',
    np:'Colosenses 4:10 lo llama «el primo de Bernabé». La Biblia no dice por cuál de sus padres eran primos.'},
+  {id:'progenitor-bernabe', n:'Padre o madre de Bernabé', sn:1, sx:1, hm:['maria-marcos'], rp:'Colosenses 4:10',
+   np:'Colosenses 4:10 llama a Marcos «el primo de Bernabé», y según «Perspicacia» María, la madre de Marcos, era tía de Bernabé. La Biblia no dice si era hermana de su padre o de su madre; aquí se muestra a uno de sus padres como hermano o hermana de María.',
+   d:'Uno de los padres de Bernabé. La Biblia no dice quién era ni si era su padre o su madre.', r:'Hechos 4:36; Colosenses 4:10'},
+  {id:'bernabe', n:'Bernabé', pa:'progenitor-bernabe', rp:'Colosenses 4:10',
+   np:'Era primo de Marcos (Colosenses 4:10). La Biblia no dice cuál de sus padres era hermano o hermana de María, la madre de Marcos.',
+   d:'Levita natural de Chipre. Se llamaba José, pero los apóstoles le pusieron el sobrenombre de Bernabé («hijo del consuelo»). Acompañó a Pablo en su primer viaje misional, y después se fue a Chipre con su primo Marcos.',
+   r:'Hechos 4:36, 37; 11:22-26; 13:2-4; 15:36-39; Colosenses 4:10', al:'Bernabe José'},
   {id:'alejandro-simon', n:'Alejandro (hijo de Simón de Cirene)', q:'Alejandro', pa:'simon-cirene', rp:'Marcos 15:21',
    d:'Hijo de Simón de Cirene, el hombre al que obligaron a cargar el madero de tormento de Jesús, y hermano de Rufo.', r:'Marcos 15:21', al:'Alejandro'},
   {id:'rufo-simon', n:'Rufo (hijo de Simón de Cirene)', q:'Rufo', pa:'simon-cirene', rp:'Marcos 15:21',
@@ -1554,7 +1563,8 @@ const LUCAS_SOLO = (() => {
 // Tipo de padre legal (pt): «adoptivo» (José para Jesús, Mardoqueo para Ester) o «legal»
 const tipoPl = id => fam(id).pt || (fam(id).pa ? 'legal' : 'adoptivo');
 // Nombre del vínculo de un antepasado con su hijo en la línea (k: pa, pl, ma o su)
-const vinculo = (k, hijo) => ({pa:'padre', pl:'padre ' + tipoPl(hijo), ma:'madre', su:'suegro'})[k];
+const vinculo = (k, hijo) => ({pa: fam(fam(hijo).pa).sx ? 'padre o madre' : 'padre',
+                               pl:'padre ' + tipoPl(hijo), ma:'madre', su:'suegro'})[k];
 // Líneas posibles para subir desde una persona (en el árbol, los botones «Antepasados de… por»).
 // La de la madre (o el suegro) solo se ofrece si ella tiene antepasados, o si no hay padre.
 function opcionesLinaje(id){

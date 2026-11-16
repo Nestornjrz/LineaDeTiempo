@@ -748,7 +748,7 @@ function fillCard(id){
     }
     fam.append(el('dt', '', titulo), dd);
   };
-  fila('Padre', [p.pa]);
+  fila(p.pa && get(p.pa).sx ? 'Padre o madre' : 'Padre', [p.pa]);
   fila('Padre ' + tipoPl(id), [p.pl]);
   fila('Madre', [p.ma]);
   fila('Suegro', [p.su]);
@@ -759,7 +759,8 @@ function fillCard(id){
   fila((YERNOS.get(id) || []).length > 1 ? 'Yernos' : 'Yerno', YERNOS.get(id) || []);
   const padres = [p.pa, p.ma, p.pl].filter(Boolean);
   const hermanos = [...new Set([...padres.flatMap(hijosDe), ...(HERMANOS.get(id) || [])])].filter(x => x !== id).sort(byOrd);
-  fila(hermanos.length === 1 ? (get(hermanos[0]).mu ? 'Hermana' : 'Hermano') : 'Hermanos', hermanos);
+  const hermanoDe = x => get(x).sx ? 'Hermano o hermana' : get(x).mu ? 'Hermana' : 'Hermano';
+  fila(hermanos.length === 1 ? hermanoDe(hermanos[0]) : 'Hermanos', hermanos);
   card.querySelector('.nota').textContent = p.np || '';
   const refs = card.querySelector('.refs');
   refs.replaceChildren();
@@ -840,7 +841,8 @@ buscador(qInput, document.getElementById('suggest'), id => { qInput.value = ''; 
    Si no hay parentesco de sangre, se prueba también por los padres legales (pl). */
 const ASC = [null, ['padre', 'madre'], ['abuelo', 'abuela'], ['bisabuelo', 'bisabuela'], ['tatarabuelo', 'tatarabuela']];
 const DESC = [null, ['hijo', 'hija'], ['nieto', 'nieta'], ['bisnieto', 'bisnieta'], ['tataranieto', 'tataranieta']];
-const gen = (id, par) => par[get(id).mu ? 1 : 0];
+// Palabra según sea hombre o mujer; si no se sabe (sx), las dos («padre o madre»)
+const gen = (id, par) => get(id).sx ? `${par[0]} o ${par[1]}` : par[get(id).mu ? 1 : 0];
 const N = id => get(id).n;
 
 // Antepasados de una persona: generaciones hasta cada uno, y por qué hijo se llega (para el camino)
@@ -1031,7 +1033,9 @@ function parentesco(a, b){
   // Hermanos: también cuenta si uno de los padres en común es el vínculo probable
   if (s) for (const x of [a, b]) if (get(x).pr && s.comunes.includes(get(x)[get(x).pr]) && !probables.includes(x)) probables.push(x);
   if (probables.length) exp.push(`Este camino incluye un parentesco probable, no seguro: lee la nota en la ficha de ${probables.map(nm).join(', ')}.`);
-  return {frases:frases.map(mayuscula), exp:exp.map(mayuscula), camino, comun};
+  // «de el sobrino de Pablo» → «del sobrino de Pablo» (personas sin nombre, que llevan artículo)
+  const pulir = s => mayuscula(s.replace(/\bde el /g, 'del ').replace(/\ba el /g, 'al '));
+  return {frases:frases.map(pulir), exp:exp.map(pulir), camino, comun};
 }
 
 // Panel

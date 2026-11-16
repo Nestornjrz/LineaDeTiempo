@@ -59,6 +59,7 @@ for (const f of FAMILIA){
     if (k === 'ma' && !mujer) error(`«${f.id}».ma = «${v}», que no está marcada como mujer (mu:1)`);
   }
   if ((f.pa || f.ma || f.pl || f.su || f.cy || f.hm) && !f.rp) error(`«${f.id}»: tiene parentesco pero no textos (rp)`);
+  if (f.sx && f.mu) error(`«${f.id}»: tiene sx (no se sabe si es hombre o mujer) y también mu`);
   if (f.pl && !f.np) aviso(`«${f.id}»: tiene padre legal (pl); conviene explicarlo en np`);
   if (f.pt && (!f.pl || !['adoptivo', 'legal'].includes(f.pt))) error(`«${f.id}».pt = «${f.pt}»: debe ser 'adoptivo' o 'legal', y solo va con pl`);
   if (f.pr && !f.np) error(`«${f.id}»: tiene parentesco probable (pr) pero no lo explica en np`);
