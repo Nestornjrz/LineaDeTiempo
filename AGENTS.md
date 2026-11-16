@@ -29,6 +29,26 @@ Reglas:
    pregúntale al usuario.
 4. Usa el estilo de fechas del proyecto: «a.e.c.» y «e.c.».
 
+## Lo que dice la Biblia y lo que no
+
+La app muestra lo que dice la Biblia. Todo lo que está fuera del registro bíblico
+se marca como tal y no se mezcla con lo bíblico:
+
+- **Parentescos por deducción.** Si la Biblia no dice un parentesco con todas
+  las letras, sino que se deduce (aunque sea la explicación de *Perspicacia*;
+  p. ej., que Helí era el padre de María, que Clopas es Alfeo, o que «hijo»
+  significa «nieto»), se marca como deducción. Solo se ve al activar «Mostrar lo
+  que no está en la Biblia», y con una nota que explica de dónde sale.
+- **Lo que la Biblia dice, tal como lo dice.** Con las deducciones ocultas se
+  muestra la relación con las palabras de la Biblia (p. ej., «Lucas lo llama hijo
+  de Helí»), sin la interpretación.
+- **Personajes que no están en la Biblia** (personajes históricos, como algunos
+  miembros de la familia de Herodes): se marcan como extrabíblicos y también
+  dependen de «Mostrar lo que no está en la Biblia». En la línea de tiempo
+  dependen de «Fuente: Extrabíblicos».
+- Ante la duda de si algo lo dice la Biblia o se deduce, trátalo como deducción
+  y explícalo en la nota.
+
 ## Sobre el proyecto
 
 - Es una PWA sin compilación (HTML, CSS y JavaScript sueltos):

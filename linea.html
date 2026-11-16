@@ -888,7 +888,8 @@ function conectores(w, h, ruta){
     if (!i) return;
     const path = document.createElementNS(NS, 'path');
     path.setAttribute('d', ruta(lin.filas[i - 1].p, f.p));
-    path.setAttribute('class', f.sinFecha.length || f.rel === 'pl' || f.rel === 'su' ? 'gap' : '');
+    const ded = (fam(f.p.id).de || []).includes(f.rel) && f.rel !== 'su';   // vínculo por deducción
+    path.setAttribute('class', f.sinFecha.length || f.rel === 'pl' || f.rel === 'su' || ded ? 'gap' : '');
     svg.append(path);
   });
   canvas.append(svg);

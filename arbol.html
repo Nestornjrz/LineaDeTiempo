@@ -178,6 +178,11 @@ body.h #scroller.dragging{cursor:grabbing; user-select:none}
 /* ---------- ¿Qué parentesco tienen? ---------- */
 .row .relbtn{border-color:var(--accent); color:var(--accent); font-weight:600; margin-right:8px}
 .row .relbtn:hover{background:var(--grid); border-color:var(--accent)}
+/* «Mostrar lo que no está en la Biblia»: casilla que se marca o desmarca */
+.row .nobib{margin-right:8px}
+.row .nobib::before{content:''; display:inline-block; width:10px; height:10px; margin-right:6px; vertical-align:-1px;
+  border:1.5px solid currentColor; border-radius:3px}
+.row .nobib[aria-pressed="true"]::before{background:currentColor; box-shadow:inset 0 0 0 2px var(--accent)}
 #rel{
   position:fixed; z-index:55; left:16px; right:16px; bottom:16px; margin:0 auto; max-width:580px;
   max-height:min(80vh, 680px); overflow-y:auto; overscroll-behavior:contain;
@@ -245,14 +250,15 @@ body.h #scroller.dragging{cursor:grabbing; user-select:none}
     <input id="q" type="search" placeholder="Buscar personajes… (ej. Rut)" autocomplete="off" aria-label="Buscar personaje en el árbol">
     <ul id="suggest" class="suggest" role="listbox"></ul>
   </div>
-  <nav class="row" id="jump" aria-label="Ir a"><button id="relBtn" class="relbtn" type="button">¿Qué parentesco tienen?</button><b>Ir a:</b></nav>
+  <nav class="row" id="jump" aria-label="Ir a"><button id="relBtn" class="relbtn" type="button">¿Qué parentesco tienen?</button><button id="noBib" class="nobib" type="button" aria-pressed="false" title="Muestra también los parentescos que no dice la Biblia sino que se deducen (por ejemplo, según «Perspicacia») y a las personas que no aparecen en la Biblia">Mostrar lo que no está en la Biblia</button><b>Ir a:</b></nav>
   <div class="row" id="lines" role="group" aria-label="Línea de antepasados" hidden></div>
 </header>
 
 <div id="scroller"><div id="canvas"><svg id="links" aria-hidden="true"></svg></div></div>
 <details class="note">
   <summary><span aria-hidden="true">ⓘ </span>Cómo leer el árbol</summary>
-  <p>El árbol se centra en una persona (resaltada) y muestra su línea de antepasados hasta el más antiguo que menciona la Biblia, sus hermanos, sus cónyuges y sus hijos. Toca a cualquier persona para centrar el árbol en ella, y toca a la persona resaltada para ver su ficha, con su parentesco y los textos bíblicos que lo muestran. Cuando una persona tiene dos líneas de antepasados (por ejemplo, Jesús: la de José, en Mateo, y la de María, en Lucas), arriba aparecen los botones para elegir cuál ver. Las líneas discontinuas indican un parentesco legal (padre legal o adoptivo) o un yerno al que la Biblia llama «hijo» (Lucas 3:27). El punto <span class="dot"></span> dorado marca a los antepasados de Jesús. Las personas cuyo nombre no da la Biblia aparecen en cursiva. El número en la esquina de cada persona indica cuántos hijos suyos hay en el árbol. Con «¿Qué parentesco tienen?» (arriba, o en la ficha de cada persona) se eligen dos personas y se explica cómo están emparentadas: por ejemplo, «Rut es bisabuela de David»; cuando no hay un nombre corriente para el parentesco, se explica a partir del antepasado común más cercano, y se muestra el camino de una persona a la otra. El parentesco sigue la Traducción del Nuevo Mundo y la obra «Perspicacia para comprender las Escrituras»; cuando una genealogía tiene alguna dificultad, la ficha lo explica.</p>
+  <p>El árbol se centra en una persona (resaltada) y muestra su línea de antepasados hasta el más antiguo que menciona la Biblia, sus hermanos, sus cónyuges y sus hijos. Toca a cualquier persona para centrar el árbol en ella, y toca a la persona resaltada para ver su ficha, con su parentesco y los textos bíblicos que lo muestran. Cuando una persona tiene dos líneas de antepasados (por ejemplo, Jesús: la de José, en Mateo, y la de María, en Lucas), arriba aparecen los botones para elegir cuál ver. Las líneas discontinuas indican un parentesco legal (padre legal o adoptivo), un yerno al que la Biblia llama «hijo» (Lucas 3:23, 27) o un parentesco por deducción. El punto <span class="dot"></span> dorado marca a los antepasados de Jesús. Las personas cuyo nombre no da la Biblia aparecen en cursiva. El número en la esquina de cada persona indica cuántos hijos suyos hay en el árbol. Con «¿Qué parentesco tienen?» (arriba, o en la ficha de cada persona) se eligen dos personas y se explica cómo están emparentadas: por ejemplo, «Rut es bisabuela de David»; cuando no hay un nombre corriente para el parentesco, se explica a partir del antepasado común más cercano, y se muestra el camino de una persona a la otra. El parentesco sigue la Traducción del Nuevo Mundo y la obra «Perspicacia para comprender las Escrituras»; cuando una genealogía tiene alguna dificultad, la ficha lo explica.</p>
+  <p>El árbol muestra lo que dice la Biblia. Con «Mostrar lo que no está en la Biblia» se ven también los parentescos que la Biblia no dice sino que se deducen (por ejemplo, que Helí era el padre de María, según «Perspicacia»), marcados «por deducción», y las personas que no aparecen en la Biblia. Sin esa opción, José y Sealtiel aparecen como los llama Lucas: «hijo de Helí» e «hijo de Nerí».</p>
 </details>
 
 <div id="card" role="dialog" aria-live="polite">
@@ -295,13 +301,25 @@ PEOPLE.forEach((p, i) => PER.set(p.id, {...p, ord:100000 + i}));
 FAMILIA.forEach((f, i) => PER.set(f.id, {...(PER.get(f.id) || {}), ...f, ord:i}));
 const get = id => PER.get(id);
 const push = (m, k, v) => { if (!m.has(k)) m.set(k, []); if (!m.get(k).includes(v)) m.get(k).push(v); };
-const HIJOS = new Map(), CONYUGES = new Map(), YERNOS = new Map(), HERMANOS = new Map();
+const HIJOS = new Map(), CONYUGES = new Map(), YERNOS = new Map(), HERMANOS = new Map(), PRIMOS = new Map();
 for (const f of FAMILIA){
   for (const k of ['pa', 'ma', 'pl']) if (f[k]) push(HIJOS, f[k], f.id);
   for (const c of f.cy || []){ push(CONYUGES, f.id, c); push(CONYUGES, c, f.id); }
+  for (const c of f.pm || []){ push(PRIMOS, f.id, c); push(PRIMOS, c, f.id); }
   if (f.su) push(YERNOS, f.su, f.id);
   if (f.hm){ const g = [f.id, ...f.hm]; for (const a of g) for (const b of g) if (a !== b) push(HERMANOS, a, b); }
 }
+// ¿El vínculo entre a y b es una deducción (de en los datos)? Solo puede pasar si se muestra lo
+// que no está en la Biblia; si no, esos vínculos ya no están en FAMILIA.
+const dedVinculo = (a, b) => [[a, b], [b, a]].some(([x, y]) => {
+  const p = get(x);
+  return p && (p.de || []).some(k => k !== 'su' && (p[k] === y || (Array.isArray(p[k]) && p[k].includes(y))));
+});
+// Paso de la línea de antepasados que se dibuja con línea discontinua y etiqueta: padre legal,
+// suegro (o yerno al que Lucas llama «hijo») y vínculo por deducción
+const pasoRaro = st => st.rel === 'pl' || st.rel === 'su' || dedVinculo(st.child, st.id);
+const etiquetaPaso = st => st.rel === 'pl' || st.rel === 'su' ? vinculo(st.rel, st.child)
+                         : dedVinculo(st.child, st.id) ? 'por deducción' : '';
 const byOrd = (a, b) => get(a).ord - get(b).ord;
 const hijosDe = id => [...(HIJOS.get(id) || [])].sort(byOrd);
 const nombre = id => get(id).n;
@@ -450,8 +468,7 @@ function layoutH(v){
   });
   for (let i = 1; i < S.length; i++){
     const x1 = colX(i - 1) + CW, x2 = colX(i), xm = x1 + GX / 2, y2 = S[i].inY;
-    links.push({d:`M${x1} 0H${xm}V${y2}H${x2}`, cls:'line' + (S[i - 1].rel === 'pl' || S[i - 1].rel === 'su' ? ' dash' : ''),
-                lbl:S[i - 1].rel === 'pl' || S[i - 1].rel === 'su' ? vinculo(S[i - 1].rel, S[i - 1].child) : '', lx:x1 + 4, ly:-6});
+    links.push({d:`M${x1} 0H${xm}V${y2}H${x2}`, cls:'line' + (pasoRaro(S[i - 1]) ? ' dash' : ''), lbl:etiquetaPaso(S[i - 1]), lx:x1 + 4, ly:-6});
   }
   // Generación de la persona
   const k = S.length, xf = colX(k), fam = [];
@@ -486,8 +503,7 @@ function layoutH(v){
     links.push({d:`M${x1} 0H${xt}V${Math.min(0, ...cys)}V${Math.max(0, ...cys)}`, cls:''});
     for (const it of hermanos)
       links.push({d:`M${xt} ${it.y + it.h / 2}H${xf}`, cls:(it.focus ? 'line' : '') + (it.tag ? ' dash' : '')});
-    links.push({d:`M${x1} 0H${xt}V0`, cls:'line' + (S[k - 1].rel === 'pl' || S[k - 1].rel === 'su' ? ' dash' : ''),
-                lbl:S[k - 1].rel === 'pl' || S[k - 1].rel === 'su' ? vinculo(S[k - 1].rel, S[k - 1].child) : '', lx:x1 + 4, ly:-6});
+    links.push({d:`M${x1} 0H${xt}V0`, cls:'line' + (pasoRaro(S[k - 1]) ? ' dash' : ''), lbl:etiquetaPaso(S[k - 1]), lx:x1 + 4, ly:-6});
   }
   // Hijos
   const xk = xf + CWF + GX, kids = [];
@@ -522,8 +538,8 @@ function layoutV(v, W){
       links.push({d:`M${Wc} ${y + CH / 2}H${Wc + 10}`, cls:'mar'});
     }
     if (i){
-      const rel = S[i - 1].rel, raro = rel === 'pl' || rel === 'su';
-      links.push({d:`M${TX} ${y - GV}V${y}`, cls:'line' + (raro ? ' dash' : ''), lbl:raro ? vinculo(rel, S[i - 1].child) : '', lx:TX + 8, ly:y - GV / 2 + 4});
+      const raro = pasoRaro(S[i - 1]);
+      links.push({d:`M${TX} ${y - GV}V${y}`, cls:'line' + (raro ? ' dash' : ''), lbl:etiquetaPaso(S[i - 1]), lx:TX + 8, ly:y - GV / 2 + 4});
     }
     y += CH + GV;
   });
@@ -572,12 +588,12 @@ function layoutV(v, W){
     }
   }
   if (S.length){
-    const rel = S[S.length - 1].rel, raro = rel === 'pl' || rel === 'su';
+    const raro = pasoRaro(S[S.length - 1]);
     const last = ramas[ramas.length - 1], foco = ramas.find(it => it.focus);
     links.push({d:`M${TX} ${top}V${last.y + last.h / 2}` +
                   ramas.filter(it => !it.focus).map(it => `M${TX} ${it.y + it.h / 2}H${x1}`).join(''), cls:''});
     links.push({d:`M${TX} ${top}V${foco.y + foco.h / 2}H${x1}`, cls:'line' + (raro ? ' dash' : ''),
-                lbl:raro ? vinculo(rel, S[S.length - 1].child) : '', lx:TX + 8, ly:top + 14});
+                lbl:etiquetaPaso(S[S.length - 1]), lx:TX + 8, ly:top + 14});
   }
   return {items, links, labels};
 }
@@ -741,7 +757,8 @@ function fillCard(id){
     const dd = el('dd');
     for (const x of ids){
       const b = el('button', '', corto(x));
-      if (nota && nota(x)) b.append(' ', el('small', '', `(${nota(x)})`));
+      const notas = [nota && nota(x), dedVinculo(id, x) && 'por deducción'].filter(Boolean);
+      if (notas.length) b.append(' ', el('small', '', `(${notas.join(', ')})`));
       b.title = nombre(x);
       b.addEventListener('click', () => { go(x); fillCard(x); });
       dd.append(b);
@@ -751,16 +768,22 @@ function fillCard(id){
   fila(p.pa && get(p.pa).sx ? 'Padre o madre' : 'Padre', [p.pa]);
   fila('Padre ' + tipoPl(id), [p.pl]);
   fila('Madre', [p.ma]);
-  fila('Suegro', [p.su]);
+  // Sin las deducciones, el yerno al que Lucas llama «hijo» se muestra con las palabras de la Biblia
+  fila(sueLiteral(id) ? 'Lucas lo llama «hijo» de' : 'Suegro', [p.su]);
   const cy = CONYUGES.get(id) || [];
   fila(p.mu ? (cy.length > 1 ? 'Esposos' : 'Esposo') : (cy.length > 1 ? 'Esposas' : 'Esposa'), cy);
   const hijos = hijosDe(id);
   fila(hijos.length === 1 ? (get(hijos[0]).mu ? 'Hija' : 'Hijo') : 'Hijos', hijos, x => tagDe(x, id));
-  fila((YERNOS.get(id) || []).length > 1 ? 'Yernos' : 'Yerno', YERNOS.get(id) || []);
+  const yernos = YERNOS.get(id) || [];
+  const literales = yernos.filter(sueLiteral), yernosDe = yernos.filter(x => !sueLiteral(x));
+  fila('Lucas llama «hijo» suyo a', literales);
+  fila(yernosDe.length > 1 ? 'Yernos' : 'Yerno', yernosDe);
   const padres = [p.pa, p.ma, p.pl].filter(Boolean);
   const hermanos = [...new Set([...padres.flatMap(hijosDe), ...(HERMANOS.get(id) || [])])].filter(x => x !== id).sort(byOrd);
   const hermanoDe = x => get(x).sx ? 'Hermano o hermana' : get(x).mu ? 'Hermana' : 'Hermano';
   fila(hermanos.length === 1 ? hermanoDe(hermanos[0]) : 'Hermanos', hermanos);
+  const primos = PRIMOS.get(id) || [];
+  fila(primos.length > 1 ? 'Primos' : get(primos[0] || id).mu ? 'Prima' : 'Primo', primos);
   card.querySelector('.nota').textContent = p.np || '';
   const refs = card.querySelector('.refs');
   refs.replaceChildren();
@@ -969,8 +992,8 @@ function parentesco(a, b){
   // Matrimonio
   if ((CONYUGES.get(a) || []).includes(b)) frases.push(`${N(a)} es ${gen(a, ['esposo', 'esposa'])} de ${N(b)}.`);
   // Yerno al que la Biblia llama «hijo» (Lucas 3:27)
-  if (A.su === b) frases.push(`${N(a)} es yerno de ${N(b)}.`);
-  if (B.su === a) frases.push(`${N(a)} es suegro de ${N(b)}.`);
+  if (A.su === b) frases.push(sueLiteral(a) ? `La genealogía de Lucas llama a ${N(a)} «hijo de ${N(b)}».` : `${N(a)} es yerno de ${N(b)}.`);
+  if (B.su === a) frases.push(sueLiteral(b) ? `La genealogía de Lucas llama a ${N(b)} «hijo de ${N(a)}».` : `${N(a)} es suegro de ${N(b)}.`);
   // Sangre; si no la hay (ni otro vínculo directo), por la línea legal
   let s = sangre(a, b, ['pa', 'ma']), legal = false;
   if (!s && !frases.length){ s = sangre(a, b, ['pa', 'ma', 'pl']); legal = !!s; }
@@ -1020,22 +1043,32 @@ function parentesco(a, b){
     };
     porConyuge(a, b, false) || porConyuge(b, a, true) || concunados();
   }
-  // Vínculos del camino que son probables, no seguros (pr en los datos dice cuál: pa o ma; la ficha
-  // lo explica). Solo cuentan si el camino pasa por ese vínculo.
-  const dudoso = (x, y) => get(x).pr && get(x)[get(x).pr] === y;
-  const probables = [];
+  // Primos que la Biblia nombra como tales sin decir por qué padre (pm): si no salió otro parentesco
+  if (!frases.length && (PRIMOS.get(a) || []).includes(b))
+    frases.push(`${N(a)} es ${gen(a, ['primo', 'prima'])} de ${N(b)}. La Biblia no dice por cuál de sus padres.`);
+  // Vínculos del camino que son deducciones, no lo que dice la Biblia (de en los datos; la ficha lo
+  // explica). Solo pasa si se muestra lo que no está en la Biblia.
+  const deducciones = [];
+  const anotar = x => { if (get(x) && !deducciones.includes(x)) deducciones.push(x); };
   (camino || []).forEach((x, i, c) => {
     const y = c[i + 1];
+    if ((get(x)?.de || []).includes('persona')) anotar(x);
     if (y === undefined) return;
-    if (dudoso(x, y)) probables.push(x);
-    if (dudoso(y, x)) probables.push(y);
+    if (dedVinculo(x, y)) anotar(x);
+    // Hermanos anotados con hm: el camino pasa por un progenitor oculto («hm:…»)
+    if (String(y).startsWith('hm:') && (get(x)?.de || []).includes('hm')) anotar(x);
+    if (String(x).startsWith('hm:') && (get(y)?.de || []).includes('hm')) anotar(y);
   });
-  // Hermanos: también cuenta si uno de los padres en común es el vínculo probable
-  if (s) for (const x of [a, b]) if (get(x).pr && s.comunes.includes(get(x)[get(x).pr]) && !probables.includes(x)) probables.push(x);
-  if (probables.length) exp.push(`Este camino incluye un parentesco probable, no seguro: lee la nota en la ficha de ${probables.map(nm).join(', ')}.`);
+  // Hermanos: también cuenta si uno de los padres en común es un vínculo por deducción
+  if (s) for (const x of [a, b])
+    if (s.comunes.some(c => dedVinculo(x, c) || String(c).startsWith('hm:') && (get(x)?.de || []).includes('hm'))) anotar(x);
+  if (deducciones.length) exp.push(`Este parentesco incluye una deducción, no lo dice la Biblia: lee la nota en la ficha de ${deducciones.map(nm).join(', ')}.`);
   // «de el sobrino de Pablo» → «del sobrino de Pablo» (personas sin nombre, que llevan artículo)
   const pulir = s => mayuscula(s.replace(/\bde el /g, 'del ').replace(/\ba el /g, 'al '));
-  return {frases:frases.map(pulir), exp:exp.map(pulir), camino, comun};
+  // Sin repetir la misma frase (p. ej., «José es yerno de Helí» por su suegro y por su esposa)
+  const sinAdemas = s => s.replace(/^Además, /, '').toLowerCase();
+  const unicas = frases.filter((f, i) => frases.findIndex(g => sinAdemas(g) === sinAdemas(f)) === i);
+  return {frases:unicas.map(pulir), exp:exp.map(pulir), camino, comun};
 }
 
 // Panel
@@ -1093,6 +1126,14 @@ rel.querySelector('.swap').addEventListener('click', () => {
   mostrarParentesco();
 });
 document.getElementById('relBtn').addEventListener('click', () => abrirParentesco(state.focus));
+// «Mostrar lo que no está en la Biblia»: se guarda para todas las páginas y se vuelve a cargar,
+// porque los datos (FAMILIA) se preparan al cargar según esta elección (ver datos.js)
+const noBib = document.getElementById('noBib');
+noBib.setAttribute('aria-pressed', NO_BIBLICO);
+noBib.addEventListener('click', () => {
+  try { localStorage.setItem('noBiblico', NO_BIBLICO ? '0' : '1'); } catch (e) {}
+  location.reload();
+});
 
 /* ===================== INICIO ===================== */
 let lastMode = null, lastW = 0;

@@ -174,7 +174,7 @@ const PEOPLE = [
   {id:'jehosafat', n:'Jehosafat', s:-936, e:-911, c:'juda', k:'reinado', rn:'25 años', d:'Rey fiel que hizo que se enseñara la Ley de Jehová por todo Judá.', r:'1 Reyes 22:41-50; 2 Crónicas 17–20', al:'Josafat'},
   {id:'jehoram-juda', n:'Jehoram (Judá)', q:'Jehoram', s:-913, e:-906, c:'juda', k:'reinado', rn:'8 años', d:'Hijo de Jehosafat. Se casó con Atalía, hija de Acab, e hizo lo malo.', r:'2 Reyes 8:16-24; 2 Crónicas 21', al:'Joram'},
   {id:'ocozias-juda', n:'Ocozías (Judá)', q:'Ocozías', s:-906, e:-905, a:'se', c:'juda', k:'reinado', rn:'1 año', d:'Hijo de Jehoram y Atalía. Lo mató Jehú.', r:'2 Reyes 8:25-29; 9:27-29', al:'Ocozias'},
-  {id:'atalia', n:'Atalía', s:-905, e:-898, a:'s', c:'juda', k:'reinado', rn:'6 años', d:'Hija de Acab y Jezabel. Se apoderó del trono tras intentar exterminar la descendencia real. Fue la única reina que gobernó Judá.', r:'2 Reyes 11:1-16; 2 Crónicas 22:10–23:15', al:'Atalia'},
+  {id:'atalia', n:'Atalía', s:-905, e:-898, a:'s', c:'juda', k:'reinado', rn:'6 años', d:'Hija de Acab; según «Perspicacia», también de Jezabel. Se apoderó del trono tras intentar exterminar la descendencia real. Fue la única reina que gobernó Judá.', r:'2 Reyes 11:1-16; 2 Crónicas 22:10–23:15', al:'Atalia'},
   {id:'jehoas-juda', n:'Jehoás (Judá)', q:'Jehoás', s:-898, e:-858, c:'juda', k:'reinado', rn:'40 años', d:'Salvado de niño por su tía Jehoseba. Reparó el templo, pero después se apartó de Jehová.', r:'2 Reyes 12; 2 Crónicas 24', al:'Joas Jehoas'},
   {id:'amasias', n:'Amasías', s:-858, e:-829, c:'juda', k:'reinado', rn:'29 años', d:'Hijo de Jehoás. Venció a Edom, pero luego adoró a los dioses de los edomitas.', r:'2 Reyes 14:1-20; 2 Crónicas 25', al:'Amasias'},
   {id:'uzias', n:'Uzías', s:-829, e:-777, c:'juda', k:'reinado', rn:'52 años', d:'También llamado Azarías. Por orgullo quiso ofrecer incienso en el templo, y Jehová lo castigó con lepra.', r:'2 Reyes 15:1-7; 2 Crónicas 26', al:'Uzias Azarías Azarias'},
@@ -519,7 +519,13 @@ const jwUrl = p => JW[p.n] ? `https://wol.jw.org/es/wol/d/r4/lp-s/${JW[p.n]}`
    sx: 1 = no se sabe si era hombre o mujer (se une con pa, pero se muestra como «padre o madre»;
        p. ej., el progenitor de Bernabé que era hermano o hermana de María, la madre de Marcos)
    rp: textos que muestran el parentesco · np: nota sobre el parentesco
-   pr: qué vínculo (pa o ma) es probable, no seguro (p. ej., «probablemente» en Perspicacia); lo explica np
+   pm: primos que la Biblia nombra como tales, sin decir por qué padre (Marcos y Bernabé; Colosenses 4:10)
+   LO QUE NO ESTÁ EN LA BIBLIA (ver AGENTS.md): solo se ve con «Mostrar lo que no está en la Biblia».
+   de: vínculos de esta entrada que son deducción, no lo que dice el texto (p. ej., ['ma'] o ['cy']);
+       np explica de dónde sale. Caso especial, 'su': la Biblia llama «hijo» al yerno (Lucas 3:23, 27);
+       sin las deducciones se muestra como lo dice la Biblia («Lucas lo llama hijo»), y con ellas, como
+       suegro. 'persona': la persona entera es una deducción (p. ej., el progenitor de Bernabé).
+   xb: 1 = persona que no aparece en la Biblia (personaje histórico); se oculta con sus vínculos
    Al cambiar estos datos, comprueba que estén bien con: node herramientas/validar-datos.cjs */
 const D_MATEO = 'Antepasado de Jesús por la línea de José, su padre adoptivo. Se le menciona en la genealogía de Mateo.';
 const D_LUCAS = 'Antepasado de Jesús por la línea de María. Se le menciona en la genealogía de Lucas.';
@@ -841,7 +847,7 @@ const FAMILIA = [
   {id:'mupim', n:'Mupim', pa:'benjamin', rp:'Génesis 46:21; Números 26:39',
    d:'Descendiente de Benjamín que fue a Egipto con Jacob. Se le llama también Sefufam (Números 26:39), Sefufán (1 Crónicas 8:5) y Supim (1 Crónicas 7:12).',
    r:'Génesis 46:21; Números 26:39', al:'Sefufam Sefufán Supim'},
-  {id:'hupim', n:'Hupim', pr:'pa', pa:'benjamin', rp:'Génesis 46:21; Números 26:39',
+  {id:'hupim', n:'Hupim', pa:'benjamin', rp:'Génesis 46:21; Números 26:39',
    np:'Génesis 46:21 lo cuenta entre los «hijos» de Benjamín, pero otros textos lo presentan como su nieto o bisnieto, por medio de Bela e Irí (1 Crónicas 7:6, 7, 12).',
    d:'Descendiente de Benjamín que fue a Egipto con Jacob. Se le llama también Hufam (Números 26:39) y, al parecer, Huram (1 Crónicas 8:5).',
    r:'Génesis 46:21; Números 26:39', al:'Hufam Huram'},
@@ -852,7 +858,7 @@ const FAMILIA = [
    np:'Génesis 46:21 lo cuenta entre los «hijos» de Benjamín; era su nieto, por medio de Bela.',
    d:'Nieto de Benjamín por medio de Bela. Fue a Egipto con la familia de Jacob. De él vino la familia de los naamitas.',
    r:'Génesis 46:21; Números 26:40; 1 Crónicas 8:4', al:'Naaman'},
-  {id:'ard', n:'Ard', pr:'pa', pa:'bela-benjamin', rp:'Números 26:40',
+  {id:'ard', n:'Ard', pa:'bela-benjamin', rp:'Números 26:40',
    np:'Génesis 46:21 lo cuenta entre los «hijos» de Benjamín, pero, en vista de Números 26:40, parece que era su nieto, hijo de Bela.',
    d:'Descendiente de Benjamín que fue a Egipto con Jacob. Es probable que sea el Addar de 1 Crónicas 8:3.',
    r:'Génesis 46:21; Números 26:40', al:'Addar'},
@@ -862,13 +868,13 @@ const FAMILIA = [
   {id:'rafa-benjamin', n:'Rafá (hijo de Benjamín)', q:'Rafá', pa:'benjamin', rp:'1 Crónicas 8:2',
    d:'Quinto hijo de Benjamín según 1 Crónicas 8:2. Quizás murió joven y sin hijos, o su descendencia se unió a otra familia.',
    r:'1 Crónicas 8:2', al:'Rafa'},
-  {id:'abihud', n:'Abihud', pr:'pa', pa:'bela-benjamin', rp:'1 Crónicas 8:3',
+  {id:'abihud', n:'Abihud', pa:'bela-benjamin', rp:'1 Crónicas 8:3',
    np:'1 Crónicas 8:3 lo cuenta entre los «hijos» de Bela; según «Perspicacia», en estas listas «hijos» puede significar «descendientes».',
    d:'Descendiente de Benjamín por medio de su primogénito, Bela.', r:'1 Crónicas 8:3'},
-  {id:'abisua-bela', n:'Abisúa (hijo de Bela)', q:'Abisúa', pr:'pa', pa:'bela-benjamin', rp:'1 Crónicas 8:4',
+  {id:'abisua-bela', n:'Abisúa (hijo de Bela)', q:'Abisúa', pa:'bela-benjamin', rp:'1 Crónicas 8:4',
    np:'1 Crónicas 8:4 lo cuenta entre los «hijos» de Bela; según «Perspicacia», en estas listas «hijos» puede significar «descendientes».',
    d:'Benjaminita de la familia de Bela; al parecer, su hijo.', r:'1 Crónicas 8:4', al:'Abisua'},
-  {id:'ahoa', n:'Ahoá', pr:'pa', pa:'bela-benjamin', rp:'1 Crónicas 8:4',
+  {id:'ahoa', n:'Ahoá', pa:'bela-benjamin', rp:'1 Crónicas 8:4',
    np:'1 Crónicas 8:4 lo cuenta entre los «hijos» de Bela; según «Perspicacia», en estas listas «hijos» puede significar «descendientes».',
    d:'Descendiente de Benjamín por la línea de Bela. Puede que sea el Ahíya de 1 Crónicas 8:7.', r:'1 Crónicas 8:4', al:'Ahoa Ahoah'},
 
@@ -948,8 +954,9 @@ const FAMILIA = [
   {id:'caleb', n:'Caleb', pa:'jefune', rp:'Números 13:6; 32:12',
    d:'Hijo de Jefuné, de la tribu de Judá. Fue uno de los 12 espías y, como Josué, confió en Jehová; por eso fueron los únicos de su generación que entraron en la Tierra Prometida.',
    r:'Números 13:6, 30; 14:6-9, 24, 30; 32:12; Josué 14:6-14'},
-  {id:'quenaz-otniel', n:'Quenaz (padre de Otniel)', hm:['caleb'], rp:'Jueces 1:13; 3:9',
-   d:'Hermano de Caleb y padre del juez Otniel.', r:'Josué 15:17; Jueces 1:13; 3:9, 11'},
+  {id:'quenaz-otniel', n:'Quenaz (padre de Otniel)', de:['hm'], hm:['caleb'], rp:'Jueces 1:13; 3:9',
+   np:'Jueces 1:13 dice «Otniel hijo de Quenaz, el hermano menor de Caleb», y la frase puede referirse a Otniel o a Quenaz. Según «Perspicacia», el hermano de Caleb era Quenaz.',
+   d:'Padre del juez Otniel. Según «Perspicacia», era hermano de Caleb.', r:'Josué 15:17; Jueces 1:13; 3:9, 11'},
   {id:'acsa', n:'Acsá', mu:1, pa:'caleb', rp:'Josué 15:16; Jueces 1:12',
    d:'Hija de Caleb. Su padre se la dio como esposa a Otniel, que conquistó Quiryat-Séfer.', r:'Josué 15:16-19; Jueces 1:12-15', al:'Acsa'},
   {id:'otniel', pa:'quenaz-otniel', cy:['acsa'], rp:'Josué 15:17; Jueces 1:13; 3:9',
@@ -1044,7 +1051,7 @@ const FAMILIA = [
    d:'Benjaminita, antepasado del rey Saúl.', r:'1 Samuel 9:1'},
   {id:'zeror', n:'Zeror', pa:'becorat', rp:'1 Samuel 9:1',
    d:'Benjaminita, hijo de Becorat y padre de Abiel. Antepasado del rey Saúl.', r:'1 Samuel 9:1'},
-  {id:'jeiel', n:'Jeiel', pr:'pa', pa:'zeror', cy:['maaca-jeiel'], rp:'1 Samuel 9:1; 1 Crónicas 9:35',
+  {id:'jeiel', n:'Jeiel', de:['pa'], pa:'zeror', cy:['maaca-jeiel'], rp:'1 Samuel 9:1; 1 Crónicas 9:35',
    np:'1 Samuel 9:1 dice que Abiel era hijo de Zeror. Según «Perspicacia», al parecer a Jeiel también se le llamaba Abiel.',
    d:'Benjaminita, «el padre de Gabaón», donde vivía con su esposa Maacá y sus diez hijos. Fue antepasado del rey Saúl. Al parecer también se le llamaba Abiel.',
    r:'1 Samuel 9:1; 14:51; 1 Crónicas 8:29; 9:35-37', al:'Abiel'},
@@ -1060,7 +1067,7 @@ const FAMILIA = [
   {id:'baal-jeiel', n:'Baal (hijo de Jeiel)', q:'Baal', pa:'jeiel', ma:'maaca-jeiel', rp:'1 Crónicas 8:30; 9:36',
    d:'Hijo de Jeiel y Maacá. Su hermano Ner fue el abuelo del rey Saúl.', r:'1 Crónicas 8:30; 9:36'},
   {id:'ner', n:'Ner', pa:'jeiel', ma:'maaca-jeiel', rp:'1 Samuel 14:51; 1 Crónicas 9:36',
-   d:'Benjaminita, hijo de Jeiel (Abiel). Padre de Abner y de Quis, y abuelo del rey Saúl.',
+   d:'Benjaminita, hijo de Jeiel (al parecer, el Abiel de 1 Samuel 9:1). Padre de Abner y de Quis, y abuelo del rey Saúl.',
    r:'1 Samuel 14:50, 51; 1 Crónicas 8:33; 9:36, 39'},
   {id:'nadab-jeiel', n:'Nadab (hijo de Jeiel)', q:'Nadab', pa:'jeiel', ma:'maaca-jeiel', rp:'1 Crónicas 8:30; 9:36',
    d:'Hijo de Jeiel y Maacá. Su hermano Ner fue el abuelo del rey Saúl.', r:'1 Crónicas 8:30; 9:36'},
@@ -1083,7 +1090,7 @@ const FAMILIA = [
    d:'Hijo de Abner. En el reinado de David fue jefe de la tribu de Benjamín.', r:'1 Crónicas 27:21'},
   {id:'quis-saul', n:'Quis (padre de Saúl)', pa:'ner', rp:'1 Crónicas 8:33; 9:39',
    np:'1 Samuel 9:1 lo llama «hijo» de Abiel. Según «Perspicacia», ahí «hijo» significa «nieto»: su padre fue Ner, hijo de Jeiel (Abiel).',
-   d:'Benjaminita muy rico y padre del rey Saúl. Era hijo de Ner y nieto de Jeiel (Abiel). Vivía en Guibeah.', r:'1 Samuel 9:1, 2; 14:51; 1 Crónicas 8:33; Hechos 13:21'},
+   d:'Benjaminita muy rico y padre del rey Saúl. Era hijo de Ner y nieto de Jeiel. Vivía en Guibeah.', r:'1 Samuel 9:1, 2; 14:51; 1 Crónicas 8:33; Hechos 13:21'},
   {id:'saul', pa:'quis-saul', cy:['ahinoam-saul'], rp:'1 Samuel 9:1, 2; 14:50, 51'},
   {id:'ahinoam-saul', n:'Ahinoam (esposa de Saúl)', mu:1,
    d:'Hija de Ahimáaz y esposa del rey Saúl.', r:'1 Samuel 14:50'},
@@ -1221,7 +1228,7 @@ const FAMILIA = [
   {id:'absalon', n:'Absalón', pa:'david', ma:'maaca-david', rp:'2 Samuel 3:3',
    d:'Hijo de David y Maacá. Mató a Amnón por haber violado a su hermana Tamar. Después se rebeló contra su padre para quitarle el reino y murió en la batalla del bosque de Efraín.',
    r:'2 Samuel 3:3; 13:23-29; 15:1–18:15', al:'Absalon Abisalom'},
-  {id:'tamar-david', pr:'ma', n:'Tamar (hija de David)', mu:1, pa:'david', ma:'maaca-david', rp:'2 Samuel 13:1; 1 Crónicas 3:9',
+  {id:'tamar-david', de:['ma'], n:'Tamar (hija de David)', mu:1, pa:'david', ma:'maaca-david', rp:'2 Samuel 13:1; 1 Crónicas 3:9',
    np:'2 Samuel 13:1 la llama hermana de Absalón. Según Perspicacia, era su «hermana carnal», así que su madre también era Maacá.',
    d:'Hija de David y hermana de Absalón. Su medio hermano Amnón la violó.', r:'2 Samuel 13:1-22; 1 Crónicas 3:9'},
   {id:'adonias', n:'Adonías', pa:'david', ma:'haguit', rp:'2 Samuel 3:4',
@@ -1246,8 +1253,8 @@ const FAMILIA = [
    np:'1 Reyes 15:10, 13 llama a Maacá su abuela. La Biblia no da el nombre de su madre.'},
   {id:'jehosafat', pa:'asa', ma:'azuba', rp:'1 Reyes 15:24; 1 Crónicas 3:10; 1 Reyes 22:42'},
   {id:'jehoram-juda', pa:'jehosafat', cy:['atalia'], rp:'1 Reyes 22:50; 2 Reyes 8:16-18; 1 Crónicas 3:11'},
-  {id:'atalia', mu:1, pa:'acab', ma:'jezabel', rp:'2 Reyes 8:18; 2 Crónicas 21:6',
-   np:'Según Perspicacia, era hija de Acab y Jezabel, y por lo tanto nieta de Omrí (2 Reyes 8:26).'},
+  {id:'atalia', mu:1, pa:'acab', de:['ma'], ma:'jezabel', rp:'2 Reyes 8:18; 2 Crónicas 21:6',
+   np:'2 Reyes 8:18 la llama «hija de Acab», y 2 Reyes 8:26, «nieta de Omrí». Que su madre fuera Jezabel lo dice «Perspicacia»; la Biblia no lo dice.'},
   {id:'ocozias-juda', pa:'jehoram-juda', ma:'atalia', rp:'2 Reyes 8:24, 26; 1 Crónicas 3:11'},
   {id:'jehoas-juda', pa:'ocozias-juda', ma:'zibiah', rp:'2 Reyes 11:2; 1 Crónicas 3:11; 2 Reyes 12:1'},
   {id:'amasias', pa:'jehoas-juda', ma:'jehoadin', rp:'2 Reyes 14:1; 1 Crónicas 3:12; 2 Reyes 14:2'},
@@ -1267,7 +1274,7 @@ const FAMILIA = [
   // Madres de los reyes de Judá (1 y 2 Reyes)
   {id:'naama-rehoboam', n:'Naamá (madre de Rehoboam)', mu:1,
    d:'Ammonita, madre del rey Rehoboam.', r:'1 Reyes 14:21, 31; 2 Crónicas 12:13', al:'Naama'},
-  {id:'maaca-abiyam', pr:'pa', n:'Maacá (madre de Abiyam)', mu:1, pa:'uriel-guibea', rp:'2 Crónicas 13:2',
+  {id:'maaca-abiyam', de:['pa'], n:'Maacá (madre de Abiyam)', mu:1, pa:'uriel-guibea', rp:'2 Crónicas 13:2',
    np:'Según Perspicacia, la «Micaya hija de Uriel» de 2 Crónicas 13:2 es Maacá. 1 Reyes 15:2 la llama «nieta de Abisalom» (Absalón); Perspicacia explica que probablemente era hija de Tamar, la hija de Absalón, y de Uriel.',
    d:'Nieta de Absalón y esposa preferida del rey Rehoboam. Madre del rey Abiyam y abuela del rey Asá, que le quitó su posición de reina madre porque había hecho un ídolo.',
    r:'1 Reyes 15:2, 10, 13; 2 Crónicas 11:20-22; 13:2', al:'Micaya Maaca'},
@@ -1314,12 +1321,12 @@ const FAMILIA = [
   {id:'pekahias', pa:'menahem', rp:'2 Reyes 15:22, 23'},
 
   // --- Después del exilio: Sealtiel y Zorobabel ---
-  {id:'sealtiel', n:'Sealtiel', pa:'joaquin', su:'neri', rp:'1 Crónicas 3:17; Mateo 1:12; Lucas 3:27',
+  {id:'sealtiel', n:'Sealtiel', pa:'joaquin', de:['su'], su:'neri', rp:'1 Crónicas 3:17; Mateo 1:12; Lucas 3:27',
    np:'Lucas lo llama «hijo de Nerí». Según Perspicacia, se casó con una hija de Nerí y llegó a ser su yerno.',
    d:'Hijo del rey Jeconías (Joaquín), nacido después de la deportación a Babilonia.', r:'1 Crónicas 3:17; Mateo 1:12; Lucas 3:27', al:'Salatiel'},
   {id:'pedaya', n:'Pedaya', pa:'joaquin', rp:'1 Crónicas 3:17, 18',
    d:'Hijo del rey Jeconías (Joaquín) y hermano de Sealtiel.', r:'1 Crónicas 3:17-19', al:'Pedaías'},
-  {id:'zorobabel', pr:'pa', n:'Zorobabel', pa:'pedaya', pl:'sealtiel', rp:'1 Crónicas 3:19; Esdras 3:2; Mateo 1:12; Lucas 3:27',
+  {id:'zorobabel', n:'Zorobabel', pa:'pedaya', pl:'sealtiel', rp:'1 Crónicas 3:19; Esdras 3:2; Mateo 1:12; Lucas 3:27',
    np:'Según Perspicacia, probablemente era hijo carnal de Pedaya (1 Crónicas 3:19), pero legalmente se le consideraba hijo de Sealtiel.',
    d:'Nieto del rey Jeconías y gobernador de Judá. Dirigió a los judíos que regresaron de Babilonia y la reconstrucción del templo.',
    r:'Esdras 2:1, 2; 3:8; 5:2; Ageo 1:1; Zacarías 4:9; Mateo 1:12, 13'},
@@ -1335,7 +1342,8 @@ const FAMILIA = [
   {id:'mattan', n:'Mattán', pa:'eleazar-mateo', rp:'Mateo 1:15', d:D_MATEO, r:'Mateo 1:15', al:'Matán Mattan'},
   {id:'jacob-jose', n:'Jacob (padre de José)', q:'Jacob', lb:'Jacob', pa:'mattan', rp:'Mateo 1:15',
    d:'Padre de José, el esposo de María. Se le menciona en la genealogía de Mateo.', r:'Mateo 1:15, 16'},
-  {id:'jose-maria', pa:'jacob-jose', cy:['maria'], rp:'Mateo 1:16, 24'},
+  {id:'jose-maria', pa:'jacob-jose', de:['su'], su:'heli', cy:['maria'], rp:'Mateo 1:16, 24; Lucas 3:23',
+   np:'Lucas 3:23 lo llama «hijo de Helí». Según «Perspicacia», Helí era el padre de María, y José, su yerno.'},
 
   // --- La línea de María (Lucas 3:23-31), de Natán, hijo de David, a Helí ---
   {id:'matata', n:'Matatá', pa:'natan-david', rp:'Lucas 3:31', d:D_LUCAS, r:'Lucas 3:31'},
@@ -1394,7 +1402,7 @@ const FAMILIA = [
   {id:'joel', pa:'petuel', rp:'Joel 1:1'},
   {id:'amitai', n:'Amitái', d:'Padre del profeta Jonás.', r:'Jonás 1:1; 2 Reyes 14:25', al:'Amitai'},
   {id:'jonas', pa:'amitai', rp:'Jonás 1:1'},
-  {id:'amarias-sofonias', pr:'pa', n:'Amarías (antepasado de Sofonías)', pa:'ezequias', rp:'Sofonías 1:1',
+  {id:'amarias-sofonias', de:['pa'], n:'Amarías (antepasado de Sofonías)', pa:'ezequias', rp:'Sofonías 1:1',
    np:'Sofonías 1:1 dice que Amarías era hijo de un Ezequías. Según Perspicacia, parece que Sofonías era tataranieto del rey Ezequías.',
    d:'Bisabuelo del profeta Sofonías.', r:'Sofonías 1:1'},
   {id:'guedalias-sofonias', n:'Guedalías (abuelo de Sofonías)', pa:'amarias-sofonias', rp:'Sofonías 1:1',
@@ -1423,7 +1431,7 @@ const FAMILIA = [
   {id:'mardoqueo', n:'Mardoqueo', pa:'jair-mardoqueo', rp:'Ester 2:5',
    d:'Judío benjaminita que vivía en Susa. Adoptó como hija a su prima Ester y la ayudó a salvar a los judíos. Llegó a ser el segundo en autoridad después del rey Asuero.',
    r:'Ester 2:5-7, 15; 4:1-17; 10:3'},
-  {id:'abihail', pr:'pa', n:'Abihail', pa:'simei-mardoqueo', rp:'Ester 2:7, 15',
+  {id:'abihail', de:['pa'], n:'Abihail', pa:'simei-mardoqueo', rp:'Ester 2:7, 15',
    np:'Ester 2:15 dice que Mardoqueo era sobrino de Abihail, y la nota de Ester 2:7 explica que Ester era «la hija del hermano de su padre».',
    d:'Padre de Ester y tío de Mardoqueo.', r:'Ester 2:15; 9:29', al:'Abiháil'},
   {id:'ester', mu:1, pa:'abihail', pl:'mardoqueo', pt:'adoptivo', rp:'Ester 2:7, 15',
@@ -1433,7 +1441,7 @@ const FAMILIA = [
    r:'Ester 1:1-3; 2:16, 17; 10:1-3'},
 
   // --- Jesús y su familia ---
-  {id:'maria', mu:1, pa:'heli', rp:'Lucas 3:23',
+  {id:'maria', mu:1, de:['pa'], pa:'heli', rp:'Lucas 3:23',
    np:'Lucas 3:23 llama a José «hijo de Helí». Según Perspicacia, Helí era el padre de María, y José era su yerno.'},
   {id:'jesus', ma:'maria', pl:'jose-maria', rp:'Mateo 1:16, 18-25; Lucas 1:30-35; 3:23',
    np:'José no fue su padre carnal: María quedó embarazada por espíritu santo. José lo adoptó, y así Jesús llegó a ser su heredero legal al trono de David. Jesús es el Hijo de Dios (Lucas 1:35).'},
@@ -1454,19 +1462,21 @@ const FAMILIA = [
   {id:'salome', n:'Salomé', mu:1,
    d:'Discípula de Jesús que vio desde lejos su ejecución y que después compró especias para su cuerpo. Al parecer era la madre de Santiago y Juan, los hijos de Zebedeo. Algunos piensan que era hermana de María, la madre de Jesús; si fuera así, Santiago y Juan serían primos de Jesús.',
    r:'Mateo 27:56; Marcos 15:40; 16:1; Juan 19:25', al:'Salome'},
-  {id:'santiago-zebedeo', pa:'zebedeo', pr:'ma', ma:'salome', rp:'Mateo 4:21; 10:2; 27:56; Marcos 15:40',
+  {id:'santiago-zebedeo', pa:'zebedeo', de:['ma'], ma:'salome', rp:'Mateo 4:21; 10:2; 27:56; Marcos 15:40',
    np:'Al comparar Mateo 27:56 con Marcos 15:40, parece que «la madre de los hijos de Zebedeo» era Salomé («Perspicacia» dice «quizás»).'},
-  {id:'juan-apostol', pa:'zebedeo', pr:'ma', ma:'salome', rp:'Mateo 4:21; 10:2; 27:56; Marcos 15:40',
+  {id:'juan-apostol', pa:'zebedeo', de:['ma'], ma:'salome', rp:'Mateo 4:21; 10:2; 27:56; Marcos 15:40',
    np:'Al comparar Mateo 27:56 con Marcos 15:40, parece que «la madre de los hijos de Zebedeo» era Salomé («Perspicacia» dice «quizás»).'},
-  {id:'alfeo', n:'Alfeo (padre de Santiago)', q:'Alfeo', cy:['maria-clopas'], rp:'Juan 19:25; Marcos 15:40',
+  {id:'alfeo', n:'Alfeo (padre de Santiago)', q:'Alfeo', de:['cy'], cy:['maria-clopas'], rp:'Juan 19:25; Marcos 15:40',
    np:'Juan 19:25 habla de «María la esposa de Clopas». Según «Perspicacia», es bastante probable que Clopas y Alfeo fueran la misma persona.',
    d:'Padre del apóstol Santiago, llamado «hijo de Alfeo», y de Josés. Probablemente es el Clopas de Juan 19:25. No es el Alfeo padre de Mateo.',
    r:'Mateo 10:3; Marcos 3:18; Lucas 6:15; Juan 19:25; Hechos 1:13', al:'Clopas Clopás'},
   {id:'maria-clopas', n:'María (esposa de Clopas)', q:'María', mu:1,
-   d:'Esposa de Clopas (Alfeo) y madre de Santiago el Menor y de Josés. Estuvo junto al madero de tormento de Jesús y fue testigo de su entierro.',
+   d:'Esposa de Clopas (probablemente el mismo Alfeo) y madre de Santiago el Menor y de Josés. Estuvo junto al madero de tormento de Jesús y fue testigo de su entierro.',
    r:'Mateo 27:56, 61; Marcos 15:40, 47; 16:1; Juan 19:25', al:'Maria Clopas'},
-  {id:'santiago-alfeo', pa:'alfeo', ma:'maria-clopas', rp:'Mateo 10:3; Marcos 15:40'},
-  {id:'joses', n:'Josés', pa:'alfeo', ma:'maria-clopas', rp:'Marcos 15:40, 47',
+  {id:'santiago-alfeo', pa:'alfeo', de:['ma'], ma:'maria-clopas', rp:'Mateo 10:3; Marcos 15:40',
+   np:'Marcos 15:40 habla de «María la madre de Santiago el Menor y de Josés». Que Santiago el Menor sea el apóstol Santiago hijo de Alfeo es la explicación de la nota de estudio de la Traducción del Nuevo Mundo, no lo dice el texto.'},
+  {id:'joses', n:'Josés', de:['pa'], pa:'alfeo', ma:'maria-clopas', rp:'Marcos 15:40, 47',
+   np:'Su madre era María, la esposa de Clopas (Marcos 15:40; Juan 19:25). Que Clopas sea Alfeo es probable según «Perspicacia», no lo dice la Biblia.',
    d:'Hijo de María, la esposa de Clopas, y hermano del apóstol Santiago el Menor.', r:'Mateo 27:56; Marcos 15:40, 47', al:'Joses'},
   {id:'alfeo-mateo', n:'Alfeo (padre de Mateo)', q:'Alfeo', rp:'Marcos 2:14',
    d:'Padre del apóstol Mateo, también llamado Leví. No es el Alfeo padre del apóstol Santiago.', r:'Marcos 2:14'},
@@ -1493,7 +1503,7 @@ const FAMILIA = [
    d:'Griego, esposo de Eunice y padre de Timoteo. La Biblia no da su nombre.', r:'Hechos 16:1, 3'},
   {id:'loida', n:'Loida', mu:1,
    d:'Abuela de Timoteo. Pablo elogió su fe y la de Eunice, la madre de Timoteo.', r:'2 Timoteo 1:5'},
-  {id:'eunice', pr:'ma', n:'Eunice', mu:1, ma:'loida', rp:'2 Timoteo 1:5',
+  {id:'eunice', de:['ma'], n:'Eunice', mu:1, ma:'loida', rp:'2 Timoteo 1:5',
    np:'2 Timoteo 1:5 llama a Loida abuela de Timoteo. Según Perspicacia, lo era «probablemente por parte de su madre Eunice».',
    d:'Mujer judía creyente y madre de Timoteo; su esposo era griego. Pablo elogió la fe de ella y la de Loida, la abuela de Timoteo.',
    r:'Hechos 16:1; 2 Timoteo 1:5; 3:15'},
@@ -1513,10 +1523,10 @@ const FAMILIA = [
    r:'Hechos 12:12-17; Colosenses 4:10'},
   {id:'marcos', ma:'maria-marcos', rp:'Hechos 12:12',
    np:'Colosenses 4:10 lo llama «el primo de Bernabé». La Biblia no dice por cuál de sus padres eran primos.'},
-  {id:'progenitor-bernabe', n:'Padre o madre de Bernabé', sn:1, sx:1, hm:['maria-marcos'], rp:'Colosenses 4:10',
+  {id:'progenitor-bernabe', n:'Padre o madre de Bernabé', de:['persona'], sn:1, sx:1, hm:['maria-marcos'], rp:'Colosenses 4:10',
    np:'Colosenses 4:10 llama a Marcos «el primo de Bernabé», y según «Perspicacia» María, la madre de Marcos, era tía de Bernabé. La Biblia no dice si era hermana de su padre o de su madre; aquí se muestra a uno de sus padres como hermano o hermana de María.',
    d:'Uno de los padres de Bernabé. La Biblia no dice quién era ni si era su padre o su madre.', r:'Hechos 4:36; Colosenses 4:10'},
-  {id:'bernabe', n:'Bernabé', pa:'progenitor-bernabe', rp:'Colosenses 4:10',
+  {id:'bernabe', n:'Bernabé', pa:'progenitor-bernabe', pm:['marcos'], rp:'Colosenses 4:10',
    np:'Era primo de Marcos (Colosenses 4:10). La Biblia no dice cuál de sus padres era hermano o hermana de María, la madre de Marcos.',
    d:'Levita natural de Chipre. Se llamaba José, pero los apóstoles le pusieron el sobrenombre de Bernabé («hijo del consuelo»). Acompañó a Pablo en su primer viaje misional, y después se fue a Chipre con su primo Marcos.',
    r:'Hechos 4:36, 37; 11:22-26; 13:2-4; 15:36-39; Colosenses 4:10', al:'Bernabe José'},
@@ -1534,10 +1544,27 @@ const FAMILIA = [
    r:'Hechos 23:12-22'},
 ];
 
+/* ¿Mostrar lo que no está en la Biblia (parentescos por deducción y personajes extrabíblicos)?
+   Lo elige el usuario en el árbol y vale para todas las páginas. Si no, se quitan de FAMILIA antes
+   de usarla, así el árbol, el parentesco y el linaje solo ven lo que dice la Biblia. El validador
+   prueba los dos casos con globalThis.VER_NO_BIBLICO. */
+const NO_BIBLICO = typeof globalThis.VER_NO_BIBLICO === 'boolean' ? globalThis.VER_NO_BIBLICO
+  : (() => { try { return localStorage.getItem('noBiblico') === '1'; } catch (e) { return false; } })();
+const deducido = (f, k) => (f.de || []).includes(k);
+if (!NO_BIBLICO){
+  const fuera = new Set(FAMILIA.filter(f => f.xb || deducido(f, 'persona')).map(f => f.id));
+  for (let i = FAMILIA.length - 1; i >= 0; i--) if (fuera.has(FAMILIA[i].id)) FAMILIA.splice(i, 1);
+  for (const f of FAMILIA){
+    for (const k of f.de || []) if (k !== 'su') delete f[k];   // su: se queda, como lo dice la Biblia
+    for (const k of ['pa', 'ma', 'pl', 'su']) if (fuera.has(f[k])) delete f[k];
+    for (const k of ['cy', 'hm', 'mh', 'pm']) if (f[k]) f[k] = f[k].filter(x => !fuera.has(x));
+  }
+}
+
 // Ids de las personas que tienen algún parentesco: las que aparecen en el árbol genealógico
 const EN_ARBOL = new Set();
 for (const f of FAMILIA){
-  const rel = [f.pa, f.ma, f.pl, f.su, ...(f.cy || []), ...(f.hm || [])].filter(Boolean);
+  const rel = [f.pa, f.ma, f.pl, f.su, ...(f.cy || []), ...(f.hm || []), ...(f.pm || [])].filter(Boolean);
   if (rel.length){ EN_ARBOL.add(f.id); rel.forEach(id => EN_ARBOL.add(id)); }
 }
 
@@ -1555,16 +1582,20 @@ function cadenaFam(desde, orden){
   for (let id = desde; id && out.length < 300; ){ out.push(id); const f = fam(id); id = f[orden.find(k => f[k])]; }
   return out;
 }
-// Personas que solo están en la línea de María (de María a Natán, hijo de David)
+// Personas que solo están en la línea de Lucas 3 (María, y de Helí a Natán, hijo de David). Se sube
+// desde Helí porque, sin las deducciones, María no está unida a él (Lucas une a Helí con José).
 const LUCAS_SOLO = (() => {
   const mateo = new Set(cadenaFam('jose-maria', ['pl', 'pa']));
-  return new Set(cadenaFam('maria', ['su', 'pl', 'pa']).filter(id => !mateo.has(id)));
+  return new Set(['maria', ...cadenaFam('heli', ['su', 'pl', 'pa'])].filter(id => !mateo.has(id)));
 })();
 // Tipo de padre legal (pt): «adoptivo» (José para Jesús, Mardoqueo para Ester) o «legal»
 const tipoPl = id => fam(id).pt || (fam(id).pa ? 'legal' : 'adoptivo');
 // Nombre del vínculo de un antepasado con su hijo en la línea (k: pa, pl, ma o su)
+// Un yerno al que la Biblia llama «hijo» (su con de:['su']): sin las deducciones, como lo dice Lucas
+const sueLiteral = id => deducido(fam(id), 'su') && !NO_BIBLICO;
 const vinculo = (k, hijo) => ({pa: fam(fam(hijo).pa).sx ? 'padre o madre' : 'padre',
-                               pl:'padre ' + tipoPl(hijo), ma:'madre', su:'suegro'})[k];
+                               pl:'padre ' + tipoPl(hijo), ma:'madre',
+                               su: sueLiteral(hijo) ? 'Lucas lo llama «hijo»' : 'suegro'})[k];
 // Líneas posibles para subir desde una persona (en el árbol, los botones «Antepasados de… por»).
 // La de la madre (o el suegro) solo se ofrece si ella tiene antepasados, o si no hay padre.
 function opcionesLinaje(id){
