@@ -60,6 +60,7 @@ for (const f of FAMILIA){
   }
   if ((f.pa || f.ma || f.pl || f.su || f.cy || f.hm) && !f.rp) error(`«${f.id}»: tiene parentesco pero no textos (rp)`);
   if (f.pl && !f.np) aviso(`«${f.id}»: tiene padre legal (pl); conviene explicarlo en np`);
+  if (f.pt && (!f.pl || !['adoptivo', 'legal'].includes(f.pt))) error(`«${f.id}».pt = «${f.pt}»: debe ser 'adoptivo' o 'legal', y solo va con pl`);
   for (const c of f.cy || []){
     if ((F.get(c)?.cy || []).includes(f.id)) aviso(`Matrimonio anotado dos veces: «${f.id}» y «${c}»`);
     if (!!persona(c).mu === !!persona(f.id).mu) aviso(`«${f.id}» y su cónyuge «${c}» tienen el mismo sexo en los datos`);

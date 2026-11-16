@@ -303,6 +303,10 @@ const color = p => p.c ? `var(${CATS[p.c].v})` : 'var(--c-gen)';
    kids:  sus hijos (y yernos), agrupados por el otro progenitor. */
 const ORDEN = ['pl', 'pa', 'ma'];
 const LINEA = {pa:'padre', pl:'padre legal', ma:'madre', su:'suegro'};
+// Tipo de padre legal (pt en los datos): «adoptivo» (José para Jesús, Mardoqueo para Ester) o «legal»
+const tipoPl = p => p.pt || (p.pa ? 'legal' : 'adoptivo');
+// Nombre del vínculo de un antepasado con su hijo (k: pa, pl, ma o su)
+const vinculo = (k, hijo) => k === 'pl' ? 'padre ' + tipoPl(get(hijo)) : LINEA[k];
 // Líneas posibles para subir desde una persona (se elige con los botones de arriba)
 function opciones(id){
   const p = get(id), tiene = x => { const q = get(x); return q && (q.pa || q.ma || q.pl || q.su); };
@@ -321,7 +325,7 @@ function vista(focus, primera){
     const up = p[k];
     vistos.add(up);
     const partner = k === 'su' ? null : k === 'ma' ? (p.pl || p.pa || null) : (p.ma || null);
-    spine.unshift({id:up, partner, rel:k});
+    spine.unshift({id:up, partner, rel:k, child:cur});
     cur = up;
   }
   // Generación de la persona
@@ -356,8 +360,9 @@ function agrupar(ids, otro, quien){
 // Etiqueta junto a un hijo cuando el parentesco no es el carnal (los yernos van en su propio grupo)
 function tagDe(id, padre){
   const p = get(id);
-  if (p.pl === padre && p.pa !== padre) return p.pa ? 'hijo legal' : 'hijo adoptivo';
-  return '';
+  if (p.pl !== padre || p.pa === padre) return '';
+  const t = tipoPl(p);
+  return p.mu ? 'hija ' + (t === 'adoptivo' ? 'adoptiva' : 'legal') : 'hijo ' + t;
 }
 
 /* ===================== DIBUJO ===================== */
@@ -412,7 +417,7 @@ function layoutH(v){
   for (let i = 1; i < S.length; i++){
     const x1 = colX(i - 1) + CW, x2 = colX(i), xm = x1 + GX / 2, y2 = S[i].inY;
     links.push({d:`M${x1} 0H${xm}V${y2}H${x2}`, cls:'line' + (S[i - 1].rel === 'pl' || S[i - 1].rel === 'su' ? ' dash' : ''),
-                lbl:S[i - 1].rel === 'pl' || S[i - 1].rel === 'su' ? LINEA[S[i - 1].rel] : '', lx:x1 + 4, ly:-6});
+                lbl:S[i - 1].rel === 'pl' || S[i - 1].rel === 'su' ? vinculo(S[i - 1].rel, S[i - 1].child) : '', lx:x1 + 4, ly:-6});
   }
   // Generación de la persona
   const k = S.length, xf = colX(k), fam = [];
@@ -448,7 +453,7 @@ function layoutH(v){
     for (const it of hermanos)
       links.push({d:`M${xt} ${it.y + it.h / 2}H${xf}`, cls:(it.focus ? 'line' : '') + (it.tag ? ' dash' : '')});
     links.push({d:`M${x1} 0H${xt}V0`, cls:'line' + (S[k - 1].rel === 'pl' || S[k - 1].rel === 'su' ? ' dash' : ''),
-                lbl:S[k - 1].rel === 'pl' || S[k - 1].rel === 'su' ? LINEA[S[k - 1].rel] : '', lx:x1 + 4, ly:-6});
+                lbl:S[k - 1].rel === 'pl' || S[k - 1].rel === 'su' ? vinculo(S[k - 1].rel, S[k - 1].child) : '', lx:x1 + 4, ly:-6});
   }
   // Hijos
   const xk = xf + CWF + GX, kids = [];
@@ -484,15 +489,17 @@ function layoutV(v, W){
     }
     if (i){
       const rel = S[i - 1].rel, raro = rel === 'pl' || rel === 'su';
-      links.push({d:`M${TX} ${y - GV}V${y}`, cls:'line' + (raro ? ' dash' : ''), lbl:raro ? LINEA[rel] : '', lx:TX + 8, ly:y - GV / 2 + 4});
+      links.push({d:`M${TX} ${y - GV}V${y}`, cls:'line' + (raro ? ' dash' : ''), lbl:raro ? vinculo(rel, S[i - 1].child) : '', lx:TX + 8, ly:y - GV / 2 + 4});
     }
     y += CH + GV;
   });
   // Generación de la persona (con sangría si hay antepasados); sus hijos, debajo de ella
   const x1 = S.length ? IND : 0, w1 = Math.min(W - x1, 420);
   const x2 = x1 + IND, w2 = Math.min(W - x2, 420);
-  if (S.length) y -= GV - 12;
-  const top = y - 12, ramas = [];
+  // Si el último vínculo lleva etiqueta (padre legal o adoptivo, suegro), se deja sitio para ella
+  const sep = S.length && ['pl', 'su'].includes(S[S.length - 1].rel) ? 28 : 12;
+  if (S.length) y -= GV - sep;
+  const top = y - sep, ramas = [];
   for (const g of v.fam){
     if (g.label){ labels.push({label:g.label, x:x1, y}); y += LBL; }
     for (const id of g.ids){
@@ -536,7 +543,7 @@ function layoutV(v, W){
     links.push({d:`M${TX} ${top}V${last.y + last.h / 2}` +
                   ramas.filter(it => !it.focus).map(it => `M${TX} ${it.y + it.h / 2}H${x1}`).join(''), cls:''});
     links.push({d:`M${TX} ${top}V${foco.y + foco.h / 2}H${x1}`, cls:'line' + (raro ? ' dash' : ''),
-                lbl:raro ? LINEA[rel] : '', lx:TX + 8, ly:top + 14});
+                lbl:raro ? vinculo(rel, S[S.length - 1].child) : '', lx:TX + 8, ly:top + 14});
   }
   return {items, links, labels};
 }
@@ -640,7 +647,7 @@ function renderLines(v){
   box.append(el('b', '', `Antepasados de ${corto(v.focus)} por:`));
   for (const o of ops){
     const b = el('button');
-    b.append(corto(o.id) + ' ', el('small', '', `(${LINEA[o.k]})`));
+    b.append(corto(o.id) + ' ', el('small', '', `(${vinculo(o.k, v.focus)})`));
     b.setAttribute('aria-pressed', o.k === actual);
     b.addEventListener('click', () => go(v.focus, o.k));
     box.append(b);
@@ -707,7 +714,7 @@ function fillCard(id){
     fam.append(el('dt', '', titulo), dd);
   };
   fila('Padre', [p.pa]);
-  fila(p.pa ? 'Padre legal' : 'Padre adoptivo', [p.pl]);
+  fila('Padre ' + tipoPl(p), [p.pl]);
   fila('Madre', [p.ma]);
   fila('Suegro', [p.su]);
   const cy = CONYUGES.get(id) || [];
