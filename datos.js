@@ -497,6 +497,7 @@ const JW = {
   'María (esposa de Clopas)':'1200002918', 'María (madre de Marcos)':'1200002918', 'Santiago (padre de Tadeo)':'1200002313',
   'Simón (medio hermano de Jesús)':'1200004131', 'José (medio hermano de Jesús)':'1200000830',
   'Bernabé':'1200000566',
+  'Barakel':'1200000557', 'Elihú (hijo de Barakel)':'1200001306',
   'Beor (padre de Bela)':'1200000646', 'Bela (rey de Edom)':'1200000622', 'Zérah (padre de Jobab)':'1200004704', 'Jobab (rey de Edom)':'1200002477',
   'Bedad':'1200000599', 'Hadad (hijo de Bedad)':'1200001797', 'Acbor (padre de Baal-Hanán)':'1200000076', 'Baal-Hanán (rey de Edom)':'1200000513',
   'Hadar (rey de Edom)':'1200001800', 'Mehetabel (esposa de Hadar)':'1200002961', 'Matred':'1200002927', 'Mezahab':'1200003025',
@@ -723,6 +724,13 @@ const FAMILIA = [
    np:'Génesis 22:24 lo cuenta entre los «hijos» de Reumá, pero no dice si era hombre o mujer. Según «Perspicacia», con toda probabilidad era un varón, porque dio nombre a un reino arameo.',
    d:'Hijo de Nacor y de su concubina Reumá. Según «Perspicacia», es probable que de él tomara su nombre el reino arameo de Maacá, al norte de Israel.',
    r:'Génesis 22:24; 2 Samuel 10:6, 8', al:'Maaca'},
+  // Elihú y su padre, buzitas (Job 32:2). No se unen a Buz: la Biblia no dice cuántas generaciones hay entre ellos.
+  {id:'barakel', n:'Barakel',
+   d:'Padre de Elihú, el joven que habló a Job y a sus tres compañeros. Era buzita, de la familia de Ram. Según «Perspicacia», probablemente descendía de Buz, el sobrino de Abrahán; y Ram fue el fundador de su familia.',
+   r:'Job 32:2, 6'},
+  {id:'elihu', n:'Elihú (hijo de Barakel)', q:'Elihú', pa:'barakel', rp:'Job 32:2, 6',
+   d:'Hijo de Barakel el buzita, de la familia de Ram. Era joven y esperó a que Job y sus tres compañeros terminaran de hablar; luego corrigió a Job, que había tratado de demostrar que él tenía razón y no Dios, y también a los tres. Según «Perspicacia», como descendiente de Buz, debió de ser un pariente lejano de Abrahán.',
+   r:'Job 32:1–37:24', al:'Elihu'},
   {id:'ismael', pa:'abrahan', ma:'agar', rp:'Génesis 16:15'},
   // Hijos de Abrahán y Queturá (Génesis 25:1-4)
   {id:'zimran', n:'Zimrán', pa:'abrahan', ma:'ketura', rp:'Génesis 25:1, 2', d:'Hijo de Abrahán y Queturá.', r:'Génesis 25:2; 1 Crónicas 1:32', al:'Zimran'},
