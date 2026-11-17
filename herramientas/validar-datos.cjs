@@ -89,6 +89,20 @@ function validar(verNoBiblico){
     }
   }
 
+  // ---------- Pueblos (capa «Pueblos» de PEOPLE) ----------
+  for (const pu of PEOPLE.filter(p => p.c === 'pueblo')){
+    if (pu.an && !F.has(pu.an)) error(`Pueblo «${pu.id}».an: no existe «${pu.an}» en FAMILIA`);
+    if (!pu.dt) error(`Pueblo «${pu.id}»: falta dt (de dónde salen las fechas de la barra)`);
+    for (const m of pu.mi || []){
+      const quien = m.id || m.n || '?';
+      if (!m.r) error(`Pueblo «${pu.id}», «${quien}»: falta el texto (r)`);
+      if (m.id && m.n) error(`Pueblo «${pu.id}», «${quien}»: lleva id y n; con id, el nombre sale de los datos`);
+      if (!m.id && !m.n) error(`Pueblo «${pu.id}»: un miembro no tiene ni id ni n`);
+      if (m.id && !existe(m.id)) error(`Pueblo «${pu.id}»: no existe la persona «${m.id}»`);
+      if (m.de && !m.nt) error(`Pueblo «${pu.id}», «${quien}»: es una deducción (de) pero no lo explica en nt`);
+    }
+  }
+
   // Ciclos (alguien que sería su propio antepasado)
   const estado = new Map();   // 1 = visitando, 2 = terminado
   const visitar = (id, camino) => {

@@ -43,6 +43,7 @@ const CATS = {
   // capa: no es una categoría de personas; se muestra u oculta con su propio botón y no se agrupa
   crono:  {n:'Profecías cronológicas', v:'--c-crono', t:'Profecías bíblicas que indican un periodo de tiempo y cuyo cumplimiento se puede fechar', capa:true},
   guerra: {n:'Guerras', v:'--c-guerra', t:'Guerras y conquistas importantes del relato bíblico, y guerras posteriores (extrabíblicas) que cumplen profecías bíblicas según las publicaciones', capa:true},
+  pueblo: {n:'Pueblos', v:'--c-pueblo', t:'Pueblos del relato bíblico. Cada barra va desde la primera vez que el pueblo aparece en el relato hasta la última vez que aparece como pueblo de ese tiempo', capa:true},
 };
 
 /* ===================== GRUPOS PRINCIPALES =====================
@@ -334,6 +335,69 @@ const PEOPLE = [
    d:'La guerra más destructiva de la historia. Las publicaciones de los testigos de Jehová la consideran parte del cumplimiento de la señal de los últimos días.',
    r:'Mateo 24:7; 2 Timoteo 3:1-5; Apocalipsis 6:4', al:'guerra mundial segunda'},
 
+  // --- Pueblos (capa) ---
+  // La barra va desde la primera vez que el pueblo aparece en el relato hasta la última vez que
+  // aparece como pueblo de ese tiempo (no en recuerdos). Casi nunca se conocen las fechas exactas.
+  // an: id en FAMILIA del antepasado del que descienden (Génesis 10:15-18).
+  // mi: personas de ese pueblo: {id} si están en los datos (PEOPLE o FAMILIA), o {n} si no; r: el
+  //     texto que lo dice; nt: aclaración; de:1 = es una deducción de «Perspicacia», no lo dice la
+  //     Biblia (solo se ve con «Mostrar lo que no está en la Biblia»).
+  // Los siete pueblos de Canaán (Deuteronomio 7:1; Josué 3:10)
+  {id:'cananeos', n:'Cananeos', q:'Cananeo', s:-1943, e:-468, a:'e', c:'pueblo', k:'pueblo', an:'canaan',
+   dt:'Desde la llegada de Abrahán a Canaán (1943 a.e.c.; Génesis 12:6) hasta los días de Esdras (c. 468 a.e.c.; Esdras 9:1), la última vez que aparecen como pueblo',
+   d:'Descendientes de Canaán, el hijo de Cam. Vivían en la tierra de Canaán, al oeste del río Jordán. A veces «cananeos» se refiere a todos los pueblos de Canaán, y según «Perspicacia», en tiempos de Job la palabra llegó a significar también «comerciante». Por sus prácticas detestables, Jehová mandó a Israel destruirlos, pero Israel no los eliminó del todo y fueron como lazos para él. Salomón obligó a los que quedaban a hacer trabajos forzados. Después del exilio, algunos judíos se casaron con mujeres de esos pueblos. Según «Perspicacia», con el tiempo «Canaán» llegó a referirse sobre todo a Fenicia: Mateo 15:22 llama literalmente «cananea» a la mujer fenicia de la región de Tiro y Sidón.',
+   r:'Génesis 9:18-27; 10:15-19; 12:6; Deuteronomio 7:1-4; Jueces 1:27-33; 2:1-3; 1 Reyes 9:20, 21; Esdras 9:1, 2; Mateo 15:22', al:'cananeo Canaan',
+   mi:[{id:'hija-sua', r:'Génesis 38:2', nt:'la esposa de Judá'},
+       {n:'Súa', r:'Génesis 38:2', nt:'padre de la esposa de Judá'},
+       {id:'shaul-simeon', r:'Génesis 46:10', nt:'hijo de Simeón y de una cananea'},
+       {n:'El rey de Arad', r:'Números 21:1'},
+       {n:'Jabín, rey de Canaán', r:'Jueces 4:2'},
+       {n:'Sísara', r:'Jueces 4:2', de:1, nt:'el jefe del ejército de Jabín; «Perspicacia» lo llama jefe militar cananeo'},
+       {n:'La mujer fenicia', r:'Mateo 15:22', nt:'literalmente, «cananea»'}]},
+  {id:'hititas', n:'Hititas', q:'Hititas', s:-1935, e:-468, a:'se', c:'pueblo', k:'pueblo', an:'het',
+   dt:'Desde la promesa a Abrahán (c. 1935 a.e.c.; Génesis 15:20) hasta los días de Esdras (c. 468 a.e.c.; Esdras 9:1). La Biblia no da la fecha de Génesis 15: fue después de la guerra de los cuatro reyes y antes del nacimiento de Ismael (1932 a.e.c.)',
+   d:'Descendientes de Het, el hijo de Canaán. Vivían sobre todo en la región montañosa, y una rama vivía cerca de Hebrón: Abrahán le compró a Efrón el hitita la cueva de Macpelá para enterrar a Sara. Esaú se casó con mujeres hititas, lo que amargó a Isaac y a Rebeca. Salomón los puso a hacer trabajos forzados, pero en los días de Jehoram, rey de Israel, todavía tenían reyes (2 Reyes 7:6). Según «Perspicacia», identificarlos con el imperio hitita del que habla la historia es una conjetura que no se ha probado.',
+   r:'Génesis 10:15; 15:20; 23:3-20; 26:34, 35; Josué 1:4; 2 Crónicas 8:7, 8; 2 Reyes 7:6; Esdras 9:1', al:'hitita Het',
+   mi:[{n:'Efrón', r:'Génesis 23:10; 25:9', nt:'hijo de Zóhar; le vendió a Abrahán la cueva de Macpelá'},
+       {n:'Beerí', r:'Génesis 26:34', nt:'padre de Judit, esposa de Esaú'},
+       {n:'Judit', r:'Génesis 26:34', nt:'hija de Beerí y esposa de Esaú'},
+       {n:'Elón', r:'Génesis 26:34; 36:2', nt:'suegro de Esaú'},
+       {id:'ada-esau', r:'Génesis 36:2', nt:'hija de Elón'},
+       {n:'Ahimélec el hitita', r:'1 Samuel 26:6', nt:'compañero de David'},
+       {n:'Urías el hitita', r:'2 Samuel 11:3', nt:'uno de los guerreros de David; primer esposo de Bat-Seba'}]},
+  {id:'amorreos', n:'Amorreos', q:'Amorreo', s:-1935, e:-468, a:'se', c:'pueblo', k:'pueblo', an:'canaan',
+   dt:'Desde los días de Abrahán (c. 1935 a.e.c.; Génesis 14:7, 13) hasta los días de Esdras (c. 468 a.e.c.; Esdras 9:1). La guerra de Génesis 14 fue entre 1943 y 1932 a.e.c.',
+   d:'Descendientes de Canaán. Según «Perspicacia», cuando Israel salió de Egipto eran la tribu más poderosa de Canaán. Vivían en la región montañosa y también al este del Jordán, donde estaban los reinos de Sehón y de Og, que Israel venció antes de cruzar el río. Jehová había dicho que esperaría hasta que «el error de los amorreos» estuviera completo (Génesis 15:16). Después de la conquista quedaron algunos; Salomón los puso a hacer trabajos forzados.',
+   r:'Génesis 10:16; 14:7, 13; 15:16; Números 21:21-35; Josué 10:1-27; 1 Reyes 9:20, 21; Esdras 9:1; Amós 2:9', al:'amorreo',
+   mi:[{n:'Mamré', r:'Génesis 14:13', nt:'aliado de Abrahán'},
+       {n:'Escol y Aner', r:'Génesis 14:13', nt:'hermanos de Mamré el amorreo'},
+       {n:'Sehón', r:'Números 21:21; Deuteronomio 2:24', nt:'rey de Hesbón'},
+       {n:'Og', r:'Deuteronomio 3:1, 8', nt:'rey de Basán'},
+       {n:'Adoni-Zédeq', r:'Josué 10:1, 5', nt:'rey de Jerusalén, uno de los cinco reyes de los amorreos'},
+       {n:'Los gabaonitas', r:'2 Samuel 21:2', nt:'«de los amorreos que quedaban»; ver también los heveos'}]},
+  {id:'jebuseos', n:'Jebuseos', q:'Jebús', s:-1935, e:-468, a:'se', c:'pueblo', k:'pueblo', an:'canaan',
+   dt:'Desde la promesa a Abrahán (c. 1935 a.e.c.; Génesis 15:21) hasta los días de Esdras (c. 468 a.e.c.; Esdras 9:1)',
+   d:'Descendientes de Canaán. Vivían en las montañas, en la ciudad de Jebús, que es Jerusalén. Israel no los expulsó: se quedaron en Jerusalén hasta que David tomó la fortaleza de Sión en 1070 a.e.c. David le compró la era a Arauna el jebuseo, y allí se construyó después el templo. Salomón puso a sus descendientes a hacer trabajos forzados.',
+   r:'Génesis 10:16; 15:21; Josué 15:63; Jueces 1:21; 19:10-12; 2 Samuel 5:6-9; 24:16-25; 1 Reyes 9:20, 21; Esdras 9:1', al:'jebuseo Jebus Jerusalen',
+   mi:[{n:'Arauna (Ornán)', r:'2 Samuel 24:16; 1 Crónicas 21:15', nt:'le vendió a David la era donde se construyó el templo'},
+       {n:'Adoni-Zédeq', r:'Josué 10:1', de:1, nt:'rey de Jerusalén; la Biblia lo cuenta entre los reyes de los amorreos, y «Perspicacia» lo llama rey jebuseo'}]},
+  {id:'heveos', n:'Heveos', q:'Heveos', s:-1761, e:-998, a:'se', c:'pueblo', k:'pueblo', an:'canaan',
+   dt:'Desde los días de Jacob, cuando volvió de Harán (c. 1761 a.e.c.; Génesis 34:2), hasta el reinado de Salomón (1037–998 a.e.c.), que los puso a hacer trabajos forzados (1 Reyes 9:20, 21). La Biblia no da la fecha de Génesis 34',
+   d:'Descendientes de Canaán. En los días de Jacob vivían en Siquem. Cuando llegó Israel, Gabaón y otras tres ciudades cercanas eran heveas: sus habitantes, los gabaonitas, engañaron a Josué para hacer un pacto de paz con Israel. Otros heveos vivían en el Líbano, al norte. Salomón puso a los que quedaban a hacer trabajos forzados.',
+   r:'Génesis 10:17; 34:2; Josué 9:3-27; 11:19; Jueces 3:3; 2 Samuel 24:7; 1 Reyes 9:20, 21', al:'heveo',
+   mi:[{n:'Hamor', r:'Génesis 34:2', nt:'jefe de Siquem'},
+       {n:'Siquem', r:'Génesis 34:2', nt:'hijo de Hamor; deshonró a Dina'},
+       {id:'zibeon', r:'Génesis 36:2', nt:'Génesis 36:20 lo cuenta entre los hijos de Seír el horeo'},
+       {n:'Los gabaonitas', r:'Josué 9:7; 11:19', nt:'los habitantes de Gabaón'}]},
+  {id:'perizitas', n:'Perizitas', q:'Perizitas', s:-1943, e:-468, a:'se', c:'pueblo', k:'pueblo',
+   dt:'Desde los días de Abrahán (c. 1943 a.e.c.; Génesis 13:7) hasta los días de Esdras (c. 468 a.e.c.; Esdras 9:1). Génesis 13 fue poco después de que Abrahán llegara a Canaán en 1943 a.e.c.',
+   d:'Pueblo de Canaán que vivía en la región montañosa. No están en la lista de los descendientes de Canaán de Génesis 10, y según «Perspicacia» no se sabe de quién descendían. Judá los derrotó en Bézeq. Algunos quedaron en el territorio de Efraín y Manasés, y Salomón los puso a hacer trabajos forzados. La Biblia no nombra a ningún perizita.',
+   r:'Génesis 13:7; 34:30; Josué 11:3; 17:15; Jueces 1:4, 5; 1 Reyes 9:20, 21; Esdras 9:1', al:'perizita ferezeo'},
+  {id:'guirgaseos', n:'Guirgaseos', q:'Guirgaseos', s:-1935, e:-1473, a:'s', c:'pueblo', k:'pueblo', an:'canaan',
+   dt:'Desde la promesa a Abrahán (c. 1935 a.e.c.; Génesis 15:21) hasta la conquista de Canaán, que empezó en 1473 a.e.c. (Josué 24:11). Después solo se mencionan en recuerdos (Nehemías 9:8)',
+   d:'Descendientes de Canaán que vivían al oeste del Jordán; la Biblia no dice en qué parte. Pelearon contra Israel en la conquista. Según «Perspicacia», en textos antiguos de Ugarit aparecen los nombres «Guirgas» y «Ben-Guirgas», una confirmación indirecta de que existió este pueblo. La Biblia no nombra a ningún guirgaseo.',
+   r:'Génesis 10:16; 15:21; Deuteronomio 7:1; Josué 3:10; 24:11; Nehemías 9:8', al:'guirgaseo gergeseo'},
+
   // --- Presidentes de la Sociedad Watch Tower (la barra muestra los años de presidencia) ---
   {id:'charles-t-russell', n:'Charles T. Russell', q:'Charles Taze Russell', s:1884, e:1916, c:'pres', k:'presidencia',
    dt:'Presidente de 1884 a 1916 (32 años). Nació en 1852 y murió en 1916',
@@ -442,6 +506,8 @@ const EVENTS = [
 
 // Artículo de "Perspicacia para comprender las Escrituras" en la Biblioteca en Línea Watchtower (wol.jw.org)
 const JW = {
+  'Cananeos':'1200000874', 'Hititas':'1200002040', 'Amorreos':'1200000245', 'Jebuseos':'1200002352',
+  'Heveos':'1200002041', 'Perizitas':'1200003445', 'Guirgaseos':'1200001711', 'Het':'1200002009',
   'Adán':'1200000089', 'Set':'1200003911', 'Enós':'1200001372', 'Quenán':'1200002588',
   'Mahalalel':'1200002839', 'Jared':'1200002329', 'Enoc':'1200001371', 'Matusalén':'1200003022',
   'Lamec':'1200002673', 'Noé':'1200003266', 'Sem':'1200003997', 'Taré':'1200004368',
@@ -658,6 +724,8 @@ const FAMILIA = [
   {id:'canaan', n:'Canaán', pa:'cam', rp:'Génesis 9:18; 10:6',
    d:'Hijo de Cam. Noé lo maldijo después de lo que hizo Cam. Según Perspicacia, fue el antepasado de once tribus que poblaron la región del Mediterráneo oriental, como los jebuseos y los amorreos.',
    r:'Génesis 9:18-27; 10:6, 15-19', al:'Canaan'},
+  {id:'het', n:'Het', pa:'canaan', rp:'Génesis 10:15; 1 Crónicas 1:13',
+   d:'Segundo hijo de Canaán que se menciona y bisnieto de Noé. De él descienden los hititas.', r:'Génesis 10:15; 23:3; 1 Crónicas 1:13'},
   {id:'nemrod', n:'Nemrod', pa:'cus', rp:'Génesis 10:8',
    d:'Hijo de Cus. Fue «el primer hombre que se hizo poderoso en la tierra»; su reino comenzó con Babel. Según Perspicacia, fue el fundador y rey del primer imperio después del Diluvio.',
    r:'Génesis 10:8-12; 1 Crónicas 1:10; Miqueas 5:6', al:'Nimrod'},
@@ -2291,6 +2359,15 @@ const EN_ARBOL = new Set();
 for (const f of FAMILIA){
   const rel = [f.pa, f.ma, f.pl, f.su, f.ds, ...(f.cy || []), ...(f.hm || []), ...(f.pm || [])].filter(Boolean);
   if (rel.length){ EN_ARBOL.add(f.id); rel.forEach(id => EN_ARBOL.add(id)); }
+}
+
+// Pueblos (capa «Pueblos» de PEOPLE): los de cada persona (por la lista mi de cada pueblo) y los que
+// descienden de cada antepasado (an). Los miembros por deducción (de) solo si se muestran.
+const miembros = pu => (pu.mi || []).filter(m => NO_BIBLICO || !m.de);
+const PUEBLOS_DE = new Map(), PUEBLOS_AN = new Map();
+for (const pu of PEOPLE) if (pu.c === 'pueblo'){
+  for (const m of miembros(pu)) if (m.id){ if (!PUEBLOS_DE.has(m.id)) PUEBLOS_DE.set(m.id, []); PUEBLOS_DE.get(m.id).push(pu); }
+  if (pu.an){ if (!PUEBLOS_AN.has(pu.an)) PUEBLOS_AN.set(pu.an, []); PUEBLOS_AN.get(pu.an).push(pu); }
 }
 
 /* ===================== LINAJE =====================

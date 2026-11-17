@@ -159,6 +159,9 @@ body.h #scroller.dragging{cursor:grabbing; user-select:none}
   background:var(--grid); border:1px solid transparent; border-radius:12px;
 }
 #card .fam button:hover{border-color:var(--axis)}
+/* Pueblo de la persona, o pueblos que descienden de ella: enlaces a la línea de tiempo */
+#card .fam a.pueblo{padding:1px 8px; font-size:13.5px; color:var(--accent); border:1px dashed var(--axis); border-radius:12px; text-decoration:none}
+#card .fam a.pueblo:hover{background:var(--grid)}
 #card .fam button small{color:var(--muted)}
 #card .nota{margin:8px 0; padding:7px 9px; border-radius:7px; background:var(--grid); font-size:13.5px}
 #card .nota:empty{display:none}
@@ -808,6 +811,20 @@ function fillCard(id){
   fila(hermanos.length === 1 ? hermanoDe(hermanos[0]) : 'Hermanos', hermanos);
   const primos = PRIMOS.get(id) || [];
   fila(primos.length > 1 ? 'Primos' : get(primos[0] || id).mu ? 'Prima' : 'Primo', primos);
+  // Pueblos (capa «Pueblos» de la línea de tiempo): el de la persona y los que descienden de ella
+  const pueblos = (titulo, pus) => {
+    if (!pus.length) return;
+    const dd = el('dd');
+    for (const pu of pus){
+      const a = el('a', 'pueblo', pu.n);
+      a.href = 'linea.html#p=' + pu.id;
+      a.title = `Ver a los ${pu.n.toLowerCase()} en la línea de tiempo`;
+      dd.append(a);
+    }
+    fam.append(el('dt', '', titulo), dd);
+  };
+  pueblos('Pueblo', PUEBLOS_DE.get(id) || []);
+  pueblos(p.mu ? 'De ella descienden' : 'De él descienden', PUEBLOS_AN.get(id) || []);
   card.querySelector('.nota').textContent = p.np || '';
   const refs = card.querySelector('.refs');
   refs.replaceChildren();
