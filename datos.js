@@ -478,7 +478,7 @@ const JW = {
   'Tamar':'1200004313', 'Tamar (hija de David)':'1200004313',
   'Jetró':'1200002454', 'Caleb':'1200000863', 'Quenaz (padre de Otniel)':'1200002590', 'Otniel':'1200003349',
   'Nun':'1200003280', 'Josué':'1200002523', 'Abimélec (hijo de Gedeón)':'1200000045', 'Jotán (hijo de Gedeón)':'1200002529',
-  'Elí':'1200001290', 'Icabod':'1200002131', 'Ahitub':'1200000170', 'Ahíya (hijo de Ahitub)':'1200000153',
+  'Elí':'1200001290', 'Icabod':'1200002131', 'Ahitub (nieto de Elí)':'1200000170', 'Ahíya (hijo de Ahitub)':'1200000153',
   'Ahimélec':'1200000158', 'Abiatar':'1200000030',
   'Jemuel':'1200002412', 'Ohad':'1200003307', 'Jakín (hijo de Simeón)':'1200002276',
   'Zóhar (hijo de Simeón)':'1200004759', 'Shaúl (hijo de Simeón)':'1200003960', 'Hamul':'1200001847',
@@ -497,6 +497,16 @@ const JW = {
   'María (esposa de Clopas)':'1200002918', 'María (madre de Marcos)':'1200002918', 'Santiago (padre de Tadeo)':'1200002313',
   'Simón (medio hermano de Jesús)':'1200004131', 'José (medio hermano de Jesús)':'1200000830',
   'Bernabé':'1200000566',
+  'Libní':'1200002735', 'Simeí (hijo de Guersón)':'1200004047', 'Hebrón (hijo de Cohat)':'1200001956', 'Uziel (hijo de Cohat)':'1200004536',
+  'Mahlí (hijo de Merarí)':'1200002850', 'Musí':'1200003135', 'Néfeg (hijo de Izhar)':'1200003222', 'Zicrí (hijo de Izhar)':'1200004728',
+  'Misael (hijo de Uziel)':'1200003078', 'Elzafán':'1200001324', 'Sitrí':'1200004151', 'Asir (hijo de Coré)':'1200000444',
+  'Elcaná (hijo de Coré)':'1200001326', 'Abiasaf':'1200000029', 'Putiel':'1200003594',
+  'Abisúa (hijo de Finehás)':'1200000052', 'Buquí':'1200000834', 'Uzí (hijo de Buquí)':'1200004533', 'Zerahías':'1200004705', 'Merayot':'1200002989',
+  'Amarías (hijo de Merayot)':'1200000219', 'Ahitub (padre del sacerdote Sadoc)':'1200000170', 'Sadoc (sacerdote)':'1200004652', 'Ahimáaz (hijo de Sadoc)':'1200000156',
+  'Azarías (hijo de Ahimáaz)':'1200000486', 'Johanán (hijo de Azarías)':'1200002488', 'Azarías (hijo de Johanán)':'1200000486', 'Amarías (hijo de Azarías)':'1200000219',
+  'Ahitub (hijo de Amarías)':'1200000170', 'Sadoc (padre de Salum)':'1200004652', 'Salum (hijo de Sadoc)':'1200003933', 'Hilquías (sumo sacerdote)':'1200002026',
+  'Azarías (hijo de Hilquías)':'1200000486', 'Seraya (sumo sacerdote)':'1200003904', 'Jehozadac':'1200002400', 'Josué (sumo sacerdote)':'1200002523',
+  'Joiaquim':'1200002493', 'Eliasib':'1200001298', 'Joiadá':'1200002492', 'Jonatán (hijo de Joiadá)':'1200002506', 'Jadúa':'1200002283',
   'Barakel':'1200000557', 'Elihú (hijo de Barakel)':'1200001306',
   'Beor (padre de Bela)':'1200000646', 'Bela (rey de Edom)':'1200000622', 'Zérah (padre de Jobab)':'1200004704', 'Jobab (rey de Edom)':'1200002477',
   'Bedad':'1200000599', 'Hadad (hijo de Bedad)':'1200001797', 'Acbor (padre de Baal-Hanán)':'1200000076', 'Baal-Hanán (rey de Edom)':'1200000513',
@@ -536,6 +546,9 @@ const jwUrl = p => JW[p.n] ? `https://wol.jw.org/es/wol/d/r4/lp-s/${JW[p.n]}`
    pl: padre legal o adoptivo, cuando no es el padre carnal (José para Jesús; Sealtiel para Zorobabel)
    pt: tipo de ese padre: 'adoptivo' o 'legal' (si falta: legal cuando hay padre carnal, adoptivo si no)
    su: suegro, cuando la Biblia llama «hijo» al yerno (Sealtiel, «hijo de Nerí»; Lucas 3:27)
+   ds: antepasado lejano, cuando la Biblia llama «hijo» a un descendiente y no se sabe cuántas
+       generaciones hay entre ellos (Esdras, «hijo de Seraya»; Esdras 7:1). En el parentesco no se
+       cuentan generaciones por este vínculo. Con de:['ds'], como 'su' (ver abajo).
    cy: cónyuges (se anota en uno solo de los dos, normalmente en el esposo)
    hm: hermanos cuando el parentesco no sale de los padres de los datos (porque la Biblia no los
        nombra o no se sabe cuál comparten; p. ej., Zeruyá y Abigaíl, «hermanas» de David)
@@ -550,7 +563,8 @@ const jwUrl = p => JW[p.n] ? `https://wol.jw.org/es/wol/d/r4/lp-s/${JW[p.n]}`
    de: vínculos de esta entrada que son deducción, no lo que dice el texto (p. ej., ['ma'] o ['cy']);
        np explica de dónde sale. Caso especial, 'su': la Biblia llama «hijo» al yerno (Lucas 3:23, 27);
        sin las deducciones se muestra como lo dice la Biblia («Lucas lo llama hijo»), y con ellas, como
-       suegro. 'persona': la persona entera es una deducción (p. ej., el progenitor de Bernabé).
+       suegro. Igual con 'ds': sin las deducciones, «la Biblia lo llama hijo»; con ellas, descendiente.
+       'persona': la persona entera es una deducción (p. ej., el progenitor de Bernabé).
    xb: 1 = persona que no aparece en la Biblia (personaje histórico); se oculta con sus vínculos
    Al cambiar estos datos, comprueba que estén bien con: node herramientas/validar-datos.cjs */
 const D_MATEO = 'Antepasado de Jesús por la línea de José, su padre adoptivo. Se le menciona en la genealogía de Mateo.';
@@ -1132,17 +1146,129 @@ const FAMILIA = [
   {id:'abihu', n:'Abihú', pa:'aaron', ma:'eliseba', rp:'Éxodo 6:23; Números 3:2',
    d:'Hijo de Aarón y sacerdote. Él y su hermano Nadab ofrecieron ante Jehová un fuego que él no había ordenado, y murieron. No tenían hijos.',
    r:'Éxodo 6:23; Levítico 10:1, 2; Números 3:2-4', al:'Abihu'},
-  {id:'eleazar-aaron', n:'Eleazar (hijo de Aarón)', pa:'aaron', ma:'eliseba', rp:'Éxodo 6:23; Números 3:2',
+  {id:'eleazar-aaron', n:'Eleazar (hijo de Aarón)', pa:'aaron', ma:'eliseba', cy:['hija-putiel'], rp:'Éxodo 6:23, 25; Números 3:2',
    d:'Hijo de Aarón y sacerdote. Cuando murió su padre, llegó a ser sumo sacerdote.', r:'Éxodo 6:23, 25; Números 3:2-4; 20:25-28'},
   {id:'itamar', n:'Itamar', pa:'aaron', ma:'eliseba', rp:'Éxodo 6:23; Números 3:2',
    d:'Hijo menor de Aarón y sacerdote.', r:'Éxodo 6:23; 28:1; Números 3:2-4'},
-  {id:'finehas', n:'Finehás (hijo de Eleazar)', pa:'eleazar-aaron', rp:'Éxodo 6:25',
+  {id:'finehas', n:'Finehás (hijo de Eleazar)', pa:'eleazar-aaron', ma:'hija-putiel', rp:'Éxodo 6:25',
    d:'Hijo de Eleazar y de una de las hijas de Putiel, y nieto de Aarón. Por su celo por Jehová detuvo una plaga en Israel, y Jehová hizo con él un pacto de sacerdocio permanente.',
    r:'Éxodo 6:25; Números 25:7-13', al:'Finees Fineés'},
   {id:'izhar', n:'Izhar', pa:'cohat', rp:'Éxodo 6:18',
    d:'Hijo de Cohat y padre de Coré.', r:'Éxodo 6:18, 21; Números 16:1'},
   {id:'core', n:'Coré', pa:'izhar', rp:'Éxodo 6:21; Números 16:1',
    d:'Levita, hijo de Izhar. Encabezó en el desierto una rebelión contra Moisés y Aarón, y murió por ella.', r:'Números 16:1-35; 26:9-11; Judas 11', al:'Core'},
+  // Los otros nietos y bisnietos de Leví (Éxodo 6:16-25; Números 3:17-20, 30)
+  {id:'putiel', n:'Putiel',
+   d:'Suegro de Eleazar, el hijo de Aarón, y abuelo de Finehás.', r:'Éxodo 6:25'},
+  {id:'hija-putiel', n:'Hija de Putiel', mu:1, sn:1, pa:'putiel', rp:'Éxodo 6:25',
+   d:'La Biblia no da su nombre. Era una de las hijas de Putiel; se casó con Eleazar, el hijo de Aarón, y fue la madre de Finehás.', r:'Éxodo 6:25'},
+  {id:'libni', n:'Libní', pa:'guerson', rp:'Éxodo 6:17; Números 3:18; 1 Crónicas 6:17',
+   d:'Hijo de Guersón y nieto de Leví. De él descienden los libnitas. Según «Perspicacia», por lo visto también se le llamó Ladán (1 Crónicas 23:7; 26:21).',
+   r:'Éxodo 6:17; Números 3:18, 21; 26:58; 1 Crónicas 6:17, 20', al:'Libni Ladán Ladan'},
+  {id:'simei-guerson', n:'Simeí (hijo de Guersón)', q:'Simeí', pa:'guerson', rp:'Éxodo 6:17; Números 3:18; 1 Crónicas 6:17',
+   d:'Hijo de Guersón y nieto de Leví. De él descienden varias familias de levitas, los simeítas.', r:'Éxodo 6:17; Números 3:18, 21; 1 Crónicas 6:17; 23:7, 10', al:'Simei'},
+  {id:'hebron-cohat', n:'Hebrón (hijo de Cohat)', q:'Hebrón', pa:'cohat', rp:'Éxodo 6:18; Números 3:19; 1 Crónicas 6:2',
+   d:'Hijo de Cohat y nieto de Leví; tío de Aarón y de Moisés. De él descienden los hebronitas. No es la ciudad de Hebrón.',
+   r:'Éxodo 6:18; Números 3:19, 27; 26:58; 1 Crónicas 6:2, 18', al:'Hebron'},
+  {id:'uziel-cohat', n:'Uziel (hijo de Cohat)', q:'Uziel', pa:'cohat', rp:'Éxodo 6:18; Números 3:19; 1 Crónicas 6:2',
+   d:'El último de los hijos de Cohat que se mencionan; nieto de Leví y tío de Aarón y de Moisés. Sus tres hijos, Misael, Elzafán y Sitrí, fueron cabezas de familias de levitas.',
+   r:'Éxodo 6:18, 22; Levítico 10:4; Números 3:19, 27, 30; 1 Crónicas 6:2, 18'},
+  {id:'mahli-merari', n:'Mahlí (hijo de Merarí)', q:'Mahlí', pa:'merari', rp:'Éxodo 6:19; Números 3:20; 1 Crónicas 6:19',
+   d:'Hijo de Merarí y nieto de Leví; hermano de Musí. De él descienden los mahlitas. No es Mahlí, el hijo de Musí.',
+   r:'Éxodo 6:19; Números 3:20, 33; 26:58; 1 Crónicas 6:19; 23:21', al:'Mahli'},
+  {id:'musi', n:'Musí', pa:'merari', rp:'Éxodo 6:19; Números 3:20; 1 Crónicas 6:19',
+   d:'Hijo de Merarí y nieto de Leví. De él descienden los musitas.', r:'Éxodo 6:19; Números 3:20, 33; 26:58; 1 Crónicas 6:19; 23:23', al:'Musi'},
+  {id:'nefeg-izhar', n:'Néfeg (hijo de Izhar)', q:'Néfeg', pa:'izhar', rp:'Éxodo 6:21',
+   d:'Hijo de Izhar y hermano de Coré y de Zicrí; primo de Moisés y de Aarón. No es Néfeg, el hijo de David.', r:'Éxodo 6:18, 21', al:'Nefeg'},
+  {id:'zicri-izhar', n:'Zicrí (hijo de Izhar)', q:'Zicrí', pa:'izhar', rp:'Éxodo 6:21',
+   d:'Tercer hijo de Izhar que se menciona; hermano de Coré y primo de Moisés y de Aarón.', r:'Éxodo 6:18, 21', al:'Zicri'},
+  {id:'misael-uziel', n:'Misael (hijo de Uziel)', q:'Misael', pa:'uziel-cohat', rp:'Éxodo 6:22; Levítico 10:4',
+   d:'Hijo de Uziel y primo de Aarón. Por orden de Moisés, él y su hermano Elzafán sacaron del campamento los cuerpos de Nadab y Abihú.',
+   r:'Éxodo 6:22; Levítico 10:1-5'},
+  {id:'elzafan', n:'Elzafán', pa:'uziel-cohat', rp:'Éxodo 6:22; Levítico 10:4; Números 3:30',
+   d:'Hijo de Uziel y primo de Aarón. Por orden de Moisés, él y su hermano Misael sacaron del campamento los cuerpos de Nadab y Abihú. En el desierto fue el jefe de las familias de los cohatitas. En Números 3:30 se le llama Elizafán.',
+   r:'Éxodo 6:22; Levítico 10:1-5; Números 3:30; 1 Crónicas 15:8', al:'Elzafan Elizafán Elizafan'},
+  {id:'sitri', n:'Sitrí', pa:'uziel-cohat', rp:'Éxodo 6:22',
+   d:'Hijo de Uziel y primo de Moisés y de Aarón. Vivió cuando los israelitas eran esclavos en Egipto.', r:'Éxodo 6:18, 22', al:'Sitri'},
+  {id:'asir-core', n:'Asir (hijo de Coré)', q:'Asir', pa:'core', rp:'Éxodo 6:24',
+   d:'Hijo de Coré, el levita. No murió con su padre cuando este se rebeló (Números 26:11).', r:'Éxodo 6:24; Números 26:11', al:'Asir'},
+  {id:'elcana-core', n:'Elcaná (hijo de Coré)', q:'Elcaná', pa:'core', rp:'Éxodo 6:24',
+   d:'Hijo de Coré, el levita. Ni él ni sus hermanos Asir y Abiasaf murieron con su padre. Según «Perspicacia», es posible que sea el Elcaná de 1 Crónicas 6:23. No es Elcaná, el padre de Samuel.',
+   r:'Éxodo 6:24; Números 26:11', al:'Elcana Elqaná'},
+  {id:'abiasaf', n:'Abiasaf', pa:'core', rp:'Éxodo 6:24',
+   d:'Hijo de Coré, el levita. No murió con su padre cuando este se rebeló. Según «Perspicacia», parece que en 1 Crónicas 6:37 (y quizás en 6:23 y 9:19) se le llama Ebiasaf.',
+   r:'Éxodo 6:24; Números 26:11; 1 Crónicas 6:37', al:'Ebiasaf'},
+
+  // --- La línea de los sumos sacerdotes, de Finehás a Jadúa (1 Crónicas 6:4-15; Nehemías 12:10, 11) ---
+  // Según «Perspicacia», la lista no está completa y no todos los que aparecen fueron sumos sacerdotes.
+  // Esdras 7:1-5 da la misma línea (con algunos nombres de menos) hasta Seraya.
+  {id:'abisua-finehas', n:'Abisúa (hijo de Finehás)', q:'Abisúa', pa:'finehas', rp:'1 Crónicas 6:4; Esdras 7:5',
+   d:'Hijo de Finehás y bisnieto de Aarón; padre de Buquí. Antepasado de Esdras. Según «Perspicacia», es posible que fuera sumo sacerdote.',
+   r:'1 Crónicas 6:4, 5, 50; Esdras 7:5', al:'Abisua'},
+  {id:'buqui', n:'Buquí', pa:'abisua-finehas', rp:'1 Crónicas 6:5; Esdras 7:4',
+   d:'Descendiente de Aarón por Eleazar y Finehás, y antepasado de Esdras. Según «Perspicacia», posiblemente fue sumo sacerdote en el tiempo de los jueces.',
+   r:'1 Crónicas 6:5, 51; Esdras 7:4', al:'Buqui'},
+  {id:'uzi-buqui', n:'Uzí (hijo de Buquí)', q:'Uzí', pa:'buqui', rp:'1 Crónicas 6:5, 6; Esdras 7:4',
+   d:'Descendiente de Aarón por la línea de los sumos sacerdotes de Eleazar; antepasado de Esdras.', r:'1 Crónicas 6:5, 6, 51; Esdras 7:4', al:'Uzi'},
+  {id:'zerahias', n:'Zerahías', pa:'uzi-buqui', rp:'1 Crónicas 6:6; Esdras 7:4',
+   d:'Descendiente de Aarón por la línea de Eleazar y Finehás; antepasado de Esdras.', r:'1 Crónicas 6:6, 51; Esdras 7:4', al:'Zerahias'},
+  {id:'merayot', n:'Merayot', pa:'zerahias', rp:'1 Crónicas 6:6, 7; Esdras 7:3',
+   d:'Sacerdote descendiente de Aarón por la línea de Eleazar; antepasado de Esdras.', r:'1 Crónicas 6:6, 7, 52; Esdras 7:3', al:'Meraiot'},
+  {id:'amarias-merayot', n:'Amarías (hijo de Merayot)', q:'Amarías', pa:'merayot', rp:'1 Crónicas 6:7, 52',
+   d:'Hijo de Merayot, padre de Ahitub y abuelo del sacerdote Sadoc. Según «Perspicacia», no se puede afirmar con certeza que fuera sumo sacerdote: en ese tiempo el cargo estuvo en la familia de Elí.',
+   r:'1 Crónicas 6:7, 52', al:'Amarias'},
+  {id:'ahitub-sadoc', n:'Ahitub (padre del sacerdote Sadoc)', q:'Ahitub', pa:'amarias-merayot', rp:'1 Crónicas 6:7, 8, 52, 53',
+   d:'Hijo de Amarías y padre de Sadoc, el sacerdote de David. Según «Perspicacia», no se dice que fuera sumo sacerdote. No es Ahitub, el nieto de Elí.',
+   r:'2 Samuel 8:17; 1 Crónicas 6:7, 8, 52, 53'},
+  {id:'sadoc-sacerdote', n:'Sadoc (sacerdote)', q:'Sadoc', pa:'ahitub-sadoc', rp:'2 Samuel 8:17; 1 Crónicas 6:8, 53',
+   d:'Sacerdote en los días de David, descendiente de Aarón por Eleazar. Salomón lo nombró sumo sacerdote en lugar de Abiatar, y así se cumplió lo que Jehová había dicho contra la familia de Elí. Según «Perspicacia», sus descendientes tuvieron el sumo sacerdocio hasta el tiempo de Darío el persa. No es Sadoc, el de la genealogía de Jesús.',
+   r:'2 Samuel 8:17; 15:24-29; 1 Reyes 1:32-39; 2:27, 35; 1 Crónicas 6:8, 53'},
+  {id:'ahimaaz', n:'Ahimáaz (hijo de Sadoc)', q:'Ahimáaz', pa:'sadoc-sacerdote', rp:'2 Samuel 15:27, 36; 1 Crónicas 6:8, 9',
+   d:'Hijo del sacerdote Sadoc y padre de Azarías. Cuando Absalón se rebeló, llevó noticias a David. Según «Perspicacia», no se sabe si llegó a ser sumo sacerdote.',
+   r:'2 Samuel 15:27, 36; 17:17-21; 18:19-29; 1 Crónicas 6:8, 9, 53', al:'Ahimaaz'},
+  {id:'azarias-ahimaaz', n:'Azarías (hijo de Ahimáaz)', q:'Azarías', pa:'ahimaaz', rp:'1 Crónicas 6:9',
+   d:'Hijo de Ahimáaz y nieto del sacerdote Sadoc; descendiente de Aarón por Eleazar.', r:'1 Crónicas 6:9', al:'Azarias'},
+  {id:'johanan-azarias', n:'Johanán (hijo de Azarías)', q:'Johanán', pa:'azarias-ahimaaz', rp:'1 Crónicas 6:9, 10',
+   d:'Sumo sacerdote, hijo de Azarías.', r:'1 Crónicas 6:9, 10', al:'Johanan'},
+  {id:'azarias-johanan', n:'Azarías (hijo de Johanán)', q:'Azarías', pa:'johanan-azarias', rp:'1 Crónicas 6:10',
+   d:'Hijo de Johanán. 1 Crónicas 6:10 dice que sirvió de sacerdote en la casa que Salomón construyó en Jerusalén. Según «Perspicacia», fue sumo sacerdote, y quizás fue él quien le ordenó al rey Uzías salir del templo.',
+   r:'1 Crónicas 6:10, 11; 2 Crónicas 26:16-21', al:'Azarias'},
+  {id:'amarias-azarias', n:'Amarías (hijo de Azarías)', q:'Amarías', pa:'azarias-johanan', rp:'1 Crónicas 6:11; Esdras 7:3',
+   d:'Hijo de Azarías y padre de otro Ahitub; descendiente de Aarón por Eleazar y antepasado de Esdras.', r:'1 Crónicas 6:11; Esdras 7:3', al:'Amarias'},
+  {id:'ahitub-amarias', n:'Ahitub (hijo de Amarías)', q:'Ahitub', pa:'amarias-azarias', rp:'1 Crónicas 6:11, 12; Esdras 7:2',
+   d:'Hijo de Amarías y padre de otro Sadoc; descendiente de Aarón por Eleazar y antepasado de Esdras.', r:'1 Crónicas 6:11, 12; 9:11; Esdras 7:2'},
+  {id:'sadoc-salum', n:'Sadoc (padre de Salum)', q:'Sadoc', pa:'ahitub-amarias', rp:'1 Crónicas 6:12; Esdras 7:2',
+   d:'Hijo de Ahitub y padre de Salum; descendiente de Aarón por Eleazar y antepasado de Esdras. No es Sadoc, el sacerdote de David.', r:'1 Crónicas 6:12; 9:11; Esdras 7:2'},
+  {id:'salum-sadoc', n:'Salum (hijo de Sadoc)', q:'Salum', pa:'sadoc-salum', rp:'1 Crónicas 6:12, 13; Esdras 7:2',
+   d:'Descendiente de Aarón por la línea de los sumos sacerdotes; padre de Hilquías, el sumo sacerdote de los días de Josías. En 1 Crónicas 9:11 y Nehemías 11:11 se le llama Mesulam.',
+   r:'1 Crónicas 6:12, 13; 9:11; Esdras 7:2; Nehemías 11:11', al:'Mesulam'},
+  {id:'hilquias-sumo', n:'Hilquías (sumo sacerdote)', q:'Hilquías', pa:'salum-sadoc', rp:'1 Crónicas 6:13; Esdras 7:1',
+   d:'Sumo sacerdote en el reinado de Josías. Mientras se reparaba el templo, encontró el libro de la Ley. Hijo de Salum y padre de Azarías. No es Hilquías, el padre de Jeremías.',
+   r:'2 Reyes 22:4, 8-14; 2 Crónicas 34:9, 14-22; 1 Crónicas 6:13; Esdras 7:1', al:'Hilquias'},
+  {id:'azarias-hilquias', n:'Azarías (hijo de Hilquías)', q:'Azarías', pa:'hilquias-sumo', rp:'1 Crónicas 6:13, 14; Esdras 7:1',
+   d:'Hijo de Hilquías, el sumo sacerdote de los días de Josías, y padre de Seraya.', r:'1 Crónicas 6:13, 14; 9:11; Esdras 7:1', al:'Azarias'},
+  {id:'seraya-sumo', n:'Seraya (sumo sacerdote)', q:'Seraya', pa:'azarias-hilquias', rp:'1 Crónicas 6:14',
+   d:'Sacerdote principal cuando Babilonia destruyó Jerusalén en 607 a.e.c. Lo llevaron ante el rey de Babilonia en Riblá, y allí lo mataron. Su hijo Jehozadac fue al destierro. Esdras 7:1 llama a Esdras «hijo de Seraya»; según «Perspicacia», Esdras era descendiente suyo.',
+   r:'2 Reyes 25:18-21; 1 Crónicas 6:14, 15; Jeremías 52:24-27; Esdras 7:1'},
+  {id:'jehozadac', n:'Jehozadac', pa:'seraya-sumo', rp:'1 Crónicas 6:14, 15',
+   d:'Hijo de Seraya, el sacerdote principal. Fue al destierro cuando Jehová se llevó a Judá y Jerusalén por medio de Nabucodonosor. Padre de Josué (Jesúa), el sumo sacerdote del regreso.',
+   r:'1 Crónicas 6:14, 15; Esdras 3:2; Ageo 1:1', al:'Jehozadaq'},
+  {id:'esdras', ds:'seraya-sumo', de:['ds'], rp:'Esdras 7:1',
+   np:'Esdras 7:1 lo llama «hijo de Seraya». Según «Perspicacia», era descendiente suyo (debió de ser su bisnieto o quizás su tataranieto), no su hijo: Seraya murió en 607 a.e.c., y antes de que Esdras llegara a Jerusalén pasaron por lo menos dos generaciones que no se mencionan. Por eso no era hermano de Jehozadac. Esdras 7:1-5 da su línea hasta Aarón, con algunos nombres menos que 1 Crónicas 6.'},
+  {id:'josue-sumo', n:'Josué (sumo sacerdote)', q:'Josué', pa:'jehozadac', rp:'Esdras 3:2; Ageo 1:1; Zacarías 6:11',
+   d:'Hijo de Jehozadac y primer sumo sacerdote de los israelitas que regresaron del exilio con Zorobabel. En Esdras y Nehemías se le llama Jesúa. Jehová mandó poner una corona en su cabeza (Zacarías 6:11).',
+   r:'Esdras 3:2, 8; Nehemías 12:1, 10; Ageo 1:1, 12; Zacarías 3:1-9; 6:11', al:'Jesúa Jesua'},
+  {id:'joiaquim', n:'Joiaquim', pa:'josue-sumo', rp:'Nehemías 12:10',
+   d:'Hijo de Josué (Jesúa), al que sucedió como sumo sacerdote. Padre de Eliasib.', r:'Nehemías 12:10, 12, 26'},
+  {id:'eliasib', n:'Eliasib', pa:'joiaquim', rp:'Nehemías 12:10',
+   d:'Sumo sacerdote en los días de Nehemías; nieto de Josué (Jesúa). Con los otros sacerdotes reconstruyó la Puerta de las Ovejas.', r:'Nehemías 3:1; 12:10, 22; 13:4, 28'},
+  {id:'joiada', n:'Joiadá', pa:'eliasib', rp:'Nehemías 12:10, 11; 13:28',
+   d:'Hijo del sumo sacerdote Eliasib. Uno de sus hijos era yerno de Sanbalat el horonita, y Nehemías lo echó.', r:'Nehemías 12:10, 11, 22; 13:28', al:'Joiada'},
+  {id:'jonatan-joiada', n:'Jonatán (hijo de Joiadá)', q:'Jonatán', pa:'joiada', rp:'Nehemías 12:11',
+   np:'Nehemías 12:22 nombra en su lugar a Johanán. Según «Perspicacia», es la misma persona, y quizás «Jonatán» se deba a un error al copiar, porque los nombres se parecen mucho en hebreo.',
+   d:'Hijo de Joiadá y nieto del sumo sacerdote Eliasib; padre de Jadúa. En Nehemías 12:22 se le llama Johanán.', r:'Nehemías 12:11, 22, 23', al:'Johanán Johanan Jonatan'},
+  {id:'jadua', n:'Jadúa', pa:'jonatan-joiada', rp:'Nehemías 12:11',
+   d:'Hijo de Jonatán (Johanán). Según «Perspicacia», es el último de los sumos sacerdotes descendientes de Aarón que mencionan las Escrituras Hebreas.', r:'Nehemías 12:11, 22', al:'Jadua'},
 
   // --- Josué y su genealogía (1 Crónicas 7:25-27) ---
   {id:'telah', n:'Télah',
@@ -1220,8 +1346,8 @@ const FAMILIA = [
    r:'1 Samuel 4:19-22'},
   {id:'icabod', n:'Icabod', pa:'finehas-eli', ma:'esposa-finehas', rp:'1 Samuel 4:19-21; 14:3',
    d:'Hijo de Finehás y nieto de Elí. Su madre le puso ese nombre porque, según dijo, la gloria se había ido de Israel.', r:'1 Samuel 4:19-22; 14:3'},
-  {id:'ahitub', n:'Ahitub', pa:'finehas-eli', rp:'1 Samuel 14:3',
-   d:'Hijo de Finehás y nieto de Elí; hermano de Icabod. Padre de Ahimélec.', r:'1 Samuel 14:3; 22:9, 11, 20'},
+  {id:'ahitub', n:'Ahitub (nieto de Elí)', q:'Ahitub', pa:'finehas-eli', rp:'1 Samuel 14:3',
+   d:'Hijo de Finehás y nieto de Elí; hermano de Icabod. Padre de Ahimélec. No es Ahitub, el padre del sacerdote Sadoc, que descendía de Eleazar.', r:'1 Samuel 14:3; 22:9, 11, 20'},
   {id:'ahiya-ahitub', n:'Ahíya (hijo de Ahitub)', pa:'ahitub', rp:'1 Samuel 14:3',
    np:'Según Perspicacia, algunos opinan que era hermano de Ahimélec o el propio Ahimélec.',
    d:'Hijo de Ahitub y bisnieto de Elí. Fue sumo sacerdote en Siló durante el reinado de Saúl.', r:'1 Samuel 14:3, 18'},
@@ -1957,8 +2083,8 @@ if (!NO_BIBLICO){
   const fuera = new Set(FAMILIA.filter(f => f.xb || deducido(f, 'persona')).map(f => f.id));
   for (let i = FAMILIA.length - 1; i >= 0; i--) if (fuera.has(FAMILIA[i].id)) FAMILIA.splice(i, 1);
   for (const f of FAMILIA){
-    for (const k of f.de || []) if (k !== 'su') delete f[k];   // su: se queda, como lo dice la Biblia
-    for (const k of ['pa', 'ma', 'pl', 'su']) if (fuera.has(f[k])) delete f[k];
+    for (const k of f.de || []) if (k !== 'su' && k !== 'ds') delete f[k];   // su y ds: se quedan, como lo dice la Biblia
+    for (const k of ['pa', 'ma', 'pl', 'su', 'ds']) if (fuera.has(f[k])) delete f[k];
     for (const k of ['cy', 'hm', 'mh', 'pm']) if (f[k]) f[k] = f[k].filter(x => !fuera.has(x));
   }
 }
@@ -1966,7 +2092,7 @@ if (!NO_BIBLICO){
 // Ids de las personas que tienen algún parentesco: las que aparecen en el árbol genealógico
 const EN_ARBOL = new Set();
 for (const f of FAMILIA){
-  const rel = [f.pa, f.ma, f.pl, f.su, ...(f.cy || []), ...(f.hm || []), ...(f.pm || [])].filter(Boolean);
+  const rel = [f.pa, f.ma, f.pl, f.su, f.ds, ...(f.cy || []), ...(f.hm || []), ...(f.pm || [])].filter(Boolean);
   if (rel.length){ EN_ARBOL.add(f.id); rel.forEach(id => EN_ARBOL.add(id)); }
 }
 
@@ -1974,10 +2100,10 @@ for (const f of FAMILIA){
    Línea de antepasados de una persona: la misma en el árbol genealógico y en la línea de tiempo.
    Sube por el padre legal o adoptivo (pl), si no por el padre (pa) y si no por la madre (ma). En la
    línea de María (Lucas 3), Sealtiel sube por su suegro Nerí (su), porque Lucas lo llama «hijo de
-   Nerí»; en las demás líneas, por su padre. */
+   Nerí»; en las demás líneas, por su padre. Si no hay otra, sube por el antepasado lejano (ds). */
 const FAM = new Map(FAMILIA.map(f => [f.id, f]));
 const fam = id => FAM.get(id) || {};
-const tieneAntepasados = id => { const f = fam(id); return !!(f.pa || f.ma || f.pl || f.su); };
+const tieneAntepasados = id => { const f = fam(id); return !!(f.pa || f.ma || f.pl || f.su || f.ds); };
 // Cadena de antepasados siguiendo, en cada persona, la primera clave de «orden» que tenga
 function cadenaFam(desde, orden){
   const out = [];
@@ -1992,17 +2118,20 @@ const LUCAS_SOLO = (() => {
 })();
 // Tipo de padre legal (pt): «adoptivo» (José para Jesús, Mardoqueo para Ester) o «legal»
 const tipoPl = id => fam(id).pt || (fam(id).pa ? 'legal' : 'adoptivo');
-// Nombre del vínculo de un antepasado con su hijo en la línea (k: pa, pl, ma o su)
+// Nombre del vínculo de un antepasado con su hijo en la línea (k: pa, pl, ma, su o ds)
 // Un yerno al que la Biblia llama «hijo» (su con de:['su']): sin las deducciones, como lo dice Lucas
 const sueLiteral = id => deducido(fam(id), 'su') && !NO_BIBLICO;
+// Un descendiente al que la Biblia llama «hijo» (ds con de:['ds']): sin las deducciones, igual
+const dsLiteral = id => deducido(fam(id), 'ds') && !NO_BIBLICO;
 const vinculo = (k, hijo) => ({pa: fam(fam(hijo).pa).sx ? 'padre o madre' : 'padre',
                                pl:'padre ' + tipoPl(hijo), ma:'madre',
-                               su: sueLiteral(hijo) ? 'Lucas lo llama «hijo»' : 'suegro'})[k];
+                               su: sueLiteral(hijo) ? 'Lucas lo llama «hijo»' : 'suegro',
+                               ds: dsLiteral(hijo) ? 'la Biblia lo llama «hijo»' : 'antepasado'})[k];
 // Líneas posibles para subir desde una persona (en el árbol, los botones «Antepasados de… por»).
 // La de la madre (o el suegro) solo se ofrece si ella tiene antepasados, o si no hay padre.
 function opcionesLinaje(id){
   const f = fam(id);
-  return ['pl', 'pa', 'ma', 'su'].filter(k => f[k] && (k === 'pl' || k === 'pa' || tieneAntepasados(f[k]) || !f.pa && !f.pl))
+  return ['pl', 'pa', 'ma', 'su', 'ds'].filter(k => f[k] && (k === 'pl' || k === 'pa' || tieneAntepasados(f[k]) || !f.pa && !f.pl))
                                   .map(k => ({k, id:f[k]}));
 }
 // Línea de antepasados, del más antiguo al padre (o la madre) de la persona. Cada paso: el
@@ -2011,7 +2140,7 @@ function opcionesLinaje(id){
 function linaje(persona, primera){
   const pasos = [];
   const lucas = LUCAS_SOLO.has(persona) || (primera && LUCAS_SOLO.has(fam(persona)[primera]));
-  const orden = lucas ? ['su', 'pl', 'pa', 'ma'] : ['pl', 'pa', 'ma', 'su'];
+  const orden = lucas ? ['su', 'pl', 'pa', 'ma', 'ds'] : ['pl', 'pa', 'ma', 'su', 'ds'];
   const vistos = new Set([persona]);
   for (let cur = persona, k = primera; ; k = null){
     const f = fam(cur);
@@ -2019,7 +2148,7 @@ function linaje(persona, primera){
     if (!k || vistos.has(f[k])) break;
     const up = f[k];
     vistos.add(up);
-    const partner = k === 'su' ? null : k === 'ma' ? (f.pl || f.pa || null) : (f.ma || null);
+    const partner = k === 'su' || k === 'ds' ? null : k === 'ma' ? (f.pl || f.pa || null) : (f.ma || null);
     pasos.unshift({id:up, rel:k, child:cur, partner});
     cur = up;
   }

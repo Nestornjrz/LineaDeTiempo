@@ -877,7 +877,7 @@ function render(){
 
 // Conectores del modo «Linaje», en una capa SVG detrás de las barras. ruta(P, C) da el trazo de
 // cada antepasado P a su hijo C en la línea. Es discontinuo cuando entre ellos hay generaciones sin
-// fechas o el vínculo es legal (padre legal o adoptivo, suegro).
+// fechas o el vínculo no es el de padre a hijo (padre legal o adoptivo, suegro, antepasado lejano).
 function conectores(w, h, ruta){
   const NS = 'http://www.w3.org/2000/svg';
   const svg = document.createElementNS(NS, 'svg');
@@ -888,8 +888,8 @@ function conectores(w, h, ruta){
     if (!i) return;
     const path = document.createElementNS(NS, 'path');
     path.setAttribute('d', ruta(lin.filas[i - 1].p, f.p));
-    const ded = (fam(f.p.id).de || []).includes(f.rel) && f.rel !== 'su';   // vínculo por deducción
-    path.setAttribute('class', f.sinFecha.length || f.rel === 'pl' || f.rel === 'su' || ded ? 'gap' : '');
+    const ded = (fam(f.p.id).de || []).includes(f.rel) && f.rel !== 'su' && f.rel !== 'ds';   // vínculo por deducción
+    path.setAttribute('class', f.sinFecha.length || ['pl', 'su', 'ds'].includes(f.rel) || ded ? 'gap' : '');
     svg.append(path);
   });
   canvas.append(svg);

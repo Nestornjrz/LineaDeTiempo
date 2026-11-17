@@ -8,7 +8,7 @@ const fs = require('fs');
 const path = require('path');
 
 const src = fs.readFileSync(path.join(__dirname, '..', 'datos.js'), 'utf8');
-const CLAVES_DE = ['pa', 'ma', 'pl', 'su', 'cy', 'hm', 'mh', 'persona'];
+const CLAVES_DE = ['pa', 'ma', 'pl', 'su', 'ds', 'cy', 'hm', 'mh', 'persona'];
 
 function validar(verNoBiblico){
   globalThis.VER_NO_BIBLICO = verNoBiblico;
@@ -56,7 +56,7 @@ function validar(verNoBiblico){
   // Vínculos
   const PADRES = ['pa', 'ma', 'pl'];
   for (const f of FAMILIA){
-    const refs = [...PADRES.map(k => [k, f[k]]), ['su', f.su], ...(f.cy || []).map(c => ['cy', c]),
+    const refs = [...PADRES.map(k => [k, f[k]]), ['su', f.su], ['ds', f.ds], ...(f.cy || []).map(c => ['cy', c]),
                   ...(f.hm || []).map(h => ['hm', h]), ...(f.mh || []).map(h => ['mh', h]),
                   ...(f.pm || []).map(h => ['pm', h])].filter(([, v]) => v);
     for (const [k, v] of refs){
@@ -66,8 +66,9 @@ function validar(verNoBiblico){
       if ((k === 'pa' || k === 'pl' || k === 'su') && mujer) error(`«${f.id}».${k} = «${v}», que es mujer`);
       if (k === 'ma' && !mujer) error(`«${f.id}».ma = «${v}», que no está marcada como mujer (mu:1)`);
     }
-    if ((f.pa || f.ma || f.pl || f.su || f.cy || f.hm || f.pm) && !f.rp) error(`«${f.id}»: tiene parentesco pero no textos (rp)`);
+    if ((f.pa || f.ma || f.pl || f.su || f.ds || f.cy || f.hm || f.pm) && !f.rp) error(`«${f.id}»: tiene parentesco pero no textos (rp)`);
     if (f.sx && f.mu) error(`«${f.id}»: tiene sx (no se sabe si es hombre o mujer) y también mu`);
+    if (f.ds && (f.pa || f.pl)) error(`«${f.id}»: tiene ds (antepasado lejano) y también padre; ds es solo para quien no tiene otra línea`);
     if (f.pl && !f.np) aviso(`«${f.id}»: tiene padre legal (pl); conviene explicarlo en np`);
     if (f.pt && (!f.pl || !['adoptivo', 'legal'].includes(f.pt))) error(`«${f.id}».pt = «${f.pt}»: debe ser 'adoptivo' o 'legal', y solo va con pl`);
     if (f.pr) error(`«${f.id}»: pr ya no se usa; los parentescos que no dice la Biblia se marcan con de`);
@@ -95,7 +96,7 @@ function validar(verNoBiblico){
     if (estado.get(id) === 1){ error(`Ciclo en el parentesco: ${[...camino, id].join(' → ')}`); return; }
     estado.set(id, 1);
     const f = F.get(id) || {};
-    for (const k of PADRES) if (f[k] && existe(f[k])) visitar(f[k], [...camino, id]);
+    for (const k of [...PADRES, 'ds']) if (f[k] && existe(f[k])) visitar(f[k], [...camino, id]);
     estado.set(id, 2);
   };
   for (const id of F.keys()) visitar(id, []);
@@ -136,7 +137,7 @@ function validar(verNoBiblico){
   // ---------- Resumen ----------
   const enArbol = new Set();
   for (const f of FAMILIA){
-    const rel = [f.pa, f.ma, f.pl, f.su, ...(f.cy || []), ...(f.hm || []), ...(f.pm || [])].filter(Boolean);
+    const rel = [f.pa, f.ma, f.pl, f.su, f.ds, ...(f.cy || []), ...(f.hm || []), ...(f.pm || [])].filter(Boolean);
     if (rel.length){ enArbol.add(f.id); rel.forEach(v => enArbol.add(v)); }
   }
   const resumen = [

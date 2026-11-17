@@ -305,11 +305,13 @@ FAMILIA.forEach((f, i) => PER.set(f.id, {...(PER.get(f.id) || {}), ...f, ord:i})
 const get = id => PER.get(id);
 const push = (m, k, v) => { if (!m.has(k)) m.set(k, []); if (!m.get(k).includes(v)) m.get(k).push(v); };
 const HIJOS = new Map(), CONYUGES = new Map(), YERNOS = new Map(), HERMANOS = new Map(), PRIMOS = new Map();
+const LEJANOS = new Map();   // descendientes lejanos (ds) de cada antepasado
 for (const f of FAMILIA){
   for (const k of ['pa', 'ma', 'pl']) if (f[k]) push(HIJOS, f[k], f.id);
   for (const c of f.cy || []){ push(CONYUGES, f.id, c); push(CONYUGES, c, f.id); }
   for (const c of f.pm || []){ push(PRIMOS, f.id, c); push(PRIMOS, c, f.id); }
   if (f.su) push(YERNOS, f.su, f.id);
+  if (f.ds) push(LEJANOS, f.ds, f.id);
   if (f.hm){ const g = [f.id, ...f.hm]; for (const a of g) for (const b of g) if (a !== b) push(HERMANOS, a, b); }
 }
 // ¿El vínculo entre a y b es una deducción (de en los datos)? Solo puede pasar si se muestra lo
@@ -317,13 +319,18 @@ for (const f of FAMILIA){
 // dedDe(x, y): la deducción está anotada en x (su ficha la explica)
 const dedDe = (x, y) => {
   const p = get(x);
-  return !!p && (p.de || []).some(k => k !== 'su' && (p[k] === y || (Array.isArray(p[k]) && p[k].includes(y))));
+  return !!p && (p.de || []).some(k => k !== 'su' && k !== 'ds' && (p[k] === y || (Array.isArray(p[k]) && p[k].includes(y))));
 };
 const dedVinculo = (a, b) => dedDe(a, b) || dedDe(b, a);
+// ¿x es descendiente lejano de y por una deducción que se está mostrando? (ds con de:['ds'])
+const dsDeducido = (x, y) => get(x)?.ds === y && deducido(get(x), 'ds') && !dsLiteral(x);
 // Paso de la línea de antepasados que se dibuja con línea discontinua y etiqueta: padre legal,
-// suegro (o yerno al que Lucas llama «hijo») y vínculo por deducción
-const pasoRaro = st => st.rel === 'pl' || st.rel === 'su' || dedVinculo(st.child, st.id);
-const etiquetaPaso = st => st.rel === 'pl' || st.rel === 'su' ? vinculo(st.rel, st.child)
+// suegro (o yerno al que Lucas llama «hijo»), antepasado lejano y vínculo por deducción
+const pasoRaro = st => ['pl', 'su', 'ds'].includes(st.rel) || dedVinculo(st.child, st.id);
+// (El del antepasado lejano, corto para que quepa: «llamado «hijo»» o «por deducción»; el grupo de
+// la persona ya dice «Descendiente»)
+const etiquetaPaso = st => st.rel === 'ds' ? (dsLiteral(st.child) ? 'llamado «hijo»' : dsDeducido(st.child, st.id) ? 'por deducción' : 'antepasado')
+                         : ['pl', 'su'].includes(st.rel) ? vinculo(st.rel, st.child)
                          : dedVinculo(st.child, st.id) ? 'por deducción' : '';
 const byOrd = (a, b) => get(a).ord - get(b).ord;
 const hijosDe = id => [...(HIJOS.get(id) || [])].sort(byOrd);
@@ -392,6 +399,9 @@ function vista(focus, primera){
     fam = [{ids:[focus, ...(HERMANOS.get(focus) || [])].sort(byOrd)}];
   } else if (last.rel === 'su'){
     fam = [{ids:[focus], label:'Yerno'}];
+  } else if (last.rel === 'ds'){
+    // Descendiente lejano: no se muestra con los hijos, porque no se sabe por cuántas generaciones
+    fam = [{ids:[focus], label:dsLiteral(focus) ? 'Llamado «hijo»' : 'Descendiente'}];
   } else {
     const ids = [...new Set([...hijosDe(last.id), ...(last.partner ? hijosDe(last.partner) : []), focus])].sort(byOrd);
     // Se agrupan por el otro progenitor (la madre, si la línea sube por el padre)
@@ -402,8 +412,12 @@ function vista(focus, primera){
   const yo = get(focus);
   const otroK = id => yo.mu ? (get(id).pl || get(id).pa) : get(id).ma;
   const kids = agrupar(hijosDe(focus), otroK, yo.mu ? 'Padre' : 'Madre');
-  if (YERNOS.has(focus)) kids.push({ids:YERNOS.get(focus), label:YERNOS.get(focus).length > 1 ? 'Yernos' : 'Yerno', yerno:true});
-  if (kids.length === 1 && !kids[0].yerno) kids[0].label = null;
+  if (YERNOS.has(focus)) kids.push({ids:YERNOS.get(focus), label:YERNOS.get(focus).length > 1 ? 'Yernos' : 'Yerno', aparte:true});
+  // Descendientes lejanos (ds): aparte, con las palabras de la Biblia si no se muestran las deducciones
+  const lej = LEJANOS.get(focus) || [], lejLit = lej.filter(dsLiteral), lejDes = lej.filter(x => !dsLiteral(x));
+  if (lejLit.length) kids.push({ids:lejLit, label:lejLit.length > 1 ? 'Llamados «hijos»' : 'Llamado «hijo»', aparte:true});
+  if (lejDes.length) kids.push({ids:lejDes, label:lejDes.length > 1 ? 'Descendientes' : 'Descendiente', aparte:true});
+  if (kids.length === 1 && !kids[0].aparte) kids[0].label = null;
   return {focus, spine, fam, spouses:CONYUGES.get(focus) || [], kids};
 }
 function agrupar(ids, otro, quien){
@@ -552,7 +566,7 @@ function layoutV(v, W){
   const x1 = S.length ? IND : 0, w1 = Math.min(W - x1, 420);
   const x2 = x1 + IND, w2 = Math.min(W - x2, 420);
   // Si el último vínculo lleva etiqueta (padre legal o adoptivo, suegro), se deja sitio para ella
-  const sep = S.length && ['pl', 'su'].includes(S[S.length - 1].rel) ? 28 : 12;
+  const sep = S.length && ['pl', 'su', 'ds'].includes(S[S.length - 1].rel) ? 28 : 12;
   if (S.length) y -= GV - sep;
   const top = y - sep, ramas = [];
   for (const g of v.fam){
@@ -775,6 +789,8 @@ function fillCard(id){
   fila('Madre', [p.ma]);
   // Sin las deducciones, el yerno al que Lucas llama «hijo» se muestra con las palabras de la Biblia
   fila(sueLiteral(id) ? 'Lucas lo llama «hijo» de' : 'Suegro', [p.su]);
+  // Igual con el antepasado lejano al que la Biblia llama «padre» (Esdras, «hijo de Seraya»)
+  fila(dsLiteral(id) ? 'La Biblia lo llama «hijo» de' : 'Descendiente de', [p.ds], x => dsDeducido(id, x) && 'por deducción');
   const cy = CONYUGES.get(id) || [];
   fila(p.mu ? (cy.length > 1 ? 'Esposos' : 'Esposo') : (cy.length > 1 ? 'Esposas' : 'Esposa'), cy);
   const hijos = hijosDe(id);
@@ -783,6 +799,9 @@ function fillCard(id){
   const literales = yernos.filter(sueLiteral), yernosDe = yernos.filter(x => !sueLiteral(x));
   fila('Lucas llama «hijo» suyo a', literales);
   fila(yernosDe.length > 1 ? 'Yernos' : 'Yerno', yernosDe);
+  const lejanos = LEJANOS.get(id) || [], lejLit = lejanos.filter(dsLiteral), lejDes = lejanos.filter(x => !dsLiteral(x));
+  fila('La Biblia llama «hijo» suyo a', lejLit);
+  fila(lejDes.length > 1 ? 'Descendientes' : 'Descendiente', lejDes, x => dsDeducido(x, id) && 'por deducción');
   const padres = [p.pa, p.ma, p.pl].filter(Boolean);
   const hermanos = [...new Set([...padres.flatMap(hijosDe), ...(HERMANOS.get(id) || [])])].filter(x => x !== id).sort(byOrd);
   const hermanoDe = x => get(x).sx ? 'Hermano o hermana' : get(x).mu ? 'Hermana' : 'Hermano';
@@ -999,10 +1018,33 @@ function parentesco(a, b){
   // Yerno al que la Biblia llama «hijo» (Lucas 3:27)
   if (A.su === b) frases.push(sueLiteral(a) ? `La genealogía de Lucas llama a ${N(a)} «hijo de ${N(b)}».` : `${N(a)} es yerno de ${N(b)}.`);
   if (B.su === a) frases.push(sueLiteral(b) ? `La genealogía de Lucas llama a ${N(b)} «hijo de ${N(a)}».` : `${N(a)} es suegro de ${N(b)}.`);
-  // Sangre; si no la hay (ni otro vínculo directo), por la línea legal
-  let s = sangre(a, b, ['pa', 'ma']), legal = false;
+  // Descendiente lejano al que la Biblia llama «hijo» (Esdras 7:1)
+  const lejano = (x, y) => dsLiteral(x) ? `La Biblia llama a ${N(x)} «hijo de ${N(y)}» (${get(x).rp}).`
+                                        : `${N(x)} es descendiente de ${N(y)}; la Biblia no dice por cuántas generaciones.`;
+  if (A.ds === b) frases.push(lejano(a, b));
+  if (B.ds === a) frases.push(lejano(b, a));
+  // Sangre; si no la hay (ni otro vínculo directo), por la línea legal y después por los
+  // antepasados lejanos (ds), con los que no se pueden contar las generaciones
+  let s = sangre(a, b, ['pa', 'ma']), legal = false, porLejano = false;
   if (!s && !frases.length){ s = sangre(a, b, ['pa', 'ma', 'pl']); legal = !!s; }
-  if (s){
+  if (!s && !frases.length){
+    s = sangre(a, b, ['pa', 'ma', 'pl', 'ds']);
+    if (s){
+      porLejano = true;
+      // ¿Algún paso de la subida es por un padre legal? (ca y cb van de cada persona a c)
+      legal = [s.ca, s.cb].some(l => l.some((x, i) => i + 1 < l.length && get(x).pl === l[i + 1] && get(x).pa !== l[i + 1]));
+    }
+  }
+  if (s && porLejano){
+    // Solo se sabe quién es antepasado de quién; los pasos ds se explican con las palabras de la Biblia
+    frases.push(s.da === 0 ? `${N(a)} es ${gen(a, ['antepasado', 'antepasada'])} de ${N(b)}.`
+              : s.db === 0 ? `${N(a)} es descendiente de ${N(b)}.` : `${N(a)} y ${N(b)} son parientes.`);
+    for (const lado of [s.ca, s.cb]) lado.forEach((x, i) => { if (i + 1 < lado.length && get(x).ds === lado[i + 1]) exp.push(lejano(x, lado[i + 1])); });
+    if (s.da && s.db && !s.grupo) exp.push(`Su antepasado común más cercano es ${nm(s.c)}.`);
+    if (legal) exp.push('Este parentesco pasa por un padre legal o adoptivo; no es de sangre.');
+    camino = caminoPor(s);
+    comun = s.grupo ? null : s.c;
+  } else if (s){
     const r = explicarSangre(a, b, s, frases.length ? 'Además, ' : '', nm);
     frases.push(...r.frases);
     exp.push(...r.exp);
@@ -1057,12 +1099,15 @@ function parentesco(a, b){
   const anotar = x => { if (get(x) && !deducciones.includes(x)) deducciones.push(x); };
   // Matrimonio entre los dos que es una deducción (p. ej., Jerimot y Abihail)
   if ((CONYUGES.get(a) || []).includes(b)){ if (dedDe(a, b)) anotar(a); if (dedDe(b, a)) anotar(b); }
+  // Descendiente lejano por deducción (que «hijo» signifique descendiente; p. ej., Esdras)
+  if (dsDeducido(a, b)) anotar(a);
+  if (dsDeducido(b, a)) anotar(b);
   (camino || []).forEach((x, i, c) => {
     const y = c[i + 1];
     if ((get(x)?.de || []).includes('persona')) anotar(x);
     if (y === undefined) return;
-    if (dedDe(x, y)) anotar(x);
-    if (dedDe(y, x)) anotar(y);
+    if (dedDe(x, y) || dsDeducido(x, y)) anotar(x);
+    if (dedDe(y, x) || dsDeducido(y, x)) anotar(y);
     // Hermanos anotados con hm: el camino pasa por un progenitor oculto («hm:…»)
     if (String(y).startsWith('hm:') && (get(x)?.de || []).includes('hm')) anotar(x);
     if (String(x).startsWith('hm:') && (get(y)?.de || []).includes('hm')) anotar(y);
