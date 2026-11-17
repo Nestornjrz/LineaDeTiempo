@@ -1055,6 +1055,8 @@ function parentesco(a, b){
   // explica). Solo pasa si se muestra lo que no está en la Biblia.
   const deducciones = [];
   const anotar = x => { if (get(x) && !deducciones.includes(x)) deducciones.push(x); };
+  // Matrimonio entre los dos que es una deducción (p. ej., Jerimot y Abihail)
+  if ((CONYUGES.get(a) || []).includes(b)){ if (dedDe(a, b)) anotar(a); if (dedDe(b, a)) anotar(b); }
   (camino || []).forEach((x, i, c) => {
     const y = c[i + 1];
     if ((get(x)?.de || []).includes('persona')) anotar(x);
