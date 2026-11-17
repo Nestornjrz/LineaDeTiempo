@@ -110,6 +110,9 @@ body.h #scroller.dragging{cursor:grabbing; user-select:none}
 .node .sb{font-size:11px; line-height:1.2; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 .node .sb i{font-style:italic}
 .node.sn .nm{font-style:italic; font-weight:500}
+/* Personas que no aparecen en la Biblia (xb): borde punteado y la aclaración debajo del nombre */
+.node.xb{border-style:dashed; border-color:var(--axis)}
+.node.xb::before{opacity:.35}
 .node:hover{border-color:var(--col)}
 .node:hover .nm{color:var(--col)}
 .node:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
@@ -311,10 +314,12 @@ for (const f of FAMILIA){
 }
 // ¿El vínculo entre a y b es una deducción (de en los datos)? Solo puede pasar si se muestra lo
 // que no está en la Biblia; si no, esos vínculos ya no están en FAMILIA.
-const dedVinculo = (a, b) => [[a, b], [b, a]].some(([x, y]) => {
+// dedDe(x, y): la deducción está anotada en x (su ficha la explica)
+const dedDe = (x, y) => {
   const p = get(x);
-  return p && (p.de || []).some(k => k !== 'su' && (p[k] === y || (Array.isArray(p[k]) && p[k].includes(y))));
-});
+  return !!p && (p.de || []).some(k => k !== 'su' && (p[k] === y || (Array.isArray(p[k]) && p[k].includes(y))));
+};
+const dedVinculo = (a, b) => dedDe(a, b) || dedDe(b, a);
 // Paso de la línea de antepasados que se dibuja con línea discontinua y etiqueta: padre legal,
 // suegro (o yerno al que Lucas llama «hijo») y vínculo por deducción
 const pasoRaro = st => st.rel === 'pl' || st.rel === 'su' || dedVinculo(st.child, st.id);
@@ -428,12 +433,12 @@ let focusBox = null;   // posición de la persona resaltada en el último dibujo
 
 function nodo(it){
   const p = get(it.id);
-  const b = el('button', 'node' + (it.focus ? ' focus' : '') + (p.sn ? ' sn' : '') + (MESIAS.has(it.id) ? ' mes' : ''));
+  const b = el('button', 'node' + (it.focus ? ' focus' : '') + (p.sn ? ' sn' : '') + (p.xb ? ' xb' : '') + (MESIAS.has(it.id) ? ' mes' : ''));
   b.dataset.id = it.id;
   Object.assign(b.style, {left:it.x + 'px', top:it.y + 'px', width:it.w + 'px', height:it.h + 'px'});
   b.style.setProperty('--col', color(p));
   b.append(el('span', 'nm', it.focus ? p.n : corto(it.id)));
-  const s = sub(p);
+  const s = p.xb ? 'No aparece en la Biblia' : sub(p);
   if (s || it.tag || it.focus){
     const sb = el('span', 'sb');
     if (s) sb.append(s);
@@ -740,7 +745,7 @@ function fillCard(id){
   const p = get(id);
   card.dataset.id = id;
   card.style.setProperty('--col', color(p));
-  card.querySelector('.cat').textContent = p.c ? CATS[p.c].n : 'Genealogía';
+  card.querySelector('.cat').textContent = p.xb ? 'Fuera de la Biblia: personaje histórico' : p.c ? CATS[p.c].n : 'Genealogía';
   const name = card.querySelector('.name');
   name.textContent = p.n;
   name.href = card.querySelector('.more').href = jwUrl(p);
@@ -1054,15 +1059,21 @@ function parentesco(a, b){
     const y = c[i + 1];
     if ((get(x)?.de || []).includes('persona')) anotar(x);
     if (y === undefined) return;
-    if (dedVinculo(x, y)) anotar(x);
+    if (dedDe(x, y)) anotar(x);
+    if (dedDe(y, x)) anotar(y);
     // Hermanos anotados con hm: el camino pasa por un progenitor oculto («hm:…»)
     if (String(y).startsWith('hm:') && (get(x)?.de || []).includes('hm')) anotar(x);
     if (String(x).startsWith('hm:') && (get(y)?.de || []).includes('hm')) anotar(y);
   });
   // Hermanos: también cuenta si uno de los padres en común es un vínculo por deducción
-  if (s) for (const x of [a, b])
-    if (s.comunes.some(c => dedVinculo(x, c) || String(c).startsWith('hm:') && (get(x)?.de || []).includes('hm'))) anotar(x);
+  if (s) for (const x of [a, b]){
+    if (s.comunes.some(c => dedDe(x, c) || String(c).startsWith('hm:') && (get(x)?.de || []).includes('hm'))) anotar(x);
+    for (const c of s.comunes) if (dedDe(c, x)) anotar(c);
+  }
   if (deducciones.length) exp.push(`Este parentesco incluye una deducción, no lo dice la Biblia: lee la nota en la ficha de ${deducciones.map(nm).join(', ')}.`);
+  // Personas del camino (o antepasados comunes) que no aparecen en la Biblia (xb)
+  const fuera = [...new Set([...(camino || []), ...(s ? s.comunes : [])])].filter(x => get(x)?.xb);
+  if (fuera.length) exp.push(`Este parentesco pasa por ${fuera.length > 1 ? 'personas que no aparecen' : 'una persona que no aparece'} en la Biblia: ${fuera.map(nm).join(', ')}.`);
   // «de el sobrino de Pablo» → «del sobrino de Pablo» (personas sin nombre, que llevan artículo)
   const pulir = s => mayuscula(s.replace(/\bde el /g, 'del ').replace(/\ba el /g, 'al '));
   // Sin repetir la misma frase (p. ej., «José es yerno de Helí» por su suegro y por su esposa)
