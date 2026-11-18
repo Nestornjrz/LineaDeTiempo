@@ -823,7 +823,8 @@ function fillCard(id){
     }
     fam.append(el('dt', '', titulo), dd);
   };
-  pueblos('Pueblo', PUEBLOS_DE.get(id) || []);
+  pueblos('Pueblo', (PUEBLOS_DE.get(id) || []).filter(pu => pu.c === 'pueblo'));
+  pueblos('Potencia mundial', (PUEBLOS_DE.get(id) || []).filter(pu => pu.c === 'potencia'));
   pueblos(p.mu ? 'De ella descienden' : 'De él descienden', PUEBLOS_AN.get(id) || []);
   card.querySelector('.nota').textContent = p.np || '';
   const refs = card.querySelector('.refs');

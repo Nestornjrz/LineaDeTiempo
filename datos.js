@@ -43,6 +43,7 @@ const CATS = {
   // capa: no es una categoría de personas; se muestra u oculta con su propio botón y no se agrupa
   crono:  {n:'Profecías cronológicas', v:'--c-crono', t:'Profecías bíblicas que indican un periodo de tiempo y cuyo cumplimiento se puede fechar', capa:true},
   guerra: {n:'Guerras', v:'--c-guerra', t:'Guerras y conquistas importantes del relato bíblico, y guerras posteriores (extrabíblicas) que cumplen profecías bíblicas según las publicaciones', capa:true},
+  potencia: {n:'Potencias mundiales', v:'--c-potencia', t:'Las siete potencias mundiales de la profecía bíblica, según las publicaciones (Daniel 2 y 7; Apocalipsis 13 y 17)', capa:true},
   pueblo: {n:'Pueblos', v:'--c-pueblo', t:'Pueblos del relato bíblico. Cada barra va desde la primera vez que el pueblo aparece en el relato hasta la última vez que aparece como pueblo de ese tiempo', capa:true},
 };
 
@@ -334,6 +335,66 @@ const PEOPLE = [
    dt:'De 1939 a 1945',
    d:'La guerra más destructiva de la historia. Las publicaciones de los testigos de Jehová la consideran parte del cumplimiento de la señal de los últimos días.',
    r:'Mateo 24:7; 2 Timoteo 3:1-5; Apocalipsis 6:4', al:'guerra mundial segunda'},
+
+  // --- Potencias mundiales (capa) ---
+  // Las siete potencias mundiales de la profecía bíblica, según las publicaciones (Apocalipsis 17:10).
+  // mi: sus gobernantes que nombra la Biblia (como en los pueblos). Grecia y la angloamericana son
+  // extrabíblicas (x): la Biblia anuncia su dominio, pero no lo narra.
+  {id:'potencia-egipto', n:'Egipto', q:'Egipto', s:-1728, e:-1513, a:'se', c:'potencia', k:'potencia',
+   dt:'Las publicaciones no dan las fechas en que Egipto fue potencia mundial; dicen que lo era cuando Jehová sacó a Israel de allí, en 1513 a.e.c. La barra muestra el tiempo en que Israel vivió en Egipto, desde que llegó la familia de Jacob (1728 a.e.c.)',
+   d:'Primera potencia mundial del registro bíblico, según las publicaciones. Los israelitas se fueron a vivir a Egipto con Jacob, y con el tiempo los egipcios los esclavizaron. Jehová los liberó en 1513 a.e.c. con diez plagas y destruyó al ejército del faraón en el mar Rojo. Según las publicaciones, es la primera de las cabezas de la bestia de Apocalipsis 13, y la primera de los «cinco que han caído» de Apocalipsis 17:10.',
+   r:'Génesis 46:5-7; Éxodo 1:8-14; 12:40, 41; 14:26-31; Apocalipsis 13:1; 17:10', al:'potencia mundial Egipto faraon',
+   mi:[{n:'El faraón de José', r:'Génesis 41:39-44', nt:'puso a José a cargo de Egipto'},
+       {n:'El faraón del éxodo', r:'Éxodo 5:2; 14:5-9', nt:'no quiso dejar salir a Israel; la Biblia no da su nombre'},
+       {n:'Sisac', r:'1 Reyes 14:25, 26', nt:'invadió Judá en el quinto año de Rehoboam'},
+       {n:'Nekó', r:'2 Reyes 23:29, 33-35', nt:'mató a Josías y puso a Jehoiaquim como rey'},
+       {n:'Hofrá', r:'Jeremías 44:30'}]},
+  {id:'potencia-asiria', n:'Asiria', q:'Asiria', s:-800, e:-632, a:'s', c:'potencia', k:'potencia',
+   dt:'Según las publicaciones, Asiria dominó durante los siglos VIII y VII a.e.c. (la barra empieza en el año 800), hasta la caída de su capital, Nínive, en 632 a.e.c.',
+   d:'Segunda potencia mundial. Llevó al exilio a los israelitas del reino de diez tribus cuando tomó Samaria en 740 a.e.c. Atacó Judá en los días de Ezequías, pero Jehová la detuvo: en una noche, un ángel mató a 185.000 soldados asirios. Nínive cayó en 632 a.e.c. ante los babilonios y los medos, como lo habían anunciado los profetas.',
+   r:'2 Reyes 15:19, 29; 17:3-6; 18:13–19:37; Isaías 10:5-12; Nahúm 3:1-7; Sofonías 2:13; Apocalipsis 17:10', al:'potencia mundial Asiria asirios Ninive',
+   mi:[{n:'Pul (Tiglat-piléser III)', r:'2 Reyes 15:19, 29', nt:'según «Perspicacia», los dos nombres son del mismo rey'},
+       {n:'Salmanasar V', r:'2 Reyes 17:3; 18:9', nt:'sitió Samaria'},
+       {n:'Sargón', r:'Isaías 20:1'},
+       {n:'Senaquerib', r:'2 Reyes 18:13', nt:'invadió Judá en los días de Ezequías'},
+       {n:'Esar-hadón', r:'2 Reyes 19:37; Esdras 4:2', nt:'hijo de Senaquerib'}]},
+  {id:'potencia-babilonia', n:'Babilonia', q:'Babilonia', s:-607, e:-539, c:'potencia', k:'potencia',
+   dt:'Desde la destrucción de Jerusalén (607 a.e.c.) hasta que los medos y los persas la conquistaron (539 a.e.c.), según el cuadro de las potencias mundiales del libro de las publicaciones sobre Daniel',
+   d:'Tercera potencia mundial. En la imagen del sueño de Nabucodonosor es la cabeza de oro, y en la visión de Daniel 7, el león. Destruyó Jerusalén y el templo en 607 a.e.c. y se llevó al pueblo al exilio. Cayó en una sola noche ante los medos y los persas en 539 a.e.c., la noche del banquete de Belsasar.',
+   r:'Daniel 2:37, 38; 7:4; 2 Reyes 25:1-21; Daniel 5:1-31; Apocalipsis 17:10', al:'potencia mundial Babilonia babilonios caldeos',
+   mi:[{id:'nabucodonosor', r:'2 Reyes 24:1; Daniel 2:37, 38', nt:'«la cabeza de oro»'},
+       {n:'Evil-merodac', r:'2 Reyes 25:27', nt:'sacó de la cárcel al rey Joaquín'},
+       {n:'Belsasar', r:'Daniel 5:1, 30', nt:'murió la noche en que cayó Babilonia'}]},
+  {id:'potencia-medopersia', n:'Medopersia', q:'Medopersia', s:-539, e:-331, c:'potencia', k:'potencia',
+   dt:'Desde la caída de Babilonia (539 a.e.c.) hasta que Alejandro Magno venció a Darío III en Gaugamela (331 a.e.c.), según el libro de las publicaciones sobre Daniel',
+   d:'Cuarta potencia mundial: el pecho y los brazos de plata de la imagen, el oso de Daniel 7 y el carnero de dos cuernos de Daniel 8, que representa «a los reyes de Media y Persia». Ciro conquistó Babilonia en 539 a.e.c. y en 537 dejó que los judíos volvieran a Jerusalén. Darío I permitió que terminaran el templo, y Artajerjes envió a Nehemías a reconstruir las murallas en 455 a.e.c.',
+   r:'Daniel 2:39; 7:5; 8:3, 4, 20; Isaías 45:1; Esdras 1:1-4; 6:1-15; Nehemías 2:1-8; Ester 1:1', al:'potencia mundial Medopersia Persia medos persas',
+   mi:[{id:'ciro', r:'Esdras 1:1-4; Isaías 45:1', nt:'conquistó Babilonia y liberó a los judíos'},
+       {n:'Darío el medo', r:'Daniel 5:31; 6:1', nt:'gobernó Babilonia después de su caída'},
+       {n:'Darío I', r:'Esdras 6:1-12', nt:'permitió terminar el templo'},
+       {id:'asuero', r:'Ester 1:1', nt:'el rey de Ester; según las publicaciones, Jerjes I'},
+       {n:'Artajerjes', r:'Nehemías 2:1-8', nt:'envió a Nehemías a reconstruir las murallas'}]},
+  {id:'potencia-grecia', n:'Grecia', q:'Grecia', s:-331, e:-30, c:'potencia', k:'potencia', x:true,
+   src:'Libro de las publicaciones «Prestemos atención a las profecías de Daniel»',
+   dt:'Desde la batalla de Gaugamela (331 a.e.c.) hasta que cayó el último de sus reinos, el de los Tolomeos en Egipto (30 a.e.c.)',
+   d:'Quinta potencia mundial: el vientre y los muslos de cobre de la imagen, el leopardo de Daniel 7 y el macho cabrío de Daniel 8, que representa «al rey de Grecia». Alejandro Magno venció a los persas y murió poco después, en 323 a.e.c.; su imperio se dividió entre cuatro de sus generales, como se había profetizado. La Biblia anunció su dominio, pero no lo narra: ocurrió entre el final de las Escrituras Hebreas y el nacimiento de Jesús.',
+   r:'Daniel 2:39; 7:6; 8:5-8, 21, 22; 11:3, 4', al:'potencia mundial Grecia griegos Alejandro',
+   mi:[{n:'Alejandro Magno', r:'Daniel 8:5-8, 21', de:1, nt:'la Biblia no da su nombre; según las publicaciones, es «el gran cuerno», «el primer rey» de Grecia'}]},
+  {id:'potencia-roma', n:'Roma', q:'Roma', s:-30, e:1763, a:'e', c:'potencia', k:'potencia',
+   dt:'Desde el año 30 a.e.c., según las publicaciones. No dan una fecha de fin: la barra llega hasta 1763, cuando según ellas empezó la séptima potencia mundial',
+   d:'Sexta potencia mundial: las piernas de hierro de la imagen y la cuarta bestia de Daniel 7, la de dientes de hierro. Gobernaba cuando nació Jesús y durante todo el relato de las Escrituras Griegas: un gobernador romano ejecutó a Jesús en 33 e.c., y sus ejércitos destruyeron Jerusalén en el año 70. Cuando Juan recibió el Apocalipsis, era «el que es» de Apocalipsis 17:10.',
+   r:'Daniel 2:40; 7:7, 19, 23; Lucas 2:1; 3:1; Juan 19:15; Hechos 25:11, 12; Apocalipsis 17:10', al:'potencia mundial Roma romanos imperio romano',
+   mi:[{id:'cesar-augusto', r:'Lucas 2:1', nt:'ordenó el censo cuando nació Jesús'},
+       {id:'tiberio', r:'Lucas 3:1', nt:'emperador cuando Juan el Bautista empezó a predicar'},
+       {n:'Claudio', r:'Hechos 11:28; 18:2', nt:'mandó salir de Roma a los judíos'},
+       {n:'Quirinio', r:'Lucas 2:2', nt:'gobernador de Siria'},
+       {id:'poncio-pilato', r:'Juan 19:16', nt:'gobernador romano; entregó a Jesús para que lo ejecutaran'},
+       {id:'felix', r:'Hechos 23:24; 24:27', nt:'gobernador romano de Judea'}]},
+  {id:'potencia-angloamericana', n:'Potencia angloamericana', lb:'Angloamericana', q:'potencia mundial angloamericana', s:1763, e:2026, c:'potencia', k:'potencia', x:true,
+   src:'Libro de las publicaciones «Prestemos atención a las profecías de Daniel»; La Atalaya del 15 de junio de 2012',
+   dt:'Desde 1763, cuando Gran Bretaña ya era un imperio, según el cuadro del libro de las publicaciones sobre Daniel; según La Atalaya, empezó a actuar como una potencia conjunta en la Primera Guerra Mundial. Sigue siendo la potencia mundial actual',
+   d:'Séptima potencia mundial, formada por Gran Bretaña y los Estados Unidos. Según las publicaciones, es la séptima cabeza de la bestia de Apocalipsis 13 y «el otro» que «todavía no ha llegado» de Apocalipsis 17:10, y también la bestia de dos cuernos de Apocalipsis 13:11. En la imagen de Daniel 2 son los pies de hierro y barro. Según las publicaciones, no habrá otra potencia mundial antes de que el Reino de Dios acabe con los gobiernos humanos (Daniel 2:44).',
+   r:'Daniel 2:41-44; Apocalipsis 13:1, 11-15; 17:10', al:'potencia mundial angloamericana Gran Bretaña Estados Unidos'},
 
   // --- Pueblos (capa) ---
   // La barra va desde la primera vez que el pueblo aparece en el relato hasta la última vez que
@@ -643,6 +704,7 @@ const JW = {
   'Heveos':'1200002041', 'Perizitas':'1200003445', 'Guirgaseos':'1200001711', 'Het':'1200002009',
   'Filisteos':'1200003469', 'Moabitas':'1200003097', 'Edomitas':'1200001258', 'Amalequitas':'1200000216',
   'Ammonitas':'1200000240', 'Ismaelitas':'1200002216', 'Madianitas':'1200003041',
+  'Egipto':'1200001265', 'Asiria':'1200000447',
   'Sidonios':'1200004113', 'Sirios':'1200004285', 'Horeos':'1200002078', 'Refaím':'1200003695', 'Sidón (hijo de Canaán)':'1200004113',
   'Adán':'1200000089', 'Set':'1200003911', 'Enós':'1200001372', 'Quenán':'1200002588',
   'Mahalalel':'1200002839', 'Jared':'1200002329', 'Enoc':'1200001371', 'Matusalén':'1200003022',
@@ -2502,8 +2564,9 @@ for (const f of FAMILIA){
 // Pueblos (capa «Pueblos» de PEOPLE): los de cada persona (por la lista mi de cada pueblo) y los que
 // descienden de cada antepasado (an). Los miembros por deducción (de) solo si se muestran.
 const miembros = pu => (pu.mi || []).filter(m => NO_BIBLICO || !m.de);
+// También las potencias mundiales: sus gobernantes (mi).
 const PUEBLOS_DE = new Map(), PUEBLOS_AN = new Map();
-for (const pu of PEOPLE) if (pu.c === 'pueblo'){
+for (const pu of PEOPLE) if (pu.c === 'pueblo' || pu.c === 'potencia'){
   for (const m of miembros(pu)) if (m.id){ if (!PUEBLOS_DE.has(m.id)) PUEBLOS_DE.set(m.id, []); PUEBLOS_DE.get(m.id).push(pu); }
   if (pu.an){ if (!PUEBLOS_AN.has(pu.an)) PUEBLOS_AN.set(pu.an, []); PUEBLOS_AN.get(pu.an).push(pu); }
 }

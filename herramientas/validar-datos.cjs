@@ -89,8 +89,8 @@ function validar(verNoBiblico){
     }
   }
 
-  // ---------- Pueblos (capa «Pueblos» de PEOPLE) ----------
-  for (const pu of PEOPLE.filter(p => p.c === 'pueblo')){
+  // ---------- Pueblos y potencias mundiales (capas de PEOPLE) ----------
+  for (const pu of PEOPLE.filter(p => p.c === 'pueblo' || p.c === 'potencia')){
     if (pu.an && !F.has(pu.an)) error(`Pueblo «${pu.id}».an: no existe «${pu.an}» en FAMILIA`);
     if (!pu.dt) error(`Pueblo «${pu.id}»: falta dt (de dónde salen las fechas de la barra)`);
     for (const m of pu.mi || []){

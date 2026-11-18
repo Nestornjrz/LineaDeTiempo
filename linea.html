@@ -136,6 +136,7 @@ h1{font-size:18px; margin:0; font-weight:700; letter-spacing:.2px}
 .legend button.capa i.personas{background:linear-gradient(90deg, var(--c-patri) 0 25%, var(--c-juda) 25% 50%, var(--c-prof) 50% 75%, var(--c-apost) 75%)}
 .legend button.capa i.guerra{background-color:var(--c-guerra)}
 .legend button.capa i.pueblo{background-color:var(--c-pueblo)}
+.legend button.capa i.potencia{background-color:var(--c-potencia)}
 /* Fila de fuente: muestras de barra bíblica (llena) y extrabíblica (borde punteado) */
 .legend i.biblico{background:var(--muted)}
 .legend i.extra{background:color-mix(in srgb, var(--col, var(--muted)) 28%, transparent); border:1.5px dashed var(--col, var(--muted))}
@@ -163,7 +164,7 @@ body.v .mil-lbl{writing-mode:vertical-rl}
 .legend .subs{display:none; flex-wrap:wrap; gap:4px 14px; padding:1px 12px; border-radius:12px; background:var(--grid)}
 .legend .subs.shown{display:inline-flex}
 header.no-personas .mode.view{display:none}
-.person.guerra .lbl, .person.pueblo .lbl{color:var(--text)}
+.person.guerra .lbl, .person.pueblo .lbl, .person.potencia .lbl{color:var(--text)}
 /* Botón de capa: casilla que se marca o desmarca, independiente de las categorías */
 .legend button.capa{border:1px dashed var(--line); color:var(--text)}
 .legend button.capa:not(.on){opacity:.6}
@@ -473,7 +474,7 @@ body.v .person.crono .bar::after{
 <!-- Ayuda: oculta de entrada; se despliega con el enlace -->
 <details class="note">
   <summary><span aria-hidden="true">ⓘ </span>Cómo leer la línea de tiempo</summary>
-  <p>Fechas según la cronología bíblica de las publicaciones de los testigos de Jehová (por ejemplo, la creación de Adán en 4026 a.e.c. y el Diluvio en 2370 a.e.c.). Las barras rayadas indican fechas aproximadas. Las profecías cronológicas se muestran arriba, como barras divididas en sus tramos; las guerras llevan el símbolo ⚔. Los pueblos (como los cananeos o los hititas) van debajo de las guerras: cada barra va desde la primera vez que el pueblo aparece en el relato bíblico hasta la última vez que aparece como pueblo de ese tiempo, y su ficha dice de quién descendían y qué personas de la Biblia formaban parte de él. Personas, profecías, guerras y pueblos son capas que se muestran u ocultan por separado desde «Filtros»; allí también se pueden ocultar las franjas de fondo de los milenios del calendario. Las barras con borde punteado y relleno claro son extrabíblicas: personas y guerras que la Biblia no narra, aunque algunas cumplan profecías bíblicas (por ejemplo, los presidentes de la Watch Tower, la guerra judía contra Roma y las guerras mundiales). De entrada solo se muestra lo bíblico; la fila «Fuente» de «Filtros» muestra u oculta por separado lo bíblico y lo extrabíblico. En la vista «Grupos», cada barra representa una categoría y va desde su primer personaje hasta el último. Algunas categorías se juntan en un grupo principal (Época patriarcal, Reyes, Profetas y Tiempo de Jesús y los apóstoles), que lleva una flecha y una franja de color por subgrupo: al tocarlo se separa en sus subgrupos, y al tocarlo otra vez se vuelven a juntar. En «Filtros», la flecha junto a cada grupo principal muestra sus subgrupos para elegirlos por separado. Los acontecimientos con línea de puntos y etiqueta en cursiva tienen una fecha aproximada que la Biblia no precisa. En los reyes de Judá y de Israel, la barra muestra los años de reinado. En todos los reyes, el icono (✓ bueno, ◐ tibio, ✗ malo; más símbolos, mayor grado) resume lo que la Biblia dice de su conducta. Cuando no se conoce el nacimiento o la muerte, la barra muestra el período en que el personaje aparece en el registro bíblico. Con «Ver su linaje», en la ficha de una persona, la línea de tiempo muestra solo a esa persona y a sus antepasados con fechas, uno debajo de otro y unidos por líneas desde el año en que nace cada hijo; los antepasados sin fechas no tienen barra y se cuentan en la etiqueta del siguiente («+11 generaciones»), con una línea discontinua, que también indica un padre legal o adoptivo. Es la misma línea de antepasados del árbol genealógico; cuando hay más de una (por ejemplo, Jesús: por José o por María), arriba se elige cuál ver.</p>
+  <p>Fechas según la cronología bíblica de las publicaciones de los testigos de Jehová (por ejemplo, la creación de Adán en 4026 a.e.c. y el Diluvio en 2370 a.e.c.). Las barras rayadas indican fechas aproximadas. Las profecías cronológicas se muestran arriba, como barras divididas en sus tramos; las guerras llevan el símbolo ⚔. Las potencias mundiales de la profecía bíblica (Egipto, Asiria, Babilonia, Medopersia, Grecia, Roma y la angloamericana) van debajo de las profecías, con sus fechas según las publicaciones y sus gobernantes que nombra la Biblia; Grecia y la angloamericana son extrabíblicas, porque la Biblia anuncia su dominio pero no lo narra. Los pueblos (como los cananeos o los hititas) van debajo de las guerras: cada barra va desde la primera vez que el pueblo aparece en el relato bíblico hasta la última vez que aparece como pueblo de ese tiempo, y su ficha dice de quién descendían y qué personas de la Biblia formaban parte de él. Personas, profecías, potencias, guerras y pueblos son capas que se muestran u ocultan por separado desde «Filtros»; allí también se pueden ocultar las franjas de fondo de los milenios del calendario. Las barras con borde punteado y relleno claro son extrabíblicas: personas y guerras que la Biblia no narra, aunque algunas cumplan profecías bíblicas (por ejemplo, los presidentes de la Watch Tower, la guerra judía contra Roma y las guerras mundiales). De entrada solo se muestra lo bíblico; la fila «Fuente» de «Filtros» muestra u oculta por separado lo bíblico y lo extrabíblico. En la vista «Grupos», cada barra representa una categoría y va desde su primer personaje hasta el último. Algunas categorías se juntan en un grupo principal (Época patriarcal, Reyes, Profetas y Tiempo de Jesús y los apóstoles), que lleva una flecha y una franja de color por subgrupo: al tocarlo se separa en sus subgrupos, y al tocarlo otra vez se vuelven a juntar. En «Filtros», la flecha junto a cada grupo principal muestra sus subgrupos para elegirlos por separado. Los acontecimientos con línea de puntos y etiqueta en cursiva tienen una fecha aproximada que la Biblia no precisa. En los reyes de Judá y de Israel, la barra muestra los años de reinado. En todos los reyes, el icono (✓ bueno, ◐ tibio, ✗ malo; más símbolos, mayor grado) resume lo que la Biblia dice de su conducta. Cuando no se conoce el nacimiento o la muerte, la barra muestra el período en que el personaje aparece en el registro bíblico. Con «Ver su linaje», en la ficha de una persona, la línea de tiempo muestra solo a esa persona y a sus antepasados con fechas, uno debajo de otro y unidos por líneas desde el año en que nace cada hijo; los antepasados sin fechas no tienen barra y se cuentan en la etiqueta del siguiente («+11 generaciones»), con una línea discontinua, que también indica un padre legal o adoptivo. Es la misma línea de antepasados del árbol genealógico; cuando hay más de una (por ejemplo, Jesús: por José o por María), arriba se elige cuál ver.</p>
 </details>
 
 <div id="card" role="dialog" aria-live="polite">
@@ -548,11 +549,11 @@ const catFilter = new Set();   // categorías visibles (vacío = todas)
 const picked = new Set();      // ids de los personajes buscados
 let soloMode = false;          // true = mostrar solo los buscados; false = atenuar a los demás
 try { soloMode = localStorage.getItem('modoBusqueda') === 'solo'; } catch (e) {}
-// Capas independientes: personas (con sus grupos y categorías), profecías cronológicas, guerras y pueblos
-const LAYERS = {personas:'Personas', crono:'Profecías', guerra:'Guerras', pueblo:'Pueblos'};
-const isCapa = p => !!CATS[p.c].capa;            // profecías, guerras o pueblos
+// Capas independientes: personas (con sus grupos y categorías), profecías cronológicas, potencias mundiales, guerras y pueblos
+const LAYERS = {personas:'Personas', crono:'Profecías', potencia:'Potencias', guerra:'Guerras', pueblo:'Pueblos'};
+const isCapa = p => !!CATS[p.c].capa;            // profecías, potencias, guerras o pueblos
 const layerOf = p => isCapa(p) ? p.c : 'personas';
-const layers = {personas:true, crono:true, guerra:true, pueblo:true};
+const layers = {personas:true, crono:true, potencia:true, guerra:true, pueblo:true};
 try {
   Object.assign(layers, JSON.parse(localStorage.getItem('capas') || '{}'));
   if (localStorage.getItem('profecias') === '0') layers.crono = false;   // preferencia anterior
@@ -700,15 +701,16 @@ function render(){
 
   // --- Asignar carriles (sin que se encimen barras ni nombres) ---
   const byDate = (a,b) => a.s - b.s || a.e - b.e;
-  // Cada capa en sus propios carriles: profecías arriba, después guerras, pueblos y debajo personas o grupos
-  // En el modo «Linaje» no hay profecías, guerras ni pueblos, y las personas van en el orden de su línea
+  // Cada capa en sus propios carriles: profecías arriba, después potencias, guerras, pueblos y debajo personas o grupos
+  // En el modo «Linaje» no hay profecías, potencias, guerras ni pueblos, y las personas van en el orden de su línea
   const crono = lin ? [] : PEOPLE.filter(p => p.c === 'crono' && visible(p)).sort(byDate);
+  const potencias = lin ? [] : PEOPLE.filter(p => p.c === 'potencia' && visible(p)).sort(byDate);
   const wars = lin ? [] : PEOPLE.filter(p => p.c === 'guerra' && visible(p)).sort(byDate);
   const pueblos = lin ? [] : PEOPLE.filter(p => p.c === 'pueblo' && visible(p)).sort(byDate);
   const rest = lin ? lin.filas.map(f => f.p) : !layers.personas ? [] :
     (groupView ? groupItems() : PEOPLE.filter(p => !isCapa(p) && visible(p))).sort(byDate);
   // Lo que se dibuja: cada elemento y, tras un grupo principal abierto, sus subgrupos
-  const items = [...crono, ...wars, ...pueblos, ...rest].flatMap(p => p.kids ? [p, ...p.kids] : [p]);
+  const items = [...crono, ...potencias, ...wars, ...pueblos, ...rest].flatMap(p => p.kids ? [p, ...p.kids] : [p]);
   const laneEnd = [];
   const GAP = 10;
   const measure = p => {
@@ -744,6 +746,7 @@ function render(){
     }
   };
   pack(crono, 0);
+  pack(potencias, laneEnd.length);
   pack(wars, laneEnd.length);
   pack(pueblos, laneEnd.length);
   if (lin) rest.forEach((p, i) => { measure(p); p.lane = i; laneEnd[i] = p.occ; });   // una fila por generación
@@ -983,7 +986,7 @@ function personEl(p){
   const lbl = b.querySelector('.lbl');
   lbl.textContent = barLabel(p);
   if (p.val !== undefined) lbl.append(valBadge(p.val));
-  if (p.c === 'guerra' || p.c === 'pueblo') b.classList.add(p.c);
+  if (['guerra', 'pueblo', 'potencia'].includes(p.c)) b.classList.add(p.c);
   if (p.k === 'crono'){
     b.classList.add('crono');
     b.style.setProperty('--delay', `${-(p.ix % 4) * 1.3}s`);   // desfase: no destellan todas a la vez
@@ -1114,14 +1117,14 @@ function fillMiembros(p){
     return Object.assign(el('span'), {textContent:txt});
   };
   const nombreDe = id => (PEOPLE.find(x => x.id === id) || fam(id)).n || id;
-  if (p.c === 'pueblo'){
+  if (p.c === 'pueblo' || p.c === 'potencia'){
     if (p.an){
       titulo('Descienden de');
       box.append(enlace(p.an, nombreDe(p.an)));
     }
     const mi = miembros(p);
     if (mi.length){
-      titulo('Personas de este pueblo');
+      titulo(p.c === 'potencia' ? 'Sus gobernantes en la Biblia' : 'Personas de este pueblo');
       const ul = el('ul');
       for (const m of mi){
         const li = el('li');
@@ -1134,9 +1137,10 @@ function fillMiembros(p){
     }
     return;
   }
-  const pus = PUEBLOS_DE.get(p.id) || [];
-  if (pus.length){
-    titulo('Pueblo');
+  for (const [c, t] of [['pueblo', 'Pueblo'], ['potencia', 'Potencia mundial']]){
+    const pus = (PUEBLOS_DE.get(p.id) || []).filter(pu => pu.c === c);
+    if (!pus.length) continue;
+    titulo(t);
     pus.forEach((pu, i) => box.append(...(i ? [', '] : []), enlace(pu.id, pu.n)));
   }
 }
@@ -1515,6 +1519,7 @@ for (const k in LAYERS){
   b.title = {personas:'Mostrar u ocultar las personas y sus grupos (con sus filtros de categoría)',
              crono:'Mostrar u ocultar las profecías cronológicas',
              guerra:'Mostrar u ocultar las guerras',
+             potencia:'Mostrar u ocultar las potencias mundiales (Egipto, Asiria, Babilonia, Medopersia, Grecia, Roma y la angloamericana)',
              pueblo:'Mostrar u ocultar los pueblos'}[k];
   b.innerHTML = `<span class="check" aria-hidden="true"></span><i class="${k}"></i>${k === 'guerra' ? '⚔ ' : ''}${LAYERS[k]}`;
   b.addEventListener('click', () => setLayer(k, !layers[k]));
