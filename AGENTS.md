@@ -71,6 +71,10 @@ se marca como tal y no se mezcla con lo bíblico:
     fácil, medio y difícil. Las preguntas se generan con los datos (fechas de PEOPLE y EVENTS, y el
     parentesco de FAMILIA), así que no hay que escribirlas a mano; respetan «Mostrar lo que no está
     en la Biblia».
+  - `viaje.html`: «Viaje por la línea de tiempo», juego de plataformas en `<canvas>`: un joven
+    copista avanza solo por una época (nivel) y salta; las plataformas son las barras de los
+    personajes (PEOPLE), los acontecimientos (EVENTS) son puntos de control y los rollos llevan la
+    primera frase de la descripción de cada personaje. Todo sale de `datos.js`.
   - `datos.js`: los datos que comparten las secciones (`CATS`, `GRUPOS`,
     `PEOPLE`, `JUICIO`, `EVENTS` y `JW`). Cada entrada de `PEOPLE` tiene un `id`
     estable (minúsculas, sin acentos ni artículos, p. ej. `abrahan`,

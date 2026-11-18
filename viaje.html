@@ -1,0 +1,790 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Viaje por la línea de tiempo · Personajes de la Biblia</title>
+<meta name="description" content="Juego: un joven copista recorre la historia bíblica saltando sobre las vidas de los personajes y recogiendo rollos.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="icon" href="icons/icon-192.png" sizes="192x192" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="theme-color" content="#16140f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Personajes">
+<link rel="stylesheet" href="comun.css">
+<style>
+html, body{height:100%; overflow:hidden; background:#16140f}
+body{display:flex; flex-direction:column; color:#ece6da}
+header{
+  display:flex; align-items:center; gap:10px; padding:8px 12px; background:#16140f; border-bottom:1px solid #332e24; flex:none;
+}
+header h1{margin:0; font-size:17px; font-weight:700; color:#ece6da}
+.ico{
+  display:grid; place-items:center; width:34px; height:34px; flex:none; cursor:pointer; text-decoration:none; font:inherit;
+  color:#ece6da; background:#211e17; border:1px solid #332e24; border-radius:9px;
+}
+.ico svg{width:18px; height:18px}
+header .der{margin-left:auto; display:flex; gap:8px}
+#escena{position:relative; flex:1; min-height:0}
+canvas{display:block; width:100%; height:100%; touch-action:none; user-select:none; -webkit-user-select:none; cursor:pointer}
+[hidden]{display:none !important}
+
+/* Pantallas sobre el juego (inicio, pausa, fin de nivel) */
+.capa{
+  position:absolute; inset:0; overflow:auto; padding:18px 16px 28px;
+  background:rgba(22,20,15,.88); backdrop-filter:blur(3px);
+  display:flex; flex-direction:column; align-items:center;
+}
+.panel{width:100%; max-width:640px; animation:entra .35s both}
+.panel h2{margin:4px 0 6px; font-size:24px; text-align:center}
+.panel .sub{margin:0 0 14px; text-align:center; color:#a39b8b}
+.como{margin:0 0 16px; padding:10px 14px; border-radius:12px; background:#211e17; border:1px solid #332e24; font-size:14px; color:#cfc6b5}
+.como b{color:#ece6da}
+.niveles{display:flex; gap:8px; margin:0 0 14px}
+.niveles button{
+  flex:1; height:40px; font:inherit; font-weight:700; cursor:pointer; color:#ece6da;
+  background:#211e17; border:1px solid #332e24; border-radius:10px;
+}
+.niveles button[aria-pressed="true"]{color:#16140f; background:#e0a85a; border-color:#e0a85a}
+.eras{display:grid; gap:10px}
+.era{
+  display:grid; grid-template-columns:44px 1fr auto; gap:12px; align-items:center; padding:10px 14px; text-align:left;
+  font:inherit; color:#ece6da; cursor:pointer; background:#211e17; border:1px solid #332e24; border-radius:12px;
+  transition:border-color .15s, transform .15s;
+}
+.era:hover:not(:disabled){border-color:#e0a85a; transform:translateY(-2px)}
+.era:disabled{opacity:.45; cursor:default}
+.era .num{display:grid; place-items:center; width:44px; height:44px; border-radius:50%; font-size:20px; font-weight:800; color:#16140f; background:var(--c)}
+.era b{display:block; font-size:16px}
+.era small{color:#a39b8b}
+.era .est{font-size:13px; color:#e0a85a; text-align:right; white-space:nowrap}
+.btns{display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:16px}
+.btn{
+  height:46px; padding:0 22px; font:inherit; font-size:16px; font-weight:700; cursor:pointer; border-radius:12px;
+  color:#ece6da; background:#211e17; border:1px solid #332e24;
+}
+.btn.pri{color:#16140f; background:#e0a85a; border-color:#e0a85a}
+.btn:active{transform:scale(.97)}
+.res{display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; margin:12px 0}
+.res div{padding:10px; border-radius:12px; background:#211e17; border:1px solid #332e24; text-align:center}
+.res b{display:block; font-size:24px}
+.res small{color:#a39b8b}
+.coleccion{display:grid; gap:8px; margin-top:6px}
+.coleccion h3{margin:14px 0 2px; font-size:15px; color:#e0a85a}
+.rollo{padding:8px 12px; border-radius:10px; background:#211e17; border:1px solid #332e24; font-size:14px}
+.rollo b{color:#ece6da}
+.rollo.no{opacity:.4}
+@keyframes entra{from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:none}}
+</style>
+</head>
+<body>
+<header>
+  <a class="ico" href="juegos.html" title="Volver a los juegos" aria-label="Volver a los juegos">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+  </a>
+  <h1>Viaje por la línea de tiempo</h1>
+  <span class="der">
+    <button class="ico" id="pausa" title="Pausa" aria-label="Pausa" hidden>
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
+    </button>
+  </span>
+</header>
+
+<div id="escena">
+  <canvas id="lienzo" aria-label="Juego: toca para saltar"></canvas>
+
+  <!-- Inicio: nivel de dificultad y época -->
+  <div class="capa" id="inicio">
+    <div class="panel">
+      <h2>Viaje por la línea de tiempo</h2>
+      <p class="sub">Un joven copista recorre la historia de la Biblia. Salta sobre las vidas de los personajes y recoge sus rollos.</p>
+      <div class="como">
+        <b>Cómo se juega:</b> el copista camina solo. <b>Toca la pantalla</b> (o pulsa la barra espaciadora) para saltar; si mantienes, salta más alto.
+        Cada plataforma es la vida de un personaje: su largo son los años que vivió o que aparece en el relato. Recoge los <b>📜 rollos</b>,
+        esquiva las zanjas y las piedras, y en las <b>puertas de pregunta</b> elige el camino de arriba o el de abajo.
+      </div>
+      <div class="niveles" id="niveles"></div>
+      <div class="eras" id="eras"></div>
+      <div class="btns"><button class="btn" id="verColeccion">📜 Mis rollos</button></div>
+    </div>
+  </div>
+
+  <!-- Pausa -->
+  <div class="capa" id="pausada" hidden>
+    <div class="panel">
+      <h2>Pausa</h2>
+      <p class="sub" id="pausaInfo"></p>
+      <div class="btns">
+        <button class="btn pri" id="seguir">Seguir</button>
+        <button class="btn" id="reiniciar">Empezar la época otra vez</button>
+        <button class="btn" id="aEpocas">Elegir otra época</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fin de la época (llegó o se quedó sin vidas) -->
+  <div class="capa" id="final" hidden>
+    <div class="panel">
+      <h2 id="finTitulo"></h2>
+      <p class="sub" id="finSub"></p>
+      <div class="res">
+        <div><b id="finRollos"></b><small>rollos</small></div>
+        <div><b id="finPreg"></b><small>preguntas</small></div>
+        <div><b id="finPuntos"></b><small>puntos</small></div>
+      </div>
+      <p class="sub" id="finRec"></p>
+      <div class="btns">
+        <button class="btn pri" id="finSiguiente">Siguiente época →</button>
+        <button class="btn" id="finOtra">Jugar otra vez</button>
+        <button class="btn" id="finEpocas">Elegir otra época</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Colección de rollos -->
+  <div class="capa" id="coleccion" hidden>
+    <div class="panel">
+      <h2>Mis rollos</h2>
+      <p class="sub" id="colInfo"></p>
+      <div class="coleccion" id="colLista"></div>
+      <div class="btns"><button class="btn pri" id="colVolver">Volver</button></div>
+    </div>
+  </div>
+</div>
+
+<script src="datos.js"></script>
+<script>
+/* «Viaje por la línea de tiempo»: juego de plataformas en el que el suelo es la línea de tiempo.
+   Cada época es un nivel. Las plataformas son las barras de los personajes (PEOPLE), con su color
+   y su largo proporcional a los años; los acontecimientos (EVENTS) son puntos de control; cada
+   personaje tiene un rollo con su descripción, y las puertas de pregunta («¿Quién vino primero?»)
+   se eligen pasando por arriba o por abajo. Todo sale de datos.js; no hay textos inventados.
+   Coordenadas del mundo: x en píxeles desde el inicio de la época; y hacia abajo, con el suelo en
+   SUELO. La vista mide ALTO de alto y se escala al lienzo. */
+const ALTO = 420, SUELO = 360;
+const CARRILES = [SUELO - 100, SUELO - 172, SUELO - 244];   // alturas de las plataformas
+const ERAS = [
+  {n:'Antes del Diluvio',      s:-4026, e:-2370, c:'--c-ante',   cielo:['#8fc4dd', '#e6f0d2'], lejos:'#9cc08a', cerca:'#6f9a55', suelo:'#7d6a45', deco:'arbol'},
+  {n:'Los patriarcas',         s:-2370, e:-1513, c:'--c-patri',  cielo:['#f2c98b', '#fbe9c8'], lejos:'#d9b47c', cerca:'#c49a5e', suelo:'#9a7748', deco:'tienda'},
+  {n:'Del Éxodo a los jueces', s:-1513, e:-1117, c:'--c-israel', cielo:['#9cc7cf', '#ece3c9'], lejos:'#c8b48a', cerca:'#8aa36a', suelo:'#7f6a47', deco:'palma'},
+  {n:'Los reyes',              s:-1117, e:-607,  c:'--c-reyes',  cielo:['#a9bfdc', '#efe2cf'], lejos:'#b7a98e', cerca:'#8c9a6e', suelo:'#806849', deco:'muralla'},
+  {n:'Exilio y regreso',       s:-607,  e:-430,  c:'--c-exilio', cielo:['#d9a46f', '#f6dfb8'], lejos:'#c79a6a', cerca:'#a8875a', suelo:'#8a6a44', deco:'zigurat'},
+  {n:'Jesús y los apóstoles',  s:-3,    e:100,   c:'--c-cristo', cielo:['#86b9de', '#e3f0f2'], lejos:'#a8c29a', cerca:'#7fa66a', suelo:'#7a6747', deco:'casa'},
+];
+const DIFIC = {
+  facil:   {n:'Fácil',   vel:200, vidas:5, zanja:[1000, 1700], ancho:[70, 100],  piedra:[1500, 2400]},
+  medio:   {n:'Medio',   vel:235, vidas:3, zanja:[700, 1200],  ancho:[80, 125],  piedra:[1000, 1700]},
+  dificil: {n:'Difícil', vel:275, vidas:3, zanja:[480, 900],   ancho:[95, 145],  piedra:[700, 1200]},
+};
+const LARGO = 18000;   // largo de una época en píxeles
+
+/* ===================== PREFERENCIAS ===================== */
+const leer = (k, def) => { try { const v = localStorage.getItem(k); return v === null ? def : JSON.parse(v); } catch (e) { return def; } };
+const guardar = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+let dific = leer('juegosNivel', 'facil');
+if (!DIFIC[dific]) dific = 'facil';
+const progreso = leer('viajeProgreso', {abiertas:1, records:{}});   // épocas abiertas y récords
+const rollosGuardados = new Set(leer('viajeRollos', []));
+
+/* ===================== UTILIDADES ===================== */
+const $ = id => document.getElementById(id);
+const el = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt !== undefined) e.textContent = txt; return e; };
+const fmtY = y => y < 0 ? `${-y} a.e.c.` : `${y} e.c.`;
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim() || '#888';
+const esCapa = p => !!CATS[p.c].capa;
+const esExtra = p => !!(p.x || CATS[p.c].x);
+const primeraFrase = t => { const m = (t || '').match(/^.*?[.!?](\s|$)/); return (m ? m[0] : t || '').trim(); };
+const vibrar = p => { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} };
+// Números al azar repetibles: la misma época se arma igual cada vez
+function semilla(n){ return () => { n |= 0; n = n + 0x6D2B79F5 | 0; let t = Math.imul(n ^ n >>> 15, 1 | n); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+/* ===================== ARMAR UNA ÉPOCA ===================== */
+let mundo = null;
+function armar(i){
+  const E = ERAS[i], D = DIFIC[dific];
+  const anios = E.e - E.s;
+  const esc = LARGO / anios;                       // píxeles por año
+  const X = y => (y - E.s) * esc;
+  const azar = semilla(1000 * (i + 1) + Object.keys(DIFIC).indexOf(dific));
+  const entre = ([a, b]) => a + azar() * (b - a);
+
+  // Plataformas: las barras de los personajes que viven en la época, en tres carriles sin encimarse
+  const personas = PEOPLE.filter(p => !esCapa(p) && !esExtra(p) && p.s !== undefined && p.e > E.s && p.s < E.e)
+    .sort((a, b) => a.s - b.s || b.e - a.e);
+  // Cada personaje tiene su plataforma desde el año en que empieza (nacimiento o primera aparición).
+  // Dura sus años reales si cabe; si no, se corta antes de la siguiente de su carril y se marca
+  // como cortada (las vidas largas, como la de Adán, ocuparían si no toda la época).
+  const inicioCarril = [-Infinity, -Infinity, -Infinity];
+  const plataformas = [];
+  const enCarril = [[], [], []];
+  for (const p of personas){
+    const x1 = Math.max(X(Math.max(p.s, E.s)), 300);   // no al principio, donde arranca el copista
+    // El carril que lleva más tiempo libre (así se reparten), si deja sitio para una plataforma
+    const c = [0, 1, 2].filter(k => x1 - inicioCarril[k] >= 150).sort((a, b) => inicioCarril[a] - inicioCarril[b])[0];
+    if (c === undefined) continue;
+    inicioCarril[c] = x1;
+    const pl = {x:x1, real:Math.max(70, X(Math.min(p.e, E.e)) - x1), y:CARRILES[c], carril:c, p, col:css(CATS[p.c].v)};
+    enCarril[c].push(pl);
+    plataformas.push(pl);
+  }
+  for (const lista of enCarril) lista.forEach((pl, k) => {
+    const sig = lista[k + 1];
+    pl.w = sig ? Math.min(pl.real, sig.x - 60 - pl.x) : pl.real;
+    pl.cortada = pl.w < pl.real - 1;
+  });
+  // Acontecimientos: puntos de control (y el último, la meta)
+  const eventos = EVENTS.filter(ev => ev.y >= E.s && ev.y <= E.e).map(ev => ({x:X(ev.y), ev}));
+  // Puertas de pregunta: cuatro por época, donde no estorban
+  const puertas = [];
+  const pool = PEOPLE.filter(p => !esCapa(p) && !esExtra(p) && p.s !== undefined && p.s <= E.e && p.e >= E.s - 400);
+  for (let k = 1; k <= 4; k++){
+    const xg = LARGO * k / 5 + entre([-400, 400]);
+    if (eventos.some(e => Math.abs(e.x - xg) < 400)) continue;
+    // Dos personas bien separadas en el tiempo
+    let a, b;
+    for (let t = 0; t < 50; t++){
+      a = pool[Math.floor(azar() * pool.length)]; b = pool[Math.floor(azar() * pool.length)];
+      if (a && b && a !== b && Math.abs(a.s - b.s) >= 40 && !(a.a || '').includes('s') && !(b.a || '').includes('s')) break;
+      a = b = null;
+    }
+    if (!a) continue;
+    const arriba = azar() < .5 ? a : b, abajo = arriba === a ? b : a;
+    puertas.push({x:xg, arriba, abajo, bien:arriba.s < abajo.s ? 'arriba' : 'abajo', hecha:false});
+    // Zona despejada alrededor de la puerta, en los tres carriles, para que «arriba» (la repisa) y
+    // «abajo» (el suelo) no se confundan con las plataformas: se quitan las que empiezan dentro y
+    // se recortan las que entran en ella
+    const z0 = xg - 560, z1 = xg + 140;   // (al bajar de una plataforma alta, se cae bien antes de la repisa)
+    for (let j = plataformas.length - 1; j >= 0; j--){
+      const pl = plataformas[j];
+      if (pl.x >= z0 && pl.x < z1) plataformas.splice(j, 1);
+      else if (pl.x < z0 && pl.x + pl.w > z0){
+        if (z0 - 40 - pl.x >= 70){ pl.w = z0 - 40 - pl.x; pl.cortada = true; }
+        else plataformas.splice(j, 1);
+      }
+    }
+  }
+  // Rollos: uno sobre cada plataforma (con la descripción del personaje)
+  const rollos = plataformas.map(pl => ({x:pl.x + Math.min(pl.w / 2, 90), y:pl.y - 34, id:pl.p.id,
+    titulo:pl.p.n, texto:primeraFrase(pl.p.d), cogido:false}));
+  const repisas = puertas.map(g => ({x:g.x - 300, w:360, y:CARRILES[0], repisa:true}));
+  // Zanjas y piedras en el suelo, lejos del principio, del final, de los acontecimientos y de las puertas
+  // (antes de una puerta, un tramo largo sin zanjas ni piedras: un salto obligatorio no debe dejar
+  // al copista sobre la repisa sin querer)
+  const libre = (x, m) => x > 700 && x < LARGO - 500 && !eventos.some(e => Math.abs(e.x - x) < m) &&
+                          !puertas.some(g => x > g.x - 800 && x < g.x + 250);
+  const zanjas = [];
+  for (let x = 900; x < LARGO - 600; x += entre(D.zanja)){
+    const w = entre(D.ancho);
+    if (libre(x, 260)) zanjas.push({x, w});
+  }
+  const piedras = [];
+  for (let x = 1300; x < LARGO - 600; x += entre(D.piedra)){
+    if (libre(x, 200) && !zanjas.some(z => x > z.x - 160 && x < z.x + z.w + 160)) piedras.push({x, w:30, h:24});
+  }
+  // Decoración del fondo
+  const deco = [];
+  for (let x = 0; x < LARGO * .5 + 2000; x += 240 + azar() * 380) deco.push({x, t:azar()});
+  mundo = {i, E, esc, X, plataformas:[...plataformas, ...repisas].sort((a, b) => a.x - b.x), rollos, eventos, puertas, zanjas, piedras, deco,
+           anioDe:x => E.s + x / esc, total:rollos.length};
+}
+
+/* ===================== ESTADO DE LA PARTIDA ===================== */
+const cv = $('lienzo'), ctx = cv.getContext('2d');
+let escala = 1, anchoVista = 800;
+let jugando = false, pausado = false, t = 0, ultimo = 0;
+let cop = null;          // el copista
+let estado = null;       // puntos, vidas, rollos, preguntas
+let avisos = [];         // mensajes que aparecen arriba (rollos, preguntas, puntos de control)
+let particulas = [];
+const teclas = {salto:false, buffer:0};
+
+function empezarEpoca(i){
+  armar(i);
+  const D = DIFIC[dific];
+  cop = {x:80, y:SUELO, vy:0, suelo:true, coyote:0, sube:0, inv:0, cae:false, control:80, paso:0};
+  estado = {vidas:D.vidas, rollos:0, preg:0, pregTot:0, puntos:0, fin:false};
+  avisos = []; particulas = [];
+  mostrar(null);
+  $('pausa').hidden = false;
+  jugando = true; pausado = false;
+  aviso(`${ERAS[i].n}`, `${fmtY(ERAS[i].s)} – ${fmtY(ERAS[i].e)}`, 'epoca');
+}
+
+/* ===================== FÍSICA ===================== */
+const GRAV = 2300, SALTO = -760, ALTO_COP = 44, ANCHO_COP = 24;
+function enZanja(x){ return mundo.zanjas.some(z => x > z.x + 6 && x < z.x + z.w - 6); }
+function actualizar(dt){
+  const D = DIFIC[dific];
+  // Avanza solo (más despacio un momento después de perder una vida)
+  cop.x += D.vel * dt * (cop.inv > 1 ? .4 : 1);
+  cop.paso += dt * D.vel / 28;
+  // Salto: con margen de tiempo al salir de una plataforma y al tocar un poco antes de caer
+  teclas.buffer -= dt; cop.coyote -= dt;
+  if (teclas.buffer > 0 && (cop.suelo || cop.coyote > 0)){
+    cop.vy = SALTO; cop.suelo = false; cop.coyote = 0; teclas.buffer = 0; cop.sube = 0;
+    vibrar(8);
+  }
+  // Mantener pulsado: salta más alto
+  const g = teclas.salto && cop.vy < 0 && cop.sube < .24 ? GRAV * .45 : GRAV;
+  cop.sube += dt;
+  const yAntes = cop.y;
+  cop.vy = Math.min(cop.vy + g * dt, 1400);
+  cop.y += cop.vy * dt;
+  const eraSuelo = cop.suelo;
+  cop.suelo = false;
+  // Plataformas: solo se aterriza desde arriba
+  if (cop.vy >= 0){
+    for (const pl of mundo.plataformas){
+      if (pl.x > cop.x + 20) break;
+      if (cop.x + ANCHO_COP / 2 > pl.x && cop.x - ANCHO_COP / 2 < pl.x + pl.w && yAntes <= pl.y + 1 && cop.y >= pl.y){
+        cop.y = pl.y; cop.vy = 0; cop.suelo = true; cop.sobre = pl;
+      }
+    }
+    // El suelo, salvo en las zanjas
+    if (!cop.suelo && cop.y >= SUELO && yAntes <= SUELO + 2 && !enZanja(cop.x)){ cop.y = SUELO; cop.vy = 0; cop.suelo = true; cop.sobre = null; }
+  }
+  if (eraSuelo && !cop.suelo && cop.vy >= 0) cop.coyote = .1;
+  // Caer en una zanja
+  if (cop.y > ALTO + 60) perderVida('¡Cuidado con las zanjas!');
+  // Piedras
+  if (cop.inv <= 0) for (const pd of mundo.piedras){
+    if (Math.abs(pd.x + pd.w / 2 - cop.x) < (pd.w + ANCHO_COP) / 2 - 4 && cop.y > SUELO - pd.h + 4) { perderVida('¡Una piedra! Salta para esquivarlas.'); break; }
+  }
+  cop.inv -= dt;
+  // Rollos
+  for (const r of mundo.rollos){
+    if (!r.cogido && Math.abs(r.x - cop.x) < 26 && Math.abs(r.y - (cop.y - ALTO_COP / 2)) < 40){
+      r.cogido = true;
+      estado.rollos++; estado.puntos += 50;
+      rollosGuardados.add(r.id); guardar('viajeRollos', [...rollosGuardados]);
+      aviso('📜 ' + r.titulo, r.texto, 'rollo');
+      chispas(r.x, r.y, '#f3d27a');
+      vibrar(12);
+    }
+  }
+  // Puntos de control (acontecimientos)
+  for (const e of mundo.eventos){
+    if (!e.pasado && cop.x >= e.x){
+      e.pasado = true;
+      cop.control = e.x;
+      if (e.x > 50 && e.x < LARGO - 50) aviso('🚩 ' + e.ev.n, e.ev.t || fmtY(e.ev.y), 'evento');
+    }
+  }
+  // Puertas de pregunta: según por dónde pase el copista
+  for (const g of mundo.puertas){
+    if (!g.hecha && cop.x >= g.x){
+      g.hecha = true;
+      estado.pregTot++;
+      const eligio = cop.y < SUELO - 40 ? 'arriba' : 'abajo';
+      const bien = eligio === g.bien;
+      const primero = g.bien === 'arriba' ? g.arriba : g.abajo, despues = primero === g.arriba ? g.abajo : g.arriba;
+      if (bien){ estado.preg++; estado.puntos += 150; chispas(g.x, eligio === 'arriba' ? CARRILES[0] - 40 : SUELO - 40, '#7ee08a'); vibrar([15, 30, 15]); }
+      else vibrar([40, 50, 40]);
+      aviso(bien ? '✓ ¡Correcto!' : '✗ No era ese camino',
+            `${primero.n} (${fmtFecha(primero)}) vino antes que ${despues.n} (${fmtFecha(despues)}).`, bien ? 'bien' : 'mal');
+    }
+  }
+  // Meta
+  if (cop.x >= LARGO && !estado.fin) terminar(true);
+  // Partículas y avisos
+  for (const p of particulas){ p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 900 * dt; p.v -= dt; }
+  particulas = particulas.filter(p => p.v > 0);
+  for (const a of avisos) a.v -= dt;
+  avisos = avisos.filter(a => a.v > 0);
+}
+const fmtFecha = p => ((p.a || '').includes('s') ? 'c. ' : '') + fmtY(p.s);
+function perderVida(msg){
+  if (cop.inv > 0 && cop.y <= ALTO + 60) return;
+  estado.vidas--;
+  vibrar([60, 40, 60]);
+  if (estado.vidas <= 0){ terminar(false); return; }
+  aviso('💔 ' + msg, `Te quedan ${estado.vidas} ${estado.vidas === 1 ? 'vida' : 'vidas'}.`, 'mal');
+  // Volver un poco atrás, a suelo firme
+  let x = Math.max(cop.control, cop.x - 260);
+  while (enZanja(x) || mundo.piedras.some(p => Math.abs(p.x - x) < 60)) x -= 20;
+  cop.x = x; cop.y = SUELO; cop.vy = 0; cop.suelo = true; cop.inv = 1.8;
+}
+function chispas(x, y, color){
+  for (let k = 0; k < 18; k++) particulas.push({x, y, vx:(Math.random() - .5) * 420, vy:-Math.random() * 420 - 80, v:.7 + Math.random() * .4, color});
+}
+function aviso(titulo, texto, tipo){
+  avisos = avisos.filter(a => a.tipo !== tipo || tipo === 'rollo');
+  avisos.unshift({titulo, texto, tipo, v:tipo === 'epoca' ? 2.6 : tipo === 'rollo' ? 3.2 : 3.6, max:3.6});
+  avisos = avisos.slice(0, 2);
+}
+
+/* ===================== DIBUJO ===================== */
+function ajustar(){
+  const r = cv.getBoundingClientRect(), dpr = Math.min(devicePixelRatio || 1, 2);
+  cv.width = Math.round(r.width * dpr); cv.height = Math.round(r.height * dpr);
+  escala = cv.height / ALTO;
+  anchoVista = cv.width / escala;
+  ctx.setTransform(escala, 0, 0, escala, 0, 0);
+}
+addEventListener('resize', () => { ajustar(); if (!jugando) dibujar(); });
+
+const CAM = () => Math.max(0, cop.x - anchoVista * .28);
+function dibujar(){
+  if (!mundo){ ctx.fillStyle = '#16140f'; ctx.fillRect(0, 0, anchoVista, ALTO); return; }
+  const E = mundo.E, cam = CAM();
+  // Cielo
+  const cielo = ctx.createLinearGradient(0, 0, 0, ALTO);
+  cielo.addColorStop(0, E.cielo[0]); cielo.addColorStop(1, E.cielo[1]);
+  ctx.fillStyle = cielo; ctx.fillRect(0, 0, anchoVista, ALTO);
+  // Sol
+  ctx.fillStyle = 'rgba(255,248,220,.75)';
+  ctx.beginPath(); ctx.arc(anchoVista * .78, 70, 30, 0, 7); ctx.fill();
+  // Colinas lejanas y cercanas (paralaje)
+  colinas(cam * .15, E.lejos, SUELO - 120, 60, 520);
+  decorar(cam * .45, E);
+  colinas(cam * .45, E.cerca, SUELO - 50, 34, 300);
+  ctx.save();
+  ctx.translate(-cam, 0);
+  // Suelo con zanjas
+  const x0 = cam - 50, x1 = cam + anchoVista + 50;
+  let x = x0;
+  const tramos = mundo.zanjas.filter(z => z.x + z.w > x0 && z.x < x1);
+  for (const z of [...tramos, {x:x1 + 100, w:0}]){
+    if (z.x > x) suelo(x, z.x, E);
+    x = Math.max(x, z.x + z.w);
+  }
+  // Marcas de los años en el suelo
+  const paso = [5, 10, 25, 50, 100, 250, 500].find(p => p * mundo.esc >= 160) || 1000;
+  ctx.font = '700 11px system-ui, sans-serif'; ctx.textAlign = 'center';
+  for (let a = Math.ceil(mundo.anioDe(x0) / paso) * paso; a <= mundo.anioDe(x1); a += paso){
+    const xa = mundo.X(a);
+    ctx.fillStyle = 'rgba(255,255,255,.55)'; ctx.fillRect(xa - 1, SUELO + 2, 2, 10);
+    ctx.fillStyle = 'rgba(255,255,255,.8)'; ctx.fillText(fmtY(a), xa, SUELO + 26);
+  }
+  // Acontecimientos: postes con bandera
+  for (const e of mundo.eventos) if (e.x > x0 - 200 && e.x < x1 + 200) bandera(e);
+  // Plataformas (vidas de los personajes)
+  for (const pl of mundo.plataformas) if (pl.x + pl.w > x0 && pl.x < x1) plataforma(pl);
+  // Puertas de pregunta
+  for (const g of mundo.puertas) if (g.x > x0 - 700 && g.x < x1 + 100) puerta(g);
+  // Piedras
+  for (const pd of mundo.piedras) if (pd.x > x0 - 40 && pd.x < x1) piedra(pd);
+  // Rollos
+  for (const r of mundo.rollos) if (!r.cogido && r.x > x0 && r.x < x1) rollo(r.x, r.y + Math.sin(t * 3 + r.x) * 3);
+  // Meta
+  if (LARGO > x0 && LARGO < x1 + 200) meta();
+  // Copista
+  if (!(cop.inv > 0 && Math.floor(t * 12) % 2)) copista(cop.x, cop.y);
+  // Partículas
+  for (const p of particulas){ ctx.globalAlpha = Math.max(0, p.v); ctx.fillStyle = p.color; ctx.fillRect(p.x - 3, p.y - 3, 6, 6); }
+  ctx.globalAlpha = 1;
+  ctx.restore();
+  hud();
+}
+function colinas(off, color, base, alto, ancho){
+  ctx.fillStyle = color;
+  ctx.beginPath(); ctx.moveTo(0, ALTO);
+  for (let x = 0; x <= anchoVista + 20; x += 20){
+    const w = (x + off) / ancho;
+    ctx.lineTo(x, base - (Math.sin(w * 2.1) * .5 + Math.sin(w * 5.3 + 1) * .25 + .75) * alto);
+  }
+  ctx.lineTo(anchoVista, ALTO); ctx.fill();
+}
+// Siluetas del fondo según la época
+function decorar(off, E){
+  ctx.fillStyle = 'rgba(60,45,30,.28)';
+  for (const d of mundo.deco){
+    const x = d.x - off;
+    if (x < -120 || x > anchoVista + 120) continue;
+    const b = SUELO - 40;
+    ctx.beginPath();
+    if (E.deco === 'arbol'){ ctx.arc(x, b - 50, 26 + d.t * 10, 0, 7); ctx.fillRect(x - 4, b - 40, 8, 40); }
+    else if (E.deco === 'tienda'){ ctx.moveTo(x - 40, b); ctx.lineTo(x, b - 46 - d.t * 12); ctx.lineTo(x + 40, b); }
+    else if (E.deco === 'palma'){ ctx.fillRect(x - 3, b - 70, 6, 70); for (let k = 0; k < 5; k++){ ctx.ellipse(x + Math.cos(k * 1.3) * 18, b - 72 + Math.sin(k * 1.3) * 6, 22, 6, k * 1.3, 0, 7); } }
+    else if (E.deco === 'muralla'){ const h = 50 + d.t * 30; ctx.rect(x - 60, b - h, 120, h); for (let k = -60; k < 60; k += 20) ctx.rect(x + k, b - h - 10, 12, 10); }
+    else if (E.deco === 'zigurat'){ for (let k = 0; k < 4; k++) ctx.rect(x - 60 + k * 14, b - 20 - k * 20, 120 - k * 28, 20); }
+    else { const h = 30 + d.t * 20; ctx.rect(x - 26, b - h, 52, h); ctx.rect(x - 30, b - h - 4, 60, 4); }
+    ctx.fill();
+  }
+}
+function suelo(a, b, E){
+  ctx.fillStyle = E.suelo; ctx.fillRect(a, SUELO, b - a, ALTO - SUELO);
+  ctx.fillStyle = 'rgba(255,255,255,.18)'; ctx.fillRect(a, SUELO, b - a, 4);
+  ctx.fillStyle = 'rgba(0,0,0,.12)'; ctx.fillRect(a, SUELO + 34, b - a, 3);
+}
+function redondo(x, y, w, h, r){
+  ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+}
+function plataforma(pl){
+  if (pl.repisa){
+    ctx.fillStyle = '#8a7350'; redondo(pl.x, pl.y, pl.w, 14, 5); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,.25)'; ctx.fillRect(pl.x + 4, pl.y + 2, pl.w - 8, 3);
+    return;
+  }
+  if (pl.cortada){
+    // Plataforma cortada: el final se desvanece (la vida sigue más allá)
+    const g = ctx.createLinearGradient(pl.x + pl.w - 70, 0, pl.x + pl.w, 0);
+    g.addColorStop(0, pl.col); g.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = pl.col; redondo(pl.x, pl.y, pl.w - 60, 16, 6); ctx.fill();
+    ctx.fillStyle = g; ctx.fillRect(pl.x + pl.w - 70, pl.y, 70, 16);
+  } else { ctx.fillStyle = pl.col; redondo(pl.x, pl.y, pl.w, 16, 6); ctx.fill(); }
+  ctx.fillStyle = 'rgba(255,255,255,.3)'; ctx.fillRect(pl.x + 5, pl.y + 3, pl.w - 10, 3);
+  // Nombre (con los años, si la plataforma está cortada): dentro si cabe; si no, encima.
+  // Se queda a la vista mientras se recorre la plataforma.
+  const cam = CAM();
+  ctx.font = '700 12px system-ui, sans-serif'; ctx.textAlign = 'left';
+  const anios = Math.round(pl.p.e - pl.p.s);
+  const nom = pl.cortada ? `${pl.p.n} · ${pl.p.k === 'vida' ? 'vivió' : 'aparece'} ${anios} años` : pl.p.n, w = ctx.measureText(nom).width;
+  let tx = Math.max(pl.x + 8, Math.min(cam + 12, pl.x + pl.w - w - 8));
+  if (w + 16 <= pl.w){ ctx.fillStyle = '#fff'; ctx.fillText(nom, tx, pl.y + 12.5); }
+  else { ctx.fillStyle = 'rgba(30,25,20,.75)'; ctx.fillText(nom, pl.x, pl.y - 6); }
+}
+function bandera(e){
+  const x = e.x;
+  ctx.fillStyle = '#5a4a36'; ctx.fillRect(x - 2, SUELO - 120, 4, 120);
+  ctx.fillStyle = e.pasado ? '#7ee08a' : '#e0a85a';
+  ctx.beginPath(); ctx.moveTo(x + 2, SUELO - 120); ctx.lineTo(x + 34, SUELO - 110); ctx.lineTo(x + 2, SUELO - 100); ctx.fill();
+  ctx.font = '700 12px system-ui, sans-serif'; ctx.textAlign = 'left';
+  const txt = `${e.ev.n} · ${e.ev.t || fmtY(e.ev.y)}`;
+  const w = ctx.measureText(txt).width;
+  ctx.fillStyle = 'rgba(22,20,15,.72)'; redondo(x + 6, SUELO - 146, w + 12, 20, 6); ctx.fill();
+  ctx.fillStyle = '#fff'; ctx.fillText(txt, x + 12, SUELO - 132);
+}
+function puerta(g){
+  // Cartel con la pregunta, antes de la puerta
+  const cx = g.x - 520;
+  ctx.fillStyle = '#5a4a36'; ctx.fillRect(cx - 2, SUELO - 70, 4, 70);
+  ctx.fillStyle = 'rgba(22,20,15,.85)'; redondo(cx - 110, SUELO - 150, 220, 82, 10); ctx.fill();
+  ctx.fillStyle = '#e0a85a'; ctx.font = '800 13px system-ui, sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('¿Quién vino primero?', cx, SUELO - 131);
+  ctx.font = '700 12px system-ui, sans-serif'; ctx.fillStyle = '#fff';
+  ctx.fillText('⬆ Arriba: ' + recorta(g.arriba.n, 22), cx, SUELO - 110);
+  ctx.fillText('⬇ Abajo: ' + recorta(g.abajo.n, 22), cx, SUELO - 90);
+  // Las dos puertas: arriba (sobre la repisa) y abajo (en el suelo)
+  arco(g.x, CARRILES[0], g.arriba.n, g, 'arriba');
+  arco(g.x, SUELO, g.abajo.n, g, 'abajo');
+}
+function arco(x, base, nombre, g, cual){
+  let col = '#c9a46a';
+  if (g.hecha) col = g.bien === cual ? '#5cc98a' : '#d06a5e';
+  ctx.strokeStyle = col; ctx.lineWidth = 6;
+  ctx.beginPath(); ctx.moveTo(x - 26, base); ctx.lineTo(x - 26, base - 50); ctx.arc(x, base - 50, 26, Math.PI, 0); ctx.lineTo(x + 26, base); ctx.stroke();
+  ctx.font = '700 11px system-ui, sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = 'rgba(22,20,15,.8)';
+  const t = recorta(nombre, 16), w = ctx.measureText(t).width;
+  redondo(x - w / 2 - 6, base - 96, w + 12, 18, 5); ctx.fill();
+  ctx.fillStyle = '#fff'; ctx.fillText(t, x, base - 83);
+}
+const recorta = (s, n) => s.length > n ? s.slice(0, n - 1) + '…' : s;
+function piedra(pd){
+  ctx.fillStyle = '#857c70';
+  ctx.beginPath(); ctx.moveTo(pd.x, SUELO); ctx.lineTo(pd.x + 4, SUELO - pd.h + 6); ctx.lineTo(pd.x + 14, SUELO - pd.h);
+  ctx.lineTo(pd.x + pd.w - 4, SUELO - pd.h + 8); ctx.lineTo(pd.x + pd.w, SUELO); ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,.25)'; ctx.fillRect(pd.x + 8, SUELO - pd.h + 4, 8, 3);
+}
+function rollo(x, y){
+  ctx.save(); ctx.translate(x, y);
+  ctx.fillStyle = 'rgba(255,230,150,.35)'; ctx.beginPath(); ctx.arc(0, 0, 16 + Math.sin(t * 5) * 2, 0, 7); ctx.fill();
+  ctx.fillStyle = '#f4e4bc'; ctx.fillRect(-9, -7, 18, 14);
+  ctx.fillStyle = '#b07a3c'; ctx.fillRect(-12, -9, 4, 18); ctx.fillRect(8, -9, 4, 18);
+  ctx.fillStyle = 'rgba(90,60,30,.6)'; ctx.fillRect(-5, -3, 10, 1.5); ctx.fillRect(-5, 1, 8, 1.5);
+  ctx.restore();
+}
+function meta(){
+  const x = LARGO;
+  for (let k = 0; k < 6; k++){ ctx.fillStyle = k % 2 ? '#fff' : '#16140f'; ctx.fillRect(x, SUELO - 150 + k * 25, 10, 25); }
+  ctx.fillStyle = 'rgba(22,20,15,.8)'; ctx.font = '800 14px system-ui, sans-serif'; ctx.textAlign = 'center';
+  const txt = `Fin: ${fmtY(mundo.E.e)}`, w = ctx.measureText(txt).width;
+  redondo(x + 5 - w / 2 - 8, SUELO - 178, w + 16, 22, 6); ctx.fill();
+  ctx.fillStyle = '#fff'; ctx.fillText(txt, x + 5, SUELO - 162);
+}
+// El joven copista: túnica, faja, cinta en la cabeza y un rollo bajo el brazo
+function copista(x, y){
+  ctx.save(); ctx.translate(x, y);
+  const enAire = !cop.suelo;
+  const p = enAire ? 0 : Math.sin(cop.paso);
+  // Piernas
+  ctx.strokeStyle = '#7a4f2e'; ctx.lineWidth = 5; ctx.lineCap = 'round';
+  ctx.beginPath();
+  if (enAire){ ctx.moveTo(-3, -14); ctx.lineTo(-9, -4); ctx.moveTo(3, -14); ctx.lineTo(8, -6); }
+  else { ctx.moveTo(-2, -14); ctx.lineTo(-2 + p * 8, -1); ctx.moveTo(2, -14); ctx.lineTo(2 - p * 8, -1); }
+  ctx.stroke();
+  // Sandalias
+  ctx.fillStyle = '#4a3020';
+  if (!enAire){ ctx.fillRect(-6 + p * 8, -2, 8, 3); ctx.fillRect(-2 - p * 8, -2, 8, 3); }
+  // Túnica
+  ctx.fillStyle = '#e4d3ad';
+  ctx.beginPath(); ctx.moveTo(-10, -14); ctx.lineTo(-7, -36); ctx.lineTo(7, -36); ctx.lineTo(10, -14); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#3f6fb0'; ctx.fillRect(-8, -26, 16, 3);   // faja
+  // Brazo con el rollo
+  const b = enAire ? -6 : -p * 4;
+  ctx.strokeStyle = '#c98f62'; ctx.lineWidth = 4;
+  ctx.beginPath(); ctx.moveTo(4, -33); ctx.lineTo(10, -24 + b); ctx.stroke();
+  ctx.fillStyle = '#f4e4bc'; ctx.fillRect(8, -30 + b, 6, 12);
+  ctx.fillStyle = '#b07a3c'; ctx.fillRect(7, -31 + b, 8, 2); ctx.fillRect(7, -19 + b, 8, 2);
+  // Cabeza, pelo y cinta
+  ctx.fillStyle = '#c98f62'; ctx.beginPath(); ctx.arc(0, -42, 7, 0, 7); ctx.fill();
+  ctx.fillStyle = '#3b2a1e'; ctx.beginPath(); ctx.arc(0, -44, 7, Math.PI * 1.05, Math.PI * 1.95); ctx.fill();
+  ctx.fillStyle = '#3f6fb0'; ctx.fillRect(-7, -46, 14, 2.5);
+  ctx.fillStyle = '#2a1d14'; ctx.fillRect(3, -43, 2, 2);   // ojo
+  ctx.restore();
+}
+function hud(){
+  const E = mundo.E;
+  // Época y año
+  ctx.fillStyle = 'rgba(22,20,15,.72)'; redondo(10, 10, 200, 46, 10); ctx.fill();
+  ctx.textAlign = 'left'; ctx.fillStyle = '#e0a85a'; ctx.font = '700 11px system-ui, sans-serif';
+  ctx.fillText(E.n.toUpperCase(), 20, 27);
+  ctx.fillStyle = '#fff'; ctx.font = '800 17px system-ui, sans-serif';
+  ctx.fillText(fmtY(Math.round(mundo.anioDe(cop.x))), 20, 48);
+  // Vidas, rollos y puntos
+  const txt = `${'♥'.repeat(Math.max(0, estado.vidas))}  📜 ${estado.rollos}  ⭐ ${estado.puntos}`;
+  ctx.font = '700 14px system-ui, sans-serif';
+  const w = ctx.measureText(txt).width;
+  ctx.fillStyle = 'rgba(22,20,15,.72)'; redondo(anchoVista - w - 30, 10, w + 20, 30, 10); ctx.fill();
+  ctx.fillStyle = '#fff'; ctx.textAlign = 'right'; ctx.fillText(txt, anchoVista - 20, 30);
+  // Progreso
+  ctx.fillStyle = 'rgba(22,20,15,.5)'; ctx.fillRect(10, 62, 200, 4);
+  ctx.fillStyle = '#e0a85a'; ctx.fillRect(10, 62, 200 * Math.min(1, cop.x / LARGO), 4);
+  // Avisos (rollos, preguntas, puntos de control)
+  avisos.forEach((a, k) => {
+    const alpha = Math.min(1, a.v * 3, (a.max - a.v + .3) * 4);
+    ctx.globalAlpha = Math.max(0, alpha);
+    const ancho = Math.min(anchoVista - 24, 460), x = (anchoVista - ancho) / 2, y = 76 + k * 64;
+    ctx.fillStyle = a.tipo === 'mal' ? 'rgba(120,40,30,.9)' : a.tipo === 'bien' ? 'rgba(30,90,50,.9)' : 'rgba(22,20,15,.86)';
+    redondo(x, y, ancho, 56, 10); ctx.fill();
+    ctx.textAlign = 'left'; ctx.fillStyle = a.tipo === 'rollo' ? '#f3d27a' : '#fff'; ctx.font = '800 14px system-ui, sans-serif';
+    ctx.fillText(recorta(a.titulo, 48), x + 12, y + 21);
+    ctx.fillStyle = '#e8e0d0'; ctx.font = '12.5px system-ui, sans-serif';
+    lineas(a.texto, ancho - 24).slice(0, 2).forEach((l, i) => ctx.fillText(l, x + 12, y + 38 + i * 14));
+    ctx.globalAlpha = 1;
+  });
+}
+function lineas(txt, ancho){
+  const out = []; let l = '';
+  for (const w of (txt || '').split(' ')){
+    const p = l ? l + ' ' + w : w;
+    if (ctx.measureText(p).width > ancho && l){ out.push(l); l = w; } else l = p;
+  }
+  if (l) out.push(l);
+  if (out.length > 2) out[1] = recorta(out[1], Math.max(10, out[1].length - 2)) + '…';
+  return out;
+}
+
+/* ===================== BUCLE ===================== */
+function bucle(ms){
+  const dt = Math.min(.033, (ms - ultimo) / 1000 || 0);
+  ultimo = ms;
+  if (jugando && !pausado){ t += dt; actualizar(dt); }
+  if (mundo) dibujar();
+  requestAnimationFrame(bucle);
+}
+
+/* ===================== CONTROLES ===================== */
+const saltar = () => { if (jugando && !pausado){ teclas.salto = true; teclas.buffer = .12; } };
+const soltar = () => { teclas.salto = false; };
+cv.addEventListener('pointerdown', e => { e.preventDefault(); saltar(); });
+addEventListener('pointerup', soltar);
+addEventListener('pointercancel', soltar);
+addEventListener('keydown', e => {
+  if ([' ', 'ArrowUp', 'w', 'W'].includes(e.key)){ e.preventDefault(); if (!e.repeat) saltar(); }
+  if ((e.key === 'Escape' || e.key === 'p') && jugando) pausar(!pausado);
+});
+addEventListener('keyup', e => { if ([' ', 'ArrowUp', 'w', 'W'].includes(e.key)) soltar(); });
+// Si se cambia de pestaña o se bloquea el teléfono, el juego se pausa
+document.addEventListener('visibilitychange', () => { if (document.hidden && jugando && !pausado) pausar(true); });
+
+/* ===================== PANTALLAS ===================== */
+function mostrar(id){ for (const c of ['inicio', 'pausada', 'final', 'coleccion']) $(c).hidden = c !== id; }
+function pausar(si){
+  pausado = si;
+  $('pausaInfo').textContent = `${mundo.E.n} · ${fmtY(Math.round(mundo.anioDe(cop.x)))} · ${estado.rollos} rollos`;
+  mostrar(si ? 'pausada' : null);
+}
+$('pausa').addEventListener('click', () => jugando && pausar(!pausado));
+$('seguir').addEventListener('click', () => pausar(false));
+$('reiniciar').addEventListener('click', () => empezarEpoca(mundo.i));
+$('aEpocas').addEventListener('click', inicio);
+function terminar(llego){
+  estado.fin = true; jugando = false;
+  $('pausa').hidden = true;
+  const i = mundo.i, k = `${i}-${dific}`;
+  if (llego){
+    estado.puntos += estado.vidas * 100;
+    if (i + 1 >= progreso.abiertas && i + 1 < ERAS.length) progreso.abiertas = i + 2;
+  }
+  const antes = progreso.records[k], nuevo = llego && (antes === undefined || estado.puntos > antes);
+  if (nuevo) progreso.records[k] = estado.puntos;
+  guardar('viajeProgreso', progreso);
+  $('finTitulo').textContent = llego ? `¡Llegaste a ${fmtY(mundo.E.e)}!` : 'Te quedaste sin vidas';
+  $('finSub').textContent = llego ? `Recorriste «${mundo.E.n}».${estado.vidas ? ` Cada vida que te queda suma 100 puntos.` : ''}`
+                                  : `Llegaste hasta ${fmtY(Math.round(mundo.anioDe(cop.x)))}. ¡Inténtalo otra vez!`;
+  $('finRollos').textContent = `${estado.rollos}/${mundo.total}`;
+  $('finPreg').textContent = `${estado.preg}/${estado.pregTot}`;
+  $('finPuntos').textContent = estado.puntos;
+  $('finRec').textContent = nuevo ? '🏆 ¡Nuevo récord en esta época!' : antes !== undefined ? `Tu récord en esta época: ${antes} puntos` : '';
+  $('finSiguiente').hidden = !llego || i + 1 >= ERAS.length;
+  mostrar('final');
+  if (llego) vibrar([20, 40, 20, 40, 60]);
+}
+$('finSiguiente').addEventListener('click', () => empezarEpoca(mundo.i + 1));
+$('finOtra').addEventListener('click', () => empezarEpoca(mundo.i));
+$('finEpocas').addEventListener('click', inicio);
+
+function inicio(){
+  jugando = false; pausado = false;
+  $('pausa').hidden = true;
+  const nv = $('niveles');
+  nv.replaceChildren();
+  for (const k in DIFIC){
+    const b = el('button', '', DIFIC[k].n);
+    b.setAttribute('aria-pressed', k === dific);
+    b.addEventListener('click', () => { dific = k; guardar('juegosNivel', k); inicio(); });
+    nv.append(b);
+  }
+  const box = $('eras');
+  box.replaceChildren();
+  ERAS.forEach((E, i) => {
+    const b = el('button', 'era');
+    b.style.setProperty('--c', `var(${E.c})`);
+    b.disabled = i >= progreso.abiertas;
+    const rec = progreso.records[`${i}-${dific}`];
+    const txt = el('span');
+    txt.append(el('b', '', E.n), el('small', '', `${fmtY(E.s)} – ${fmtY(E.e)}`));
+    b.append(el('span', 'num', b.disabled ? '🔒' : i + 1), txt,
+             el('span', 'est', b.disabled ? 'Termina la anterior' : rec !== undefined ? `Récord: ${rec}` : 'Jugar →'));
+    b.addEventListener('click', () => empezarEpoca(i));
+    box.append(b);
+  });
+  mostrar('inicio');
+}
+// Colección: los rollos de cada época
+$('verColeccion').addEventListener('click', () => {
+  const lista = $('colLista');
+  lista.replaceChildren();
+  let total = 0;
+  ERAS.forEach(E => {
+    const ps = PEOPLE.filter(p => !esCapa(p) && !esExtra(p) && p.s !== undefined && p.s >= E.s && p.s < E.e);
+    if (!ps.length) return;
+    const n = ps.filter(p => rollosGuardados.has(p.id)).length;
+    total += ps.length;
+    lista.append(el('h3', '', `${E.n} · ${n}/${ps.length}`));
+    for (const p of ps){
+      const d = el('div', 'rollo' + (rollosGuardados.has(p.id) ? '' : ' no'));
+      if (rollosGuardados.has(p.id)) d.append(el('b', '', '📜 ' + p.n), ' — ' + primeraFrase(p.d));
+      else d.append(el('b', '', '🔒 ???'), ' — todavía no lo has encontrado.');
+      lista.append(d);
+    }
+  });
+  $('colInfo').textContent = `Has encontrado ${[...rollosGuardados].length} de ${total} rollos.`;
+  mostrar('coleccion');
+});
+$('colVolver').addEventListener('click', inicio);
+
+ajustar();
+inicio();
+requestAnimationFrame(bucle);
+
+/* ===================== APP INSTALABLE (PWA) ===================== */
+if ('serviceWorker' in navigator && location.protocol !== 'file:'){
+  addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+}
+</script>
+</body>
+</html>
