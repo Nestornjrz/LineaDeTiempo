@@ -1,0 +1,846 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Juegos · Personajes de la Biblia</title>
+<meta name="description" content="Juegos con los personajes de la Biblia: ordénalos en el tiempo y une cada uno con su parentesco.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="icon" href="icons/icon-192.png" sizes="192x192" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="theme-color" content="#f7f5f0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#16140f" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Personajes">
+<link rel="stylesheet" href="comun.css">
+<style>
+/* ---------- Encabezado ---------- */
+header{
+  position:sticky; top:0; z-index:20; display:flex; align-items:center; gap:12px;
+  padding:10px 16px; background:var(--bg); border-bottom:1px solid var(--line);
+}
+header h1{margin:0; font-size:20px; font-weight:700}
+.home{
+  display:grid; place-items:center; width:34px; height:34px; flex:none;
+  color:var(--text); background:var(--surface); border:1px solid var(--line); border-radius:9px;
+}
+.home:hover{border-color:var(--accent)}
+.home svg{width:18px; height:18px}
+main{max-width:760px; margin:0 auto; padding:20px 16px 48px}
+[hidden]{display:none !important}
+
+/* ---------- Menú: nivel y juegos ---------- */
+.intro{margin:0 0 18px; color:var(--muted)}
+.niveles{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:6px}
+.niveles button{
+  flex:1; min-width:90px; height:42px; font:inherit; font-weight:600; cursor:pointer;
+  color:var(--text); background:var(--surface); border:1px solid var(--line); border-radius:10px;
+  transition:background .2s, color .2s, transform .15s;
+}
+.niveles button:active{transform:scale(.97)}
+.niveles button[aria-pressed="true"]{color:var(--bg); background:var(--accent); border-color:var(--accent)}
+.nivel-desc{margin:0 0 20px; font-size:14px; color:var(--muted); min-height:2.6em}
+.juegos{display:grid; grid-template-columns:repeat(auto-fit, minmax(250px, 1fr)); gap:14px}
+.juego-op{
+  display:flex; flex-direction:column; gap:6px; text-align:left; padding:18px 18px 16px; cursor:pointer;
+  font:inherit; color:var(--text); background:var(--surface); border:1px solid var(--line); border-radius:14px;
+  transition:border-color .15s, box-shadow .15s, transform .15s;
+  animation:entra .45s both;
+}
+.juego-op:nth-child(2){animation-delay:.08s}
+.juego-op:hover{border-color:var(--accent); box-shadow:var(--shadow); transform:translateY(-3px)}
+.juego-op:focus-visible{outline:3px solid var(--accent); outline-offset:3px}
+.juego-op .ico{font-size:28px; line-height:1}
+.juego-op:hover .ico{animation:bote .6s}
+.juego-op h2{margin:0; font-size:19px}
+.juego-op p{margin:0; color:var(--muted); font-size:14.5px}
+.juego-op .rec{margin-top:6px; font-size:13px; font-weight:600; color:var(--accent)}
+.nob{display:flex; gap:8px; align-items:flex-start; margin-top:22px; font-size:14px; color:var(--muted)}
+.nob input{margin-top:3px}
+
+/* ---------- Marcador ---------- */
+.marcador{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:14px; font-size:14px; color:var(--muted)}
+.marcador .salir{
+  font:inherit; font-size:14px; cursor:pointer; padding:5px 10px; color:var(--text);
+  background:var(--surface); border:1px solid var(--line); border-radius:8px;
+}
+.marcador .derecha{margin-left:auto; display:flex; align-items:center; gap:10px}
+.marcador b{color:var(--text)}
+.pts{display:inline-block; min-width:2ch; text-align:center; font-weight:800; color:var(--accent); font-size:16px}
+.pts.salta{animation:salta .5s}
+.racha{font-weight:700; color:var(--bad); animation:entra .3s both}
+.barra{height:6px; border-radius:3px; background:var(--grid); overflow:hidden; margin:0 0 18px}
+.barra i{display:block; height:100%; width:0; background:var(--accent); transition:width .4s}
+#pregunta{margin:0 0 4px; font-size:21px; line-height:1.3}
+#ayuda{margin:0 0 16px; font-size:14px; color:var(--muted)}
+
+/* ---------- Juego 1: tarjetas que se arrastran sobre la flecha del tiempo ---------- */
+.orden{display:grid; grid-template-columns:30px 1fr; gap:10px}
+.flecha{display:flex; flex-direction:column; align-items:center; font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.4px}
+.flecha span{writing-mode:vertical-rl; transform:rotate(180deg); padding:4px 0}
+.flecha i{flex:1; width:4px; border-radius:2px; margin:6px 0;
+  background:linear-gradient(var(--c-ante), var(--c-patri), var(--c-reyes), var(--c-prof), var(--c-apost));
+  position:relative}
+.flecha i::after{content:''; position:absolute; left:50%; bottom:-6px; transform:translateX(-50%);
+  border:7px solid transparent; border-top-color:var(--c-apost); border-bottom:0}
+.pila{position:relative; transition:height .35s}
+.carta{
+  position:absolute; left:0; right:0; top:0; height:var(--h); display:flex; align-items:center; gap:10px;
+  padding:0 8px 0 10px; border-radius:12px; cursor:grab; user-select:none; touch-action:none;
+  color:var(--text); background:var(--surface); border:1.5px solid var(--line); border-left:6px solid var(--col, var(--accent));
+  transition:transform .28s cubic-bezier(.2,.8,.3,1.2), box-shadow .2s, border-color .2s, background .2s;
+  box-shadow:0 1px 3px rgba(0,0,0,.12);
+}
+.carta.entra{animation:entraCarta .4s both}
+.carta.arrastrando{cursor:grabbing; z-index:5; transition:box-shadow .2s; box-shadow:var(--shadow); border-color:var(--accent)}
+.carta .asa{color:var(--muted); font-size:18px; line-height:1; letter-spacing:-2px}
+.carta .txt{display:flex; flex-direction:column; min-width:0; flex:1}
+.carta .txt span{font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.carta small{color:var(--muted); font-size:12.5px}
+.carta .mover{display:flex; flex-direction:column; gap:2px}
+.carta .mover button{
+  width:30px; height:22px; padding:0; font-size:11px; cursor:pointer; color:var(--muted);
+  background:var(--grid); border:1px solid transparent; border-radius:6px;
+}
+.carta .mover button:hover{color:var(--text); border-color:var(--axis)}
+.carta .anio{font-weight:800; font-size:14px; white-space:nowrap; color:var(--text)}
+.carta.bien{border-color:var(--good); background:color-mix(in srgb, var(--good) 13%, var(--surface))}
+.carta.mal{border-color:var(--bad); background:color-mix(in srgb, var(--bad) 13%, var(--surface))}
+.carta.mal.sacude{animation:sacude .45s}
+.carta .marca{font-weight:800; font-size:18px; width:20px; text-align:center}
+.carta.bien .marca{color:var(--good)}
+.carta.mal .marca{color:var(--bad)}
+.hueco{position:absolute; left:28px; height:22px; display:flex; align-items:center; gap:6px; font-size:12.5px; font-weight:600;
+  color:var(--muted); animation:entra .4s both}
+.hueco::before{content:''; width:2px; height:100%; background:var(--axis)}
+
+/* ---------- Juego 2: unir cada pregunta con su parentesco ---------- */
+.unir{position:relative; display:grid; grid-template-columns:minmax(0, 1.35fr) minmax(0, 1fr); gap:10px 48px; align-items:start}
+.unir svg{position:absolute; inset:0; width:100%; height:100%; pointer-events:none; overflow:visible; z-index:2}
+.unir svg path{fill:none; stroke-width:4; stroke-linecap:round; transition:stroke .3s}
+.unir svg path.nueva{stroke-dasharray:var(--len); stroke-dashoffset:var(--len); animation:traza .35s forwards}
+.unir svg path.temp{stroke:var(--accent); stroke-dasharray:6 6; opacity:.8}
+.unir svg path.ok{stroke:var(--good)}
+.unir svg path.ko{stroke:var(--bad); opacity:.75}
+.unir svg path.sol{stroke:var(--good); stroke-dasharray:7 7; opacity:.7; animation:entra .4s both}
+.col{display:grid; gap:10px}
+.nodo{
+  position:relative; display:flex; align-items:center; min-height:56px; padding:8px 12px; width:100%;
+  font:inherit; font-size:15px; text-align:left; cursor:pointer; user-select:none; touch-action:none;
+  color:var(--text); background:var(--surface); border:1.5px solid var(--line); border-radius:12px;
+  transition:border-color .2s, background .2s, transform .15s, box-shadow .2s;
+  animation:entraCarta .4s both;
+}
+.nodo:hover{border-color:var(--axis)}
+.nodo.sel{border-color:var(--accent); box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent); transform:scale(1.02)}
+.nodo.unido{border-color:var(--col)}
+.nodo .dot{
+  position:absolute; top:50%; width:16px; height:16px; margin-top:-8px; border-radius:50%;
+  background:var(--surface); border:3px solid var(--col, var(--axis)); transition:border-color .2s, transform .2s;
+}
+.nodo.unido .dot{background:var(--col)}
+.nodo.izq .dot{right:-9px}
+.nodo.der .dot{left:-9px}
+.nodo.der{justify-content:center; font-weight:700}
+.nodo .q{display:block; line-height:1.3}
+.nodo.izq b{font-weight:700}
+.nodo.bien{border-color:var(--good); background:color-mix(in srgb, var(--good) 12%, var(--surface))}
+.nodo.mal{border-color:var(--bad); background:color-mix(in srgb, var(--bad) 12%, var(--surface)); animation:sacude .45s}
+.nodo:disabled{cursor:default}
+
+/* ---------- Resultado de la ronda ---------- */
+#resultado{margin-top:18px; padding:14px 16px; border-radius:12px; background:var(--grid); font-size:15px; animation:entra .35s both}
+#resultado .titulo{display:block; margin-bottom:6px; font-size:17px; font-weight:800}
+#resultado .titulo.bien{color:var(--good)}
+#resultado .titulo.mal{color:var(--bad)}
+#resultado ul{margin:6px 0 0; padding:0; list-style:none; display:grid; gap:10px}
+#resultado li{display:grid; grid-template-columns:20px 1fr; gap:6px}
+#resultado li .m{font-weight:800}
+#resultado li .m.bien{color:var(--good)}
+#resultado li .m.mal{color:var(--bad)}
+#resultado p{margin:2px 0 0}
+#resultado .camino{color:var(--muted); font-size:13.5px}
+#resultado a{color:var(--accent); font-weight:600; text-underline-offset:2px}
+.acciones{display:flex; gap:10px; flex-wrap:wrap; margin-top:18px}
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; height:48px; padding:0 24px;
+  font:inherit; font-size:16px; font-weight:700; cursor:pointer; text-decoration:none;
+  color:var(--text); background:var(--surface); border:1px solid var(--line); border-radius:12px;
+  transition:transform .15s, filter .15s, opacity .2s;
+}
+.btn.pri{color:var(--bg); background:var(--accent); border-color:var(--accent)}
+.btn:disabled{opacity:.4; cursor:default}
+.btn:not(:disabled):hover{filter:brightness(1.08)}
+.btn:not(:disabled):active{transform:scale(.97)}
+
+/* ---------- Fin de la partida ---------- */
+#fin{text-align:center; padding-top:20px}
+#fin .trofeo{font-size:64px; line-height:1; animation:bote 1s both}
+#fin .grande{font-size:48px; font-weight:800; margin:10px 0 0; animation:salta .6s .2s both}
+#fin .msg{margin:6px 0 0; font-size:18px}
+#fin .rec{margin:10px 0 0; color:var(--muted)}
+#fin .acciones{justify-content:center}
+
+/* ---------- Confeti ---------- */
+.confeti{position:fixed; inset:0; pointer-events:none; z-index:50; overflow:hidden}
+.confeti i{position:absolute; top:-12px; width:9px; height:14px; border-radius:2px; animation:cae var(--t) ease-in forwards}
+
+@keyframes entra{from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none}}
+@keyframes entraCarta{from{opacity:0; translate:-24px 0} to{opacity:1; translate:0 0}}
+@keyframes salta{0%{transform:scale(1)} 40%{transform:scale(1.5)} 100%{transform:scale(1)}}
+@keyframes bote{0%,100%{transform:translateY(0)} 40%{transform:translateY(-10px)} 70%{transform:translateY(-3px)}}
+@keyframes sacude{0%,100%{translate:0} 20%{translate:-7px} 40%{translate:6px} 60%{translate:-4px} 80%{translate:3px}}
+@keyframes traza{to{stroke-dashoffset:0}}
+@keyframes cae{to{transform:translate(var(--x), 105vh) rotate(var(--r)); opacity:.9}}
+@media (prefers-reduced-motion: reduce){
+  *, *::before, *::after{animation:none !important; transition:none !important}
+}
+@media (max-width: 559px){
+  #pregunta{font-size:19px}
+  .unir{gap:10px 34px}
+  .nodo{font-size:14px; padding:8px 10px}
+  .acciones .btn{flex:1}
+}
+</style>
+</head>
+<body>
+<header>
+  <a class="home" href="index.html" title="Volver al inicio" aria-label="Volver al inicio">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7M5 9.5V20h5v-6h4v6h5V9.5"/></svg>
+  </a>
+  <h1>Juegos</h1>
+</header>
+
+<main>
+  <!-- Menú: nivel y juego -->
+  <section id="menu">
+    <p class="intro">Las preguntas salen de los datos de la línea de tiempo y del árbol genealógico. Al responder verás la explicación, con los textos bíblicos.</p>
+    <div class="niveles" id="niveles" role="group" aria-label="Nivel"></div>
+    <p class="nivel-desc" id="nivelDesc"></p>
+    <div class="juegos">
+      <button class="juego-op" data-juego="orden">
+        <span class="ico" aria-hidden="true">⏳</span>
+        <h2>¿Quién vino primero?</h2>
+        <p>Arrastra las tarjetas y ordénalas en el tiempo, del más antiguo al más reciente.</p>
+        <span class="rec"></span>
+      </button>
+      <button class="juego-op" data-juego="parentesco">
+        <span class="ico" aria-hidden="true">🌳</span>
+        <h2>¿Qué parentesco tienen?</h2>
+        <p>Une cada pregunta con su parentesco: padre, tío, primo, bisnieto…</p>
+        <span class="rec"></span>
+      </button>
+    </div>
+    <label class="nob"><input type="checkbox" id="noBib">
+      <span>Incluir lo que no está en la Biblia: parentescos que se deducen (según «Perspicacia») y personajes históricos. Es la misma opción del árbol genealógico.</span></label>
+  </section>
+
+  <!-- Una partida -->
+  <section id="juego" hidden>
+    <div class="marcador">
+      <button class="salir" id="salir">← Juegos</button>
+      <span id="nombreJuego"></span>
+      <span class="derecha">
+        <span id="racha" class="racha" hidden></span>
+        <span>Ronda <b id="num">1</b>/<b id="total">10</b></span>
+        <span><span class="pts" id="puntos">0</span> pts</span>
+      </span>
+    </div>
+    <div class="barra" aria-hidden="true"><i id="barra"></i></div>
+    <h2 id="pregunta"></h2>
+    <p id="ayuda"></p>
+    <div id="tablero"></div>
+    <div id="resultado" role="status" aria-live="polite" hidden></div>
+    <div class="acciones"><button class="btn pri" id="accion">Comprobar</button></div>
+  </section>
+
+  <!-- Fin de la partida -->
+  <section id="fin" hidden>
+    <div class="trofeo" id="trofeo" aria-hidden="true">🏆</div>
+    <p class="grande" id="finPuntos"></p>
+    <p class="msg" id="finMsg"></p>
+    <p class="rec" id="finRec"></p>
+    <div class="acciones">
+      <button class="btn pri" id="otraVez">Jugar otra vez</button>
+      <button class="btn" id="volver">Elegir otro juego</button>
+    </div>
+  </section>
+</main>
+
+<script src="datos.js"></script>
+<script src="parentesco.js"></script>
+<script>
+/* Juegos. Las preguntas se generan con los datos de datos.js (fechas de PEOPLE y EVENTS) y con el
+   cálculo de parentesco de parentesco.js, así que todo lo que preguntan está en los datos.
+   Respetan «Mostrar lo que no está en la Biblia» (NO_BIBLICO): sin esa opción, ni las deducciones
+   ni los personajes extrabíblicos aparecen en las preguntas.
+   Los dos juegos se juegan con el dedo o el ratón (Pointer Events): en «¿Quién vino primero?» se
+   arrastran las tarjetas; en «¿Qué parentesco tienen?» se unen con líneas. */
+const NIVELES = {
+  facil:   {n:'Fácil',   d:'Personajes muy conocidos, como Abrahán, Moisés o David, y parentescos cercanos.'},
+  medio:   {n:'Medio',   d:'Todos los personajes, más tarjetas y parentescos un poco más lejanos.'},
+  dificil: {n:'Difícil', d:'Todos los personajes, fechas cercanas entre sí, parentescos lejanos y por matrimonio (suegro, yerno, cuñado).'},
+};
+const JUEGOS = {orden:{n:'¿Quién vino primero?', rondas:8}, parentesco:{n:'¿Qué parentesco tienen?', rondas:5}};
+const BONO = 2;   // puntos extra por una ronda perfecta
+
+// Preferencias del dispositivo (con try: en modo privado puede fallar el almacenamiento)
+const leer = (k, def) => { try { const v = localStorage.getItem(k); return v === null ? def : JSON.parse(v); } catch (e) { return def; } };
+const guardar = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+let nivel = leer('juegosNivel', 'facil');
+if (!NIVELES[nivel]) nivel = 'facil';
+const records = leer('juegosRecords2', {});
+
+/* ===================== UTILIDADES ===================== */
+const $ = id => document.getElementById(id);
+const el = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt !== undefined) e.textContent = txt; return e; };
+const azar = a => a[Math.floor(Math.random() * a.length)];
+function barajar(a){
+  const b = [...a];
+  for (let i = b.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; }
+  return b;
+}
+const fmtY = y => y < 0 ? `${-y} a.e.c.` : `${y} e.c.`;
+const esCapa = p => !!CATS[p.c].capa;
+const esExtra = p => !!(p.x || CATS[p.c].x);
+const mayus = s => s.charAt(0).toUpperCase() + s.slice(1);
+const vibrar = p => { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} };
+const sinMovimiento = matchMedia('(prefers-reduced-motion: reduce)');
+// Confeti al hacer una ronda perfecta
+function confeti(){
+  if (sinMovimiento.matches) return;
+  const box = el('div', 'confeti');
+  const colores = ['--c-patri', '--c-reyes', '--c-profp', '--c-apost', '--c-ante', '--accent'];
+  for (let i = 0; i < 70; i++){
+    const c = el('i');
+    c.style.left = Math.random() * 100 + 'vw';
+    c.style.background = `var(${azar(colores)})`;
+    c.style.setProperty('--x', (Math.random() * 160 - 80) + 'px');
+    c.style.setProperty('--r', (Math.random() * 900 - 450) + 'deg');
+    c.style.setProperty('--t', (1.2 + Math.random() * 1.2) + 's');
+    c.style.animationDelay = Math.random() * .25 + 's';
+    box.append(c);
+  }
+  document.body.append(box);
+  setTimeout(() => box.remove(), 2800);
+}
+
+/* ===================== JUEGO 1: ¿QUIÉN VINO PRIMERO? =====================
+   Se ordenan personas (por su inicio en la línea de tiempo: nacimiento o, si no se conoce, la
+   primera vez que aparecen) y acontecimientos. Solo se juntan los que están lo bastante separados
+   en el tiempo según el nivel, y más aún si alguna fecha es aproximada.
+   Las tarjetas están en posición absoluta, cada una en su «puesto» (translateY), y se arrastran. */
+const FAMOSOS_LINEA = ['adan', 'eva', 'noe', 'abrahan', 'sara', 'isaac', 'jacob', 'jose', 'moises', 'aaron', 'josue',
+  'debora', 'gedeon', 'sanson', 'samuel', 'saul', 'david', 'salomon', 'elias', 'eliseo', 'jonas', 'isaias', 'ezequias',
+  'josias', 'jeremias', 'daniel', 'ezequiel', 'nabucodonosor', 'ciro', 'ester', 'esdras', 'nehemias',
+  'juan-bautista', 'maria', 'jesus', 'pedro', 'pablo'];
+const ORDEN = {facil:{k:3, gap:250}, medio:{k:4, gap:80}, dificil:{k:5, gap:20}};
+function elementosOrden(){
+  const personas = PEOPLE.filter(p => !esCapa(p) && !esExtra(p) && p.s !== undefined && p.s <= 100)
+    .filter(p => nivel !== 'facil' || FAMOSOS_LINEA.includes(p.id))
+    .map(p => ({id:p.id, n:p.n, y:p.s, a:(p.a || '').includes('s'), col:`var(${CATS[p.c].v})`,
+                tipo:p.k === 'vida' ? 'nació' : 'aparece en el relato'}));
+  const eventos = EVENTS.filter(ev => ev.y <= 100)
+    .map(ev => ({n:ev.n, y:ev.y, a:!!ev.a, t:ev.t, col:'var(--event)', tipo:'acontecimiento'}));
+  return [...personas, ...eventos];
+}
+function rondaOrden(){
+  const {k, gap} = ORDEN[nivel];
+  const todos = elementosOrden();
+  const separados = (x, y) => Math.abs(x.y - y.y) >= (x.a || y.a ? Math.max(gap, 60) : gap);
+  for (let intento = 0; intento < 400; intento++){
+    const elegidos = [];
+    for (const e of barajar(todos)){
+      if (elegidos.every(o => separados(o, e))) elegidos.push(e);
+      if (elegidos.length === k) break;
+    }
+    // No vale que ya estén en orden
+    if (elegidos.length === k && elegidos.some(e => e.tipo !== 'acontecimiento') &&
+        elegidos.some((e, i) => i && e.y < elegidos[i - 1].y)) return elegidos;
+  }
+  return null;
+}
+const fechaDe = e => e.t || (e.a ? 'c. ' : '') + fmtY(e.y);
+// Años entre dos fechas (no hay año 0)
+const anios = (a, b) => b - a - (a < 0 && b > 0 ? 1 : 0);
+
+function preguntaOrden(){
+  const elementos = rondaOrden();
+  const correcto = [...elementos].sort((a, b) => a.y - b.y);
+  let orden = [...elementos];   // tarjetas en el orden en que están ahora
+  let bloqueado = false;
+  const H = 60;
+  let S = H + 10;               // alto de un puesto (tarjeta + separación)
+  $('pregunta').textContent = '¿Quién vino primero?';
+  $('ayuda').textContent = 'Arrastra las tarjetas para ponerlas en orden, del más antiguo (arriba) al más reciente (abajo). Para las personas cuenta cuándo nacieron o, si no se sabe, cuándo aparecen por primera vez en el relato.';
+  const tablero = $('tablero');
+  const flecha = el('div', 'flecha');
+  flecha.append(el('span', '', 'Antes'), el('i'), el('span', '', 'Después'));
+  const pila = el('div', 'pila');
+  pila.style.setProperty('--h', H + 'px');
+  const wrap = el('div', 'orden');
+  wrap.append(flecha, pila);
+  tablero.replaceChildren(wrap);
+  const cartas = new Map();
+  const colocar = (salvo) => {
+    pila.style.height = (orden.length * S - (S - H)) + 'px';
+    orden.forEach((e, i) => { if (e !== salvo) cartas.get(e).style.transform = `translateY(${i * S}px)`; });
+  };
+  const mover = (e, d) => {
+    const i = orden.indexOf(e), j = i + d;
+    if (bloqueado || j < 0 || j >= orden.length) return;
+    [orden[i], orden[j]] = [orden[j], orden[i]];
+    colocar();
+    vibrar(10);
+  };
+  elementos.forEach((e, n) => {
+    const c = el('div', 'carta entra');
+    c.style.setProperty('--col', e.col);
+    c.style.animationDelay = n * 70 + 'ms';
+    c.setAttribute('role', 'listitem');
+    const txt = el('span', 'txt');
+    txt.append(el('span', '', e.n), el('small', '', e.tipo === 'acontecimiento' ? 'Acontecimiento' : 'Persona'));
+    const mov = el('span', 'mover');
+    const sube = el('button', '', '▲'), baja = el('button', '', '▼');
+    sube.type = baja.type = 'button';
+    sube.title = 'Subir'; baja.title = 'Bajar';
+    sube.setAttribute('aria-label', `Subir ${e.n}`); baja.setAttribute('aria-label', `Bajar ${e.n}`);
+    sube.addEventListener('click', () => mover(e, -1));
+    baja.addEventListener('click', () => mover(e, 1));
+    mov.append(sube, baja);
+    c.append(el('span', 'asa', '⋮⋮'), txt, mov);
+    // Arrastrar con el dedo o el ratón
+    c.addEventListener('pointerdown', ev => {
+      if (bloqueado || ev.target.closest('.mover') || ev.button > 0) return;
+      ev.preventDefault();
+      try { c.setPointerCapture(ev.pointerId); } catch (e) {}
+      const desde = orden.indexOf(e), y0 = ev.clientY;
+      c.classList.add('arrastrando');
+      const mueve = mv => {
+        const pos = Math.max(-10, Math.min((orden.length - 1) * S + 10, desde * S + mv.clientY - y0));
+        c.style.transform = `translateY(${pos}px) scale(1.03)`;
+        const nuevo = Math.max(0, Math.min(orden.length - 1, Math.round(pos / S)));
+        if (orden.indexOf(e) !== nuevo){
+          orden = orden.filter(x => x !== e);
+          orden.splice(nuevo, 0, e);
+          colocar(e);
+          vibrar(6);
+        }
+      };
+      const suelta = () => {
+        c.removeEventListener('pointermove', mueve);
+        c.removeEventListener('pointerup', suelta);
+        c.removeEventListener('pointercancel', suelta);
+        c.classList.remove('arrastrando');
+        colocar();
+        vibrar(12);
+      };
+      c.addEventListener('pointermove', mueve);
+      c.addEventListener('pointerup', suelta);
+      c.addEventListener('pointercancel', suelta);
+    });
+    pila.append(c);
+    cartas.set(e, c);
+  });
+  colocar();
+  $('accion').disabled = false;
+
+  return () => {
+    // Comprobar: marcar cada tarjeta, llevarla a su puesto correcto y decir cuántos años pasaron
+    bloqueado = true;
+    let aciertos = 0;
+    orden.forEach((e, i) => {
+      const c = cartas.get(e);
+      const ok = correcto[i] === e;
+      if (ok) aciertos++;
+      c.classList.add(ok ? 'bien' : 'mal', 'sacude');
+      c.querySelector('.mover').replaceWith(el('span', 'anio', fechaDe(e)));
+      c.append(el('span', 'marca', ok ? '✓' : '✗'));
+      c.querySelector('small').textContent = e.tipo === 'acontecimiento' ? 'Acontecimiento' : mayus(e.tipo);
+      c.style.cursor = 'default';
+    });
+    const perfecta = aciertos === orden.length;
+    setTimeout(() => {
+      S = H + 30;
+      orden = correcto;
+      colocar();
+      // Cuánto tiempo pasó entre una tarjeta y la siguiente
+      correcto.forEach((e, i) => {
+        if (!i) return;
+        const ant = correcto[i - 1], n = anios(ant.y, e.y);
+        const h = el('div', 'hueco', `${ant.a || e.a ? 'unos ' : ''}${n} ${n === 1 ? 'año' : 'años'} después`);
+        h.style.top = (i * S - 26) + 'px';
+        h.style.animationDelay = '.25s';
+        pila.append(h);
+      });
+    }, perfecta ? 250 : 700);
+    const r = $('resultado');
+    r.replaceChildren(el('span', 'titulo ' + (perfecta ? 'bien' : 'mal'),
+      perfecta ? '¡Perfecto! Todas en su lugar.' : `${aciertos} de ${orden.length} en su lugar. Así es el orden correcto:`));
+    const enl = correcto.filter(e => e.id);
+    if (enl.length){
+      const p = el('p', 'camino', 'Verlos en la línea de tiempo: ');
+      enl.forEach((e, i) => {
+        const a = el('a', '', e.n);
+        a.href = 'linea.html#p=' + e.id;
+        p.append(...(i ? [', '] : []), a);
+      });
+      r.append(p);
+    }
+    if (correcto.some(e => e.a)) r.append(el('p', 'camino', '«c.» y «unos» indican una fecha aproximada: la Biblia no da el año exacto.'));
+    return {puntos:aciertos + (perfecta ? BONO : 0), perfecta};
+  };
+}
+
+/* ===================== JUEGO 2: ¿QUÉ PARENTESCO TIENEN? =====================
+   Cada ronda tiene varias preguntas («¿Qué es A de B?») y los parentescos, que se unen con líneas.
+   Las parejas tienen un parentesco de sangre con nombre (padre, tío, primo…) y, en el nivel difícil,
+   también por matrimonio. Se descartan las parejas con más de un parentesco (p. ej., Labán es tío y
+   suegro de Jacob), para que solo haya una respuesta correcta. */
+const FAMOSOS_ARBOL = ['adan', 'eva', 'cain', 'abel', 'set', 'noe', 'sem', 'cam', 'jafet', 'tare', 'abrahan', 'sara',
+  'lot', 'isaac', 'ismael', 'rebeca', 'laban', 'esau', 'jacob', 'lea', 'raquel', 'ruben', 'simeon', 'levi', 'juda',
+  'jose', 'benjamin', 'dina', 'efrain', 'manases-jose', 'amram', 'jokebed', 'aaron', 'moises', 'miriam', 'boaz', 'rut',
+  'obed', 'jese', 'david', 'bat-seba', 'salomon', 'absalon', 'saul', 'jonatan', 'mical', 'rehoboam', 'jesus', 'maria',
+  'jose-maria', 'juan-bautista', 'elisabet', 'zacarias-juan'];
+const PARENT = {facil:{max:3, pares:3}, medio:{max:4, pares:4}, dificil:{max:6, pares:5, matrimonio:true}};
+// Personas que pueden salir: con nombre en la Biblia y sin sexo dudoso
+const jugable = id => { const p = get(id); return p && !p.sn && !p.sx && !String(id).startsWith('hm:'); };
+const ARBOL = [...EN_ARBOL].filter(jugable);
+const padres = id => [get(id).pa, get(id).ma].filter(x => x && jugable(x));
+
+// Parentesco de sangre con nombre entre a y b (o null), si es el único parentesco que tienen
+function terminoDe(a, b){
+  if (a === b) return null;
+  const s = sangre(a, b, ['pa', 'ma']);
+  if (!s) return null;
+  const t = termino(s.da, s.db, a, s.da === 1 && s.db === 1 && medios(a, b, s.comunes));
+  if (!t) return null;
+  const r = parentesco(a, b);
+  return r.frases.length === 1 ? {t, dist:s.da + s.db, r} : null;
+}
+// Parentesco por matrimonio (sin parentesco de sangre): esposo, suegro, yerno o cuñado
+function matrimonioDe(a, b){
+  if (a === b || sangre(a, b, ['pa', 'ma'])) return null;
+  const r = parentesco(a, b);
+  if (r.frases.length !== 1) return null;
+  const m = r.frases[0].match(/ es (esposo|esposa|suegro|suegra|yerno|nuera|cuñado|cuñada) de /);
+  return m ? {t:m[1], dist:2, r} : null;
+}
+// Una pareja al azar, según el nivel
+function parejaParentesco(){
+  const {max, matrimonio} = PARENT[nivel];
+  for (let intento = 0; intento < 3000; intento++){
+    let a, b, res;
+    if (nivel === 'facil'){
+      const pool = FAMOSOS_ARBOL.filter(id => EN_ARBOL.has(id) && jugable(id));
+      a = azar(pool); b = azar(pool);
+      res = terminoDe(a, b);
+    } else if (matrimonio && Math.random() < 0.3){
+      // Por matrimonio: el cónyuge, sus padres o sus hermanos
+      a = azar(ARBOL);
+      const cy = (CONYUGES.get(a) || []).filter(jugable);
+      if (!cy.length) continue;
+      const c = azar(cy);
+      const tipo = azar(['cy', 'suegro', 'yerno', 'cunado']);
+      if (tipo === 'cy') b = c;
+      else if (tipo === 'suegro'){ const p = padres(c); if (!p.length) continue; b = a; a = azar(p); }
+      else if (tipo === 'yerno'){ const p = padres(c); if (!p.length) continue; b = azar(p); }
+      else {
+        const hermanos = [...new Set(padres(c).flatMap(hijosDe))].filter(x => x !== c && jugable(x));
+        if (!hermanos.length) continue;
+        b = azar(hermanos);
+      }
+      res = matrimonioDe(a, b);
+    } else {
+      // De sangre: subir unas generaciones desde a y bajar por otra rama
+      a = azar(ARBOL);
+      let c = a;
+      const sube = 1 + Math.floor(Math.random() * Math.min(max, 4));
+      for (let i = 0; i < sube; i++){ const p = padres(c); if (!p.length) break; c = azar(p); }
+      b = c;
+      const baja = Math.floor(Math.random() * (max - sube + 1));
+      for (let i = 0; i < baja; i++){ const h = hijosDe(b).filter(jugable); if (!h.length) break; b = azar(h); }
+      if (Math.random() < 0.5) [a, b] = [b, a];   // que no salgan casi siempre «hijo» o «nieto»
+      res = terminoDe(a, b);
+    }
+    if (res && res.dist <= max) return {a, b, ...res};
+  }
+  return null;
+}
+// Varias parejas con parentescos distintos (así cada pregunta tiene una sola respuesta)
+function rondaParentesco(){
+  const n = PARENT[nivel].pares, out = [];
+  for (let i = 0; i < 200 && out.length < n; i++){
+    const q = parejaParentesco();
+    if (q && !out.some(o => o.t === q.t || (o.a === q.a && o.b === q.b))) out.push(q);
+  }
+  return out;
+}
+// Nombre en la pregunta: el breve, salvo que haya otras personas que se llamen igual (p. ej., hay
+// varios Judas: entonces «Judas (Lucas 3:30)»)
+const CORTOS = new Map();
+for (const id of EN_ARBOL) if (get(id)) CORTOS.set(corto(id), (CORTOS.get(corto(id)) || 0) + 1);
+const claro = id => CORTOS.get(corto(id)) > 1 ? get(id).n : enFrase(id);
+const COLORES = ['--c-profp', '--c-patri', '--c-juda', '--c-israel', '--c-cristo'];
+
+function preguntaParentesco(){
+  const qs = rondaParentesco();
+  $('pregunta').textContent = '¿Qué parentesco tienen?';
+  $('ayuda').textContent = 'Une cada pregunta con su respuesta: arrastra desde el punto de una pregunta hasta un parentesco (o toca una y después la otra).';
+  const tablero = $('tablero');
+  const unir = el('div', 'unir');
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  const izq = el('div', 'col'), der = el('div', 'col');
+  unir.append(svg, izq, der);
+  tablero.replaceChildren(unir);
+  const uniones = new Map();   // índice de la pregunta → parentesco elegido
+  let bloqueado = false, sel = null;
+  const nodosI = qs.map((q, i) => {
+    const b = el('button', 'nodo izq');
+    b.type = 'button';
+    b.dataset.i = i;
+    b.style.animationDelay = i * 60 + 'ms';
+    const texto = el('span', 'q');
+    texto.append('¿Qué es ', el('b', '', claro(q.a)), ' de ', el('b', '', claro(q.b)), '?');
+    b.append(texto, el('span', 'dot'));
+    izq.append(b);
+    return b;
+  });
+  const terminos = barajar(qs.map(q => q.t));
+  const nodosD = terminos.map((t, i) => {
+    const b = el('button', 'nodo der', mayus(t));
+    b.type = 'button';
+    b.dataset.t = t;
+    b.style.animationDelay = (i * 60 + 120) + 'ms';
+    b.append(el('span', 'dot'));
+    der.append(b);
+    return b;
+  });
+  // Puntos de unión, relativos al tablero
+  const punto = b => {
+    const r = b.querySelector('.dot').getBoundingClientRect(), u = unir.getBoundingClientRect();
+    return [r.left + r.width / 2 - u.left, r.top + r.height / 2 - u.top];
+  };
+  const curva = ([x1, y1], [x2, y2]) => { const dx = Math.max(30, Math.abs(x2 - x1) / 2); return `M${x1} ${y1}C${x1 + dx} ${y1} ${x2 - dx} ${y2} ${x2} ${y2}`; };
+  const linea = (d, cls, color) => {
+    const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    p.setAttribute('d', d);
+    if (cls) p.setAttribute('class', cls);
+    if (color) p.style.stroke = color;
+    svg.append(p);
+    return p;
+  };
+  const colorDe = i => `var(${COLORES[i % COLORES.length]})`;
+  const dibujar = (nueva) => {
+    svg.querySelectorAll('path:not(.temp)').forEach(p => p.remove());
+    nodosI.forEach(b => { b.classList.remove('unido'); b.style.removeProperty('--col'); });
+    nodosD.forEach(b => { b.classList.remove('unido'); b.style.removeProperty('--col'); });
+    for (const [i, t] of uniones){
+      const bi = nodosI[i], bd = nodosD.find(b => b.dataset.t === t);
+      const col = colorDe(i);
+      bi.classList.add('unido'); bd.classList.add('unido');
+      bi.style.setProperty('--col', col); bd.style.setProperty('--col', col);
+      const p = linea(curva(punto(bi), punto(bd)), bloqueado ? null : (i === nueva ? 'nueva' : null), col);
+      p.dataset.i = i;
+      if (i === nueva){ const len = p.getTotalLength(); p.style.setProperty('--len', len); }
+    }
+    $('accion').disabled = uniones.size !== qs.length;
+  };
+  const conectar = (bi, bd) => {
+    const i = +bi.dataset.i, t = bd.dataset.t;
+    for (const [k, v] of uniones) if (v === t) uniones.delete(k);   // cada parentesco, una sola vez
+    uniones.set(i, t);
+    vibrar(15);
+    dibujar(i);
+  };
+  const seleccionar = b => { [...nodosI, ...nodosD].forEach(x => x.classList.toggle('sel', x === b)); sel = b; };
+  // Arrastrar una línea (o tocar uno y después el otro)
+  const todos = [...nodosI, ...nodosD];
+  todos.forEach(b => b.addEventListener('pointerdown', ev => {
+    if (bloqueado || ev.button > 0) return;
+    ev.preventDefault();
+    const x0 = ev.clientX, y0 = ev.clientY;
+    let arrastra = false, temp = null;
+    const mueve = mv => {
+      if (!arrastra && Math.hypot(mv.clientX - x0, mv.clientY - y0) > 8){
+        arrastra = true;
+        seleccionar(b);
+        temp = linea('', 'temp');
+      }
+      if (arrastra){
+        const u = unir.getBoundingClientRect();
+        const a = punto(b), z = [mv.clientX - u.left, mv.clientY - u.top];
+        temp.setAttribute('d', b.classList.contains('izq') ? curva(a, z) : curva(z, a));
+      }
+    };
+    const suelta = up => {
+      removeEventListener('pointermove', mueve);
+      removeEventListener('pointerup', suelta);
+      removeEventListener('pointercancel', suelta);
+      if (temp) temp.remove();
+      const destino = document.elementFromPoint(up.clientX, up.clientY)?.closest('.nodo');
+      const opuesto = x => x && x.classList.contains('izq') !== b.classList.contains('izq');
+      if (arrastra){
+        if (opuesto(destino)) conectar(b.classList.contains('izq') ? b : destino, b.classList.contains('izq') ? destino : b);
+        seleccionar(null);
+      } else if (sel && sel !== b && opuesto(sel)){
+        conectar(sel.classList.contains('izq') ? sel : b, sel.classList.contains('izq') ? b : sel);
+        seleccionar(null);
+      } else seleccionar(sel === b ? null : b);
+    };
+    addEventListener('pointermove', mueve);
+    addEventListener('pointerup', suelta);
+    addEventListener('pointercancel', suelta);
+  }));
+  const redibujar = () => dibujar(-1);
+  addEventListener('resize', redibujar);
+  dibujar(-1);
+
+  return () => {
+    // Comprobar: líneas verdes o rojas; si falló, la unión correcta en verde punteado
+    bloqueado = true;
+    removeEventListener('resize', redibujar);
+    seleccionar(null);
+    todos.forEach(b => { b.disabled = true; });
+    dibujar(-1);
+    let aciertos = 0;
+    qs.forEach((q, i) => {
+      const ok = uniones.get(i) === q.t;
+      if (ok) aciertos++;
+      const p = svg.querySelector(`path[data-i="${i}"]`);
+      p.style.stroke = '';
+      p.setAttribute('class', ok ? 'ok' : 'ko');
+      nodosI[i].classList.add(ok ? 'bien' : 'mal');
+      if (!ok){
+        const bd = nodosD.find(b => b.dataset.t === q.t);
+        linea(curva(punto(nodosI[i]), punto(bd)), 'sol');
+      }
+    });
+    const perfecta = aciertos === qs.length;
+    const r = $('resultado');
+    r.replaceChildren(el('span', 'titulo ' + (perfecta ? 'bien' : 'mal'), perfecta ? '¡Perfecto! Todas bien unidas.' : `${aciertos} de ${qs.length} bien unidas.`));
+    const ul = el('ul');
+    qs.forEach((q, i) => {
+      const ok = uniones.get(i) === q.t;
+      const li = el('li');
+      const cuerpo = el('div');
+      cuerpo.append(el('p', '', q.r.frases[0]));
+      for (const x of q.r.exp) cuerpo.append(el('p', 'camino', x));
+      if (q.r.camino && q.r.camino.length > 2)
+        cuerpo.append(el('p', 'camino', 'Camino: ' + q.r.camino.filter(x => !String(x).startsWith('hm:')).map(claro).join(' → ')));
+      const a = el('a', '', 'Ver en el árbol');
+      a.href = 'arbol.html#p=' + q.a;
+      cuerpo.append(a);
+      li.append(el('span', 'm ' + (ok ? 'bien' : 'mal'), ok ? '✓' : '✗'), cuerpo);
+      ul.append(li);
+    });
+    r.append(ul);
+    return {puntos:aciertos + (perfecta ? BONO : 0), perfecta};
+  };
+}
+
+/* ===================== PARTIDA ===================== */
+let juego = null, ronda = 0, puntos = 0, racha = 0, perfectas = 0, comprobar = null, respondida = false;
+const GENERADORES = {orden:preguntaOrden, parentesco:preguntaParentesco};
+// Puntos máximos de una partida: cada tarjeta o unión vale 1, y cada ronda perfecta suma el bono
+const maximo = j => JUEGOS[j].rondas * ((j === 'orden' ? ORDEN[nivel].k : PARENT[nivel].pares) + BONO);
+
+function empezar(j){
+  juego = j; ronda = 0; puntos = 0; racha = 0; perfectas = 0;
+  $('menu').hidden = true; $('fin').hidden = true; $('juego').hidden = false;
+  $('nombreJuego').textContent = `${JUEGOS[j].n} · ${NIVELES[nivel].n}`;
+  $('total').textContent = JUEGOS[j].rondas;
+  $('puntos').textContent = 0;
+  $('racha').hidden = true;
+  siguiente();
+}
+function marcador(){
+  const p = $('puntos');
+  p.textContent = puntos;
+  p.classList.remove('salta'); void p.offsetWidth; p.classList.add('salta');
+  $('racha').hidden = racha < 2;
+  $('racha').textContent = `🔥 Racha ×${racha}`;
+}
+function siguiente(){
+  ronda++;
+  if (ronda > JUEGOS[juego].rondas) return terminar();
+  respondida = false;
+  $('num').textContent = ronda;
+  $('barra').style.width = `${(ronda - 1) / JUEGOS[juego].rondas * 100}%`;
+  $('resultado').hidden = true;
+  $('accion').textContent = 'Comprobar';
+  comprobar = GENERADORES[juego]();
+  scrollTo({top:0, behavior:sinMovimiento.matches ? 'auto' : 'smooth'});
+}
+$('accion').addEventListener('click', () => {
+  if (!respondida){
+    respondida = true;
+    const r = comprobar();
+    puntos += r.puntos;
+    if (r.perfecta){ racha++; perfectas++; confeti(); vibrar([20, 40, 20]); }
+    else { racha = 0; vibrar([40, 60, 40]); }
+    marcador();
+    $('barra').style.width = `${ronda / JUEGOS[juego].rondas * 100}%`;
+    $('resultado').hidden = false;
+    $('accion').disabled = false;
+    $('accion').textContent = ronda === JUEGOS[juego].rondas ? 'Ver el resultado' : 'Siguiente →';
+    setTimeout(() => $('resultado').scrollIntoView({behavior:sinMovimiento.matches ? 'auto' : 'smooth', block:'nearest'}), 350);
+  } else siguiente();
+});
+function terminar(){
+  $('juego').hidden = true; $('fin').hidden = false;
+  const k = `${juego}-${nivel}`, max = maximo(juego);
+  const antes = records[k];
+  const nuevo = antes === undefined || puntos > antes;
+  if (nuevo){ records[k] = puntos; guardar('juegosRecords2', records); }
+  const pct = puntos / max;
+  $('trofeo').textContent = pct >= .9 ? '🏆' : pct >= .6 ? '🥈' : pct >= .3 ? '👍' : '📖';
+  $('finPuntos').textContent = `${puntos} de ${max} puntos`;
+  $('finMsg').textContent = (pct >= .9 ? '¡Excelente!' : pct >= .6 ? '¡Muy bien!' : pct >= .3 ? '¡Bien hecho!' : 'Sigue practicando: cada partida es diferente.') +
+    ` ${perfectas} ${perfectas === 1 ? 'ronda perfecta' : 'rondas perfectas'}.`;
+  $('finRec').textContent = nuevo ? '¡Nuevo récord en este nivel!' : `Tu récord en este nivel: ${antes} puntos`;
+  if (nuevo && puntos > 0) confeti();
+}
+$('salir').addEventListener('click', menu);
+$('volver').addEventListener('click', menu);
+$('otraVez').addEventListener('click', () => empezar(juego));
+
+/* ===================== MENÚ ===================== */
+function menu(){
+  $('juego').hidden = true; $('fin').hidden = true; $('menu').hidden = false;
+  pintarMenu();
+}
+function pintarMenu(){
+  const box = $('niveles');
+  box.replaceChildren();
+  for (const k in NIVELES){
+    const b = el('button', '', NIVELES[k].n);
+    b.type = 'button';
+    b.setAttribute('aria-pressed', k === nivel);
+    b.addEventListener('click', () => { nivel = k; guardar('juegosNivel', k); pintarMenu(); });
+    box.append(b);
+  }
+  $('nivelDesc').textContent = NIVELES[nivel].d;
+  document.querySelectorAll('.juego-op').forEach(b => {
+    const r = records[`${b.dataset.juego}-${nivel}`];
+    b.querySelector('.rec').textContent = r === undefined ? '' : `Récord en ${NIVELES[nivel].n.toLowerCase()}: ${r} de ${maximo(b.dataset.juego)} puntos`;
+  });
+}
+document.querySelectorAll('.juego-op').forEach(b => b.addEventListener('click', () => empezar(b.dataset.juego)));
+// «Mostrar lo que no está en la Biblia»: la misma preferencia que el árbol (recarga los datos)
+const noBib = $('noBib');
+noBib.checked = NO_BIBLICO;
+noBib.addEventListener('change', () => {
+  try { noBib.checked ? localStorage.setItem('noBiblico', '1') : localStorage.removeItem('noBiblico'); } catch (e) {}
+  location.reload();
+});
+pintarMenu();
+
+/* ===================== APP INSTALABLE (PWA) ===================== */
+if ('serviceWorker' in navigator && location.protocol !== 'file:'){
+  addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+}
+</script>
+</body>
+</html>

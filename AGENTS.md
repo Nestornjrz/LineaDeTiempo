@@ -53,7 +53,7 @@ se marca como tal y no se mezcla con lo bíblico:
 
 - Es una PWA sin compilación (HTML, CSS y JavaScript sueltos):
   - `index.html`: portada, el menú de inicio con las secciones de la app
-    (línea de tiempo y árbol genealógico).
+    (línea de tiempo, árbol genealógico y juegos).
   - `linea.html`: la línea de tiempo (código de dibujo, filtros y fichas). Tiene un
     modo «Linaje» (`verLinaje`): una persona y sus antepasados con fechas, unidos por
     conectores (`linea.html#linaje=<id>&l=<pa|ma|pl|su>`).
@@ -64,6 +64,13 @@ se marca como tal y no se mezcla con lo bíblico:
     tienen?», que calcula el parentesco entre dos personas a partir de `FAMILIA`.
     La línea de antepasados (`linaje`, `opcionesLinaje`) está en `datos.js` y la
     usan las dos páginas.
+  - `parentesco.js`: las personas (PEOPLE + FAMILIA), sus vínculos y el cálculo de
+    «¿Qué parentesco tienen?» (`parentesco`, `sangre`, `termino`…). Lo usan el árbol y los
+    juegos; se carga después de `datos.js`.
+  - `juegos.html`: los juegos («¿Quién vino primero?» y «¿Qué parentesco tienen?»), con niveles
+    fácil, medio y difícil. Las preguntas se generan con los datos (fechas de PEOPLE y EVENTS, y el
+    parentesco de FAMILIA), así que no hay que escribirlas a mano; respetan «Mostrar lo que no está
+    en la Biblia».
   - `datos.js`: los datos que comparten las secciones (`CATS`, `GRUPOS`,
     `PEOPLE`, `JUICIO`, `EVENTS` y `JW`). Cada entrada de `PEOPLE` tiene un `id`
     estable (minúsculas, sin acentos ni artículos, p. ej. `abrahan`,
